@@ -14,6 +14,8 @@ return Application::configure(basePath: dirname(__DIR__))
         // Alias middleware kustom
         $middleware->alias([
             'role' => \App\Http\Middleware\RoleMiddleware::class,
+            'mechanic' => \App\Http\Middleware\IsMechanic::class, // ✅ Tambahkan ini
+            'admin' => \App\Http\Middleware\IsAdmin::class,       // ✅ Tambahkan juga jika belum
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

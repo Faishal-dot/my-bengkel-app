@@ -35,7 +35,7 @@
                                 <th class="px-4 py-3 border text-left">Customer</th>
                                 <th class="px-4 py-3 border text-left">Kendaraan</th>
                                 <th class="px-4 py-3 border text-left">Layanan</th>
-                                <th class="px-4 py-3 border text-left">Montir</th> {{-- Kolom baru --}}
+                                <th class="px-4 py-3 border text-left">Mekanik</th> {{-- Kolom baru --}}
                                 <th class="px-4 py-3 border">Tanggal</th>
                                 <th class="px-4 py-3 border">Status</th>
                                 <th class="px-4 py-3 border">Aksi</th>

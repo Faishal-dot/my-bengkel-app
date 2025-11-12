@@ -10,12 +10,8 @@ class Mechanic extends Model
     use HasFactory;
 
     protected $fillable = [
-    'user_id',
-    'service_id',
-    'vehicle_id',
-    'mechanic_id', // ✅ tambahkan baris ini
-    'notes',
-    'status',
-    'booking_date',
-];
+        'name',
+        'phone',
+        'specialization',
+    ];
 }

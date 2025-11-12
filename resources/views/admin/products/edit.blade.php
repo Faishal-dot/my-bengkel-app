@@ -1,22 +1,22 @@
 <x-app-layout>
     <x-slot name="header">
         <div class="flex items-center gap-2">
-            <i data-lucide="pencil-line" class="w-7 h-7 text-indigo-600"></i>
+            <i data-lucide="pencil-line" class="w-7 h-7 text-blue-600"></i>
             <h2 class="font-bold text-2xl text-gray-800">Edit Produk</h2>
         </div>
     </x-slot>
 
-    <div class="py-12 bg-gradient-to-b from-indigo-50 via-white to-gray-100 min-h-screen">
-        <div class="max-w-3xl mx-auto">
+    <div class="py-12 bg-gradient-to-b from-blue-50 via-white to-gray-100 min-h-screen">
+        <div class="max-w-3xl mx-auto animate-fadeIn">
             
-            <!-- Step Indicator (Hanya Form Edit) -->
+            <!-- Step Indicator -->
             <div class="flex items-center justify-center gap-2 mb-8">
-                <i data-lucide="edit" class="w-5 h-5 text-indigo-600"></i>
-                <span class="text-indigo-600 font-semibold">Form Edit</span>
+                <i data-lucide="edit-3" class="w-5 h-5 text-blue-600"></i>
+                <span class="text-blue-600 font-semibold">Form Edit</span>
             </div>
 
-            <!-- Form Card -->
-            <div class="bg-white shadow-xl rounded-2xl border border-gray-100 p-8">
+            <!-- Card -->
+            <div class="bg-white shadow-xl rounded-2xl border border-gray-100 p-8 transition-all duration-500 hover:shadow-2xl">
                 
                 <!-- Error -->
                 @if ($errors->any())
@@ -29,44 +29,77 @@
                     </div>
                 @endif
 
+                <!-- Form Edit Produk -->
                 <form method="POST" action="{{ route('admin.products.update', $product) }}" enctype="multipart/form-data" class="space-y-6">
                     @csrf
                     @method('PUT')
 
-                    <!-- Floating Input -->
-                    <div class="relative">
-                        <input type="text" name="name" value="{{ old('name', $product->name) }}" 
-                               class="peer w-full border-gray-300 rounded-lg px-4 pt-5 pb-2 shadow-sm focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400" placeholder=" " required>
-                        <label class="absolute left-4 top-2 text-gray-500 text-sm transition-all peer-placeholder-shown:top-3 peer-placeholder-shown:text-gray-400 peer-placeholder-shown:text-base">Nama Produk</label>
+                    <!-- Nama Produk -->
+                    <div class="relative transition-all duration-300 hover:scale-[1.02]">
+                        <label class="flex items-center gap-2 mb-2 text-gray-600 font-medium">
+                            <i data-lucide="package" class="w-4 h-4 text-blue-500"></i>
+                            Nama Produk
+                        </label>
+                        <input type="text" name="name" value="{{ old('name', $product->name) }}"
+                            class="w-full border-gray-300 rounded-lg px-4 py-3 shadow-sm 
+                                   focus:ring-2 focus:ring-blue-400 focus:border-blue-400 
+                                   transition-all duration-300 ease-in-out
+                                   hover:border-blue-300 hover:shadow-md hover:bg-blue-50/30"
+                            placeholder="Masukkan nama produk..." required>
                     </div>
 
-                    <div class="relative">
+                    <!-- Deskripsi -->
+                    <div class="relative transition-all duration-300 hover:scale-[1.02]">
+                        <label class="flex items-center gap-2 mb-2 text-gray-600 font-medium">
+                            <i data-lucide="file-text" class="w-4 h-4 text-blue-500"></i>
+                            Deskripsi
+                        </label>
                         <textarea name="description" rows="3"
-                                  class="peer w-full border-gray-300 rounded-lg px-4 pt-5 pb-2 shadow-sm focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400" placeholder=" ">{{ old('description', $product->description) }}</textarea>
-                        <label class="absolute left-4 top-2 text-gray-500 text-sm transition-all peer-placeholder-shown:top-3 peer-placeholder-shown:text-gray-400 peer-placeholder-shown:text-base">Deskripsi</label>
+                            class="w-full border-gray-300 rounded-lg px-4 py-3 shadow-sm 
+                                   focus:ring-2 focus:ring-blue-400 focus:border-blue-400 
+                                   transition-all duration-300 ease-in-out
+                                   hover:border-blue-300 hover:shadow-md hover:bg-blue-50/30"
+                            placeholder="Masukkan deskripsi produk...">{{ old('description', $product->description) }}</textarea>
                     </div>
 
-                    <div class="relative">
+                    <!-- Harga -->
+                    <div class="relative transition-all duration-300 hover:scale-[1.02]">
+                        <label class="flex items-center gap-2 mb-2 text-gray-600 font-medium">
+                            <i data-lucide="credit-card" class="w-4 h-4 text-blue-500"></i>
+                            Harga
+                        </label>
                         <input type="number" name="price" value="{{ old('price', $product->price) }}" step="1000"
-                               class="peer w-full border-gray-300 rounded-lg px-4 pt-5 pb-2 shadow-sm focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400" placeholder=" " required>
-                        <label class="absolute left-4 top-2 text-gray-500 text-sm transition-all peer-placeholder-shown:top-3 peer-placeholder-shown:text-gray-400 peer-placeholder-shown:text-base">Harga</label>
+                            class="w-full border-gray-300 rounded-lg px-4 py-3 shadow-sm 
+                                   focus:ring-2 focus:ring-blue-400 focus:border-blue-400 
+                                   transition-all duration-300 ease-in-out
+                                   hover:border-blue-300 hover:shadow-md hover:bg-blue-50/30"
+                            placeholder="Masukkan harga produk..." required>
                     </div>
 
-                    <div class="relative">
+                    <!-- Stok -->
+                    <div class="relative transition-all duration-300 hover:scale-[1.02]">
+                        <label class="flex items-center gap-2 mb-2 text-gray-600 font-medium">
+                            <i data-lucide="boxes" class="w-4 h-4 text-blue-500"></i>
+                            Stok
+                        </label>
                         <input type="number" name="stock" value="{{ old('stock', $product->stock ?? 0) }}" min="0"
-                               class="peer w-full border-gray-300 rounded-lg px-4 pt-5 pb-2 shadow-sm focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400" placeholder=" " required>
-                        <label class="absolute left-4 top-2 text-gray-500 text-sm transition-all peer-placeholder-shown:top-3 peer-placeholder-shown:text-gray-400 peer-placeholder-shown:text-base">Stok</label>
+                            class="w-full border-gray-300 rounded-lg px-4 py-3 shadow-sm 
+                                   focus:ring-2 focus:ring-blue-400 focus:border-blue-400 
+                                   transition-all duration-300 ease-in-out
+                                   hover:border-blue-300 hover:shadow-md hover:bg-blue-50/30"
+                            placeholder="Masukkan jumlah stok..." required>
                     </div>
 
                     <!-- Tombol -->
                     <div class="flex items-center gap-4 pt-6">
                         <button type="submit" 
-                                class="flex items-center gap-2 bg-gradient-to-r from-purple-500 to-pink-600 text-white px-6 py-3 rounded-lg shadow-md hover:from-purple-600 hover:to-pink-700 transition font-semibold">
+                                class="flex items-center gap-2 bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-6 py-3 rounded-lg shadow-md 
+                                       hover:from-blue-600 hover:to-indigo-700 transform hover:scale-[1.03] active:scale-95 transition-all duration-200 font-semibold">
                             <i data-lucide="save" class="w-5 h-5"></i>
                             Simpan Perubahan
                         </button>
                         <a href="{{ route('admin.products.index') }}" 
-                           class="flex items-center gap-2 px-6 py-3 rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-100 transition">
+                           class="flex items-center gap-2 px-6 py-3 rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-100 transition font-semibold">
                             <i data-lucide="x-circle" class="w-5 h-5"></i>
                             Batal
                         </a>
@@ -75,4 +108,21 @@
             </div>
         </div>
     </div>
+
+    <!-- Animasi -->
+    <style>
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fadeIn {
+            animation: fadeIn 0.6s ease-out;
+        }
+    </style>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        lucide.createIcons();
+    </script>
 </x-app-layout>

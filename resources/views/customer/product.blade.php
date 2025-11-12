@@ -6,7 +6,7 @@
                 Daftar Produk Bengkel
             </h2>
 
-            <!-- Search -->
+            <!-- 🔍 Search -->
             <form method="GET" action="{{ route('customer.products') }}" class="relative">
                 <input type="text" name="q" placeholder="Cari produk..."
                        class="pl-10 pr-4 py-2 text-sm border rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
@@ -18,6 +18,19 @@
 
     <div class="py-10 bg-gradient-to-b from-gray-100 to-gray-200 min-h-screen">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+
+            <!-- ✅ Menampilkan hasil pencarian -->
+            @if(request('q'))
+                <div class="mb-6 p-4 bg-blue-100 text-blue-700 border border-blue-200 rounded-xl flex items-center gap-2 shadow-sm">
+                    <i data-lucide="search" class="w-5 h-5"></i>
+                    Menampilkan hasil untuk: 
+                    <span class="font-semibold">"{{ request('q') }}"</span>
+                    <a href="{{ route('customer.products') }}" 
+                       class="ml-auto text-sm text-blue-600 hover:underline">
+                        Reset
+                    </a>
+                </div>
+            @endif
 
             @if($products->count())
                 <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -57,12 +70,12 @@
 
                 <!-- Pagination -->
                 <div class="mt-8">
-                    {{ $products->links() }}
+                    {{ $products->withQueryString()->links() }}
                 </div>
             @else
-                <div class="text-center py-10 text-gray-500">
-                    <i data-lucide="frown" class="text-5xl mb-3"></i>
-                    <p>Belum ada produk yang tersedia.</p>
+                <div class="text-center py-10 text-gray-500 flex flex-col items-center">
+                    <i data-lucide="frown" class="w-12 h-12 text-gray-400 mb-3"></i>
+                    <p>Tidak ada produk yang ditemukan.</p>
                 </div>
             @endif
 

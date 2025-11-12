@@ -3,16 +3,18 @@
     class="fixed inset-y-0 left-0 z-50 flex flex-col w-64 bg-gradient-to-b from-blue-600 to-indigo-700 text-white shadow-xl transform transition-transform duration-300 lg:translate-x-0"
     :class="open ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'"
 >
-    <!-- Logo & Toggle -->
-    <div class="h-16 flex items-center justify-between px-6 border-b border-indigo-500/40">
-        <span class="font-extrabold text-xl tracking-wide flex items-center gap-2">
-            <i data-lucide="wrench" class="w-6 h-6"></i> Bengkel Oto.
-        </span>
-        <button @click="open = !open" class="lg:hidden p-2 hover:bg-white/10 rounded-md">
-            <i data-lucide="x" class="w-5 h-5" x-show="open" x-cloak></i>
-            <i data-lucide="menu" class="w-5 h-5" x-show="!open" x-cloak></i>
-        </button>
-    </div>
+   <!-- Logo & Toggle -->
+<div class="h-16 flex items-center justify-between px-6 border-b border-indigo-500/40">
+    <a href="{{ route('dashboard') }}" class="font-extrabold text-xl tracking-wide logo-anim flex items-center gap-2 hover:opacity-90 transition">
+        <i data-lucide="wrench" class="w-6 h-6 icon-move"></i> 
+        <span class="text-move">Bengkel Oto.</span>
+    </a>
+
+    <button @click="open = !open" class="lg:hidden p-2 hover:bg-white/10 rounded-md">
+        <i data-lucide="x" class="w-5 h-5" x-show="open" x-cloak></i>
+        <i data-lucide="menu" class="w-5 h-5" x-show="!open" x-cloak></i>
+    </button>
+</div>
 
     <!-- Menu Utama -->
     <div class="flex-1 px-4 py-6 overflow-y-auto">
@@ -22,7 +24,7 @@ if (auth()->user()->role === 'admin') {
     $menus = [
         ['route' => 'admin.dashboard', 'icon' => 'home', 'label' => 'Dashboard'],
         ['route' => 'admin.services.index', 'icon' => 'wrench', 'label' => 'Layanan'],
-        ['route' => 'admin.mechanics.index', 'icon' => 'users', 'label' => 'Mekanik'], // ✅ Tambahan menu mekanik
+        ['route' => 'admin.mechanics.index', 'icon' => 'users', 'label' => 'Mekanik'],
         ['route' => 'admin.products.index', 'icon' => 'package', 'label' => 'Produk'],
         ['route' => 'admin.bookings.index', 'icon' => 'calendar', 'label' => 'Booking'],
         ['route' => 'admin.orders.index', 'icon' => 'shopping-cart', 'label' => 'Pesanan'],

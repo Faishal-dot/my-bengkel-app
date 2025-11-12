@@ -40,23 +40,24 @@ class BookingController extends Controller
      * Simpan booking baru
      */
     public function store(Request $request)
-    {
-        // ✅ Validasi input user
-        $validated = $request->validate([
-            'service_id'   => 'required|exists:services,id',
-            'vehicle_id'   => 'required|exists:vehicles,id',
-            'booking_date' => 'required|date|after_or_equal:today',
-            'notes'        => 'nullable|string',
-            'mechanic_id'  => 'nullable|exists:mechanics,id',
-        ]);
+{
+    $validated = $request->validate([
+        'service_id'   => 'required|exists:services,id',
+        'vehicle_id'   => 'required|exists:vehicles,id',
+        'booking_date' => 'required|date|after_or_equal:today',
+        'notes'        => 'nullable|string',
+        'mechanic_id'  => 'nullable|exists:mechanics,id',
+    ]);
 
-        // ✅ Simpan booking ke database (langsung lewat relasi user)
-        $booking = Auth::user()->bookings()->create($validated);
+    $validated['user_id'] = Auth::id();
+    $validated['status'] = 'pending';
 
-        return redirect()
-            ->route('customer.booking.index')
-            ->with('success', 'Booking berhasil dikirim, tunggu konfirmasi admin.');
-    }
+    Booking::create($validated);
+
+    return redirect()
+        ->route('customer.booking.index')
+        ->with('success', 'Booking berhasil dikirim, tunggu konfirmasi admin.');
+}
 
     /**
      * History booking

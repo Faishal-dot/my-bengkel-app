@@ -14,6 +14,49 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
     <style>
+
+        
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* ===== Scrollbar Custom Style ===== */
+
+/* Untuk Chrome, Edge, Safari */
+::-webkit-scrollbar {
+    width: 8px;              /* Lebar scrollbar */
+}
+
+::-webkit-scrollbar-track {
+    background: #0f172a;     /* Warna area belakang scrollbar */
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: #3b82f6; /* Warna batang scrollbar */
+    border-radius: 10px;       /* Biar melengkung */
+    border: 2px solid #0f172a; /* Ada jarak biar elegan */
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background-color: #2563eb; /* Warna saat hover */
+}
+
+/* Untuk Firefox */
+* {
+    scrollbar-width: thin;             /* Tipis */
+    scrollbar-color: #3b82f6 #0f172a;  /* Warna batang dan track */
+}
+
+
+        /* Hilangkan area putih di bawah */
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            background-color: #0f172a; /* warna gelap biar sama kayak gradient */
+            overflow-x: hidden;
+        }
+
         /* FAQ Animasi */
         .faq-content {
             max-height: 0;
@@ -27,6 +70,40 @@
             padding-top: 0.5rem;
             padding-bottom: 0.5rem;
         }
+
+        /* Navbar active link */
+        .nav-link {
+            transition: color 0.25s ease;
+            position: relative;
+            padding-bottom: 6px;
+        }
+        .nav-link::after {
+            content: "";
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%) scaleX(0);
+            bottom: 0;
+            width: 60%;
+            height: 2px;
+            background: #3b82f6;
+            transform-origin: center;
+            transition: transform 0.25s ease;
+        }
+        .nav-link.active {
+            color: #3b82f6; /* biru */
+            font-weight: 600;
+        }
+        .nav-link.active::after {
+            transform: translateX(-50%) scaleX(1);
+        }
+
+        /* mobile tweaks */
+        @media (max-width: 767px) {
+            .nav-link::after { width: 80%; }
+        }
+
+        /* offset for fixed navbar when scrolling to anchors */
+        section { scroll-margin-top: 84px; }
     </style>
 </head>
 <body class="antialiased bg-gradient-to-br from-gray-900 via-blue-900 to-gray-800 text-white font-sans">
@@ -40,12 +117,12 @@
 
     <!-- Menu Desktop -->
     <div class="space-x-4 hidden md:block">
-        <a href="#layanan" class="hover:text-blue-400 transition">LAYANAN</a>
-        <a href="#tentang" class="hover:text-blue-400 transition">TENTANG</a>
-        <a href="#testimoni" class="hover:text-blue-400 transition">TESTIMONI</a>
-        <a href="#faq" class="hover:text-blue-400 transition">FAQ</a>
-        <a href="#kontak" class="hover:text-blue-400 transition">KONTAK</a>
-        <a href="#lokasi" class="hover:text-blue-400 transition">LOKASI</a>
+        <a href="#layanan" class="nav-link hover:text-blue-400">LAYANAN</a>
+        <a href="#tentang" class="nav-link hover:text-blue-400">TENTANG</a>
+        <a href="#testimoni" class="nav-link hover:text-blue-400">TESTIMONI</a>
+        <a href="#faq" class="nav-link hover:text-blue-400">FAQ</a>
+        <a href="#kontak" class="nav-link hover:text-blue-400">KONTAK</a>
+        <a href="#lokasi" class="nav-link hover:text-blue-400">LOKASI</a>
     </div>
 
     <!-- Auth Buttons Desktop -->
@@ -69,12 +146,12 @@
     <button id="close-btn" class="self-end text-gray-400 hover:text-white">
         <i data-lucide="x" class="w-6 h-6"></i>
     </button>
-    <a href="#layanan" class="text-white hover:text-blue-400">LAYANAN</a>
-    <a href="#tentang" class="text-white hover:text-blue-400">TENTANG</a>
-    <a href="#testimoni" class="text-white hover:text-blue-400">TESTIMONI</a>
-    <a href="#faq" class="text-white hover:text-blue-400">FAQ</a>
-    <a href="#kontak" class="text-white hover:text-blue-400">KONTAK</a>
-    <a href="#lokasi" class="text-white hover:text-blue-400">LOKASI</a>
+    <a href="#layanan" class="nav-link text-white hover:text-blue-400">LAYANAN</a>
+    <a href="#tentang" class="nav-link text-white hover:text-blue-400">TENTANG</a>
+    <a href="#testimoni" class="nav-link text-white hover:text-blue-400">TESTIMONI</a>
+    <a href="#faq" class="nav-link text-white hover:text-blue-400">FAQ</a>
+    <a href="#kontak" class="nav-link text-white hover:text-blue-400">KONTAK</a>
+    <a href="#lokasi" class="nav-link text-white hover:text-blue-400">LOKASI</a>
     <a href="{{ route('login') }}" class="px-4 py-2 rounded-lg border border-blue-400 hover:bg-blue-500 hover:text-white transition text-center">
         Masuk
     </a>
@@ -106,7 +183,7 @@
 <!-- Services Section -->
 <section id="layanan" class="py-20 px-6 bg-gray-900/60 backdrop-blur-lg">
     <div class="max-w-6xl mx-auto text-center">
-        <h2 class="text-2xl sm:text-3xl font-bold mb-12">Layanan Kami</h2>
+        <h2 class="text-2xl sm:text-3xl font-bold mb-12">Layanan Unggulan Kami</h2>
         <div class="grid sm:grid-cols-2 md:grid-cols-3 gap-8">
             <div class="p-6 rounded-2xl bg-white/10 shadow-lg hover:scale-105 transition flex flex-col items-center text-center">
                 <i data-lucide="droplets" class="w-10 h-10 text-blue-600 mb-4"></i>
@@ -224,18 +301,19 @@
     </div>
 </section>
 
-<!-- Location Section -->
 <section id="lokasi" class="py-20 px-6">
-    <div class="max-w-6xl mx-auto text-center">
-        <h2 class="text-2xl sm:text-3xl font-bold mb-6">Lokasi Kami</h2>
-        <p class="text-gray-300 mb-8">Kunjungi bengkel kami di alamat berikut:</p>
-        <p class="mb-6 text-blue-400 font-semibold">Jl. Raya Ponti, Sidoarjo</p>
-        <div class="rounded-2xl overflow-hidden shadow-lg border border-gray-700">
-            <iframe 
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3956.1875937110467!2d112.70245907476226!3d-7.444486192566541!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2dd7e148bf17a5e7%3A0x478d9769ef86ac81!2sJl.%20Raya%20Ponti%2C%20Kabupaten%20Sidoarjo%2C%20Jawa%20Timur!5e0!3m2!1sid!2sid!4v1758509627159!5m2!1sid!2sid" 
-                width="100%" height="450" style="border:0;" allowfullscreen="" loading="lazy">
-            </iframe>
+    <div class="max-w-4xl mx-auto text-center">
+        <h2 class="text-2xl sm:text-3xl font-bold text-white mb-10">Lokasi Kami</h2>
+
+        <div class="p-6 bg-white/10 rounded-2xl shadow-lg backdrop-blur-md">
+            <span class="block font-semibold text-white-400 text-lg">
+                Jl. Otomotif No. 88, Mekar Jaya, Kota Auto, Indonesia
+            </span>
         </div>
+
+        <p class="text-sm text-gray-400 mt-8">
+            Buka setiap hari pukul <span class="text-blue-300 font-medium">08.00–17.00</span>
+        </p>
     </div>
 </section>
 
@@ -251,13 +329,52 @@
 
     // Carousel
     const carousel = document.getElementById("carousel");
-    const slides = carousel.children;
-    let index = 0;
-    function showNextSlide() {
-        index = (index + 1) % slides.length;
-        carousel.style.transform = `translateX(-${index * 100}%)`;
+    if (carousel) {
+        const slides = carousel.children;
+        let index = 0;
+        function showNextSlide() {
+            index = (index + 1) % slides.length;
+            carousel.style.transform = `translateX(-${index * 100}%)`;
+        }
+        setInterval(showNextSlide, 3000);
     }
-    setInterval(showNextSlide, 3000);
+
+    // Navbar active link (desktop & mobile) — scroll based
+    const navLinks = document.querySelectorAll('.nav-link');
+    function setActiveLink() {
+        let current = "";
+        const sections = document.querySelectorAll("section[id]");
+        const scrollY = window.pageYOffset;
+        sections.forEach(sec => {
+            const secTop = sec.offsetTop - 120;
+            const secHeight = sec.offsetHeight;
+            if (scrollY >= secTop && scrollY < secTop + secHeight) {
+                current = sec.getAttribute("id");
+            }
+        });
+        navLinks.forEach(link => {
+            link.classList.remove("active");
+            if (link.getAttribute("href") === `#${current}`) {
+                link.classList.add("active");
+            }
+        });
+    }
+    window.addEventListener("scroll", setActiveLink);
+    // run once on load to set initial active
+    window.addEventListener("load", setActiveLink);
+
+    // Navbar active saat diklik (juga tutup mobile menu)
+    navLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+            // if link is anchor to section, let browser scroll, but mark active immediately
+            navLinks.forEach(l => l.classList.remove('active'));
+            link.classList.add('active');
+            // if mobile menu open, close it
+            if (mobileMenu && !mobileMenu.classList.contains('hidden')) {
+                mobileMenu.classList.add('hidden');
+            }
+        });
+    });
 
     // FAQ toggle buka lambat, tutup cepat
     document.querySelectorAll('.faq-toggle').forEach(button => {
@@ -281,10 +398,12 @@
     const closeBtn = document.getElementById('close-btn');
     const mobileMenu = document.getElementById('mobile-menu');
 
-    menuBtn.addEventListener('click', () => mobileMenu.classList.toggle('hidden'));
-    closeBtn.addEventListener('click', () => mobileMenu.classList.add('hidden'));
+    if (menuBtn) menuBtn.addEventListener('click', () => mobileMenu.classList.toggle('hidden'));
+    if (closeBtn) closeBtn.addEventListener('click', () => mobileMenu.classList.add('hidden'));
+
+    // close mobile menu when clicking outside
     document.addEventListener('click', e => {
-        if (!mobileMenu.classList.contains('hidden') &&
+        if (mobileMenu && !mobileMenu.classList.contains('hidden') &&
             !mobileMenu.contains(e.target) &&
             !menuBtn.contains(e.target)) {
             mobileMenu.classList.add('hidden');

@@ -55,6 +55,7 @@
                                 <tr>
                                     <th class="p-3 border">ID</th>
                                     <th class="p-3 border">User</th>
+                                    <th class="p-3 border">Mekanik</th> <!-- ✅ Kolom baru -->
                                     <th class="p-3 border">Kendaraan</th>
                                     <th class="p-3 border">Layanan</th>
                                     <th class="p-3 border">Harga</th>
@@ -66,6 +67,7 @@
                                     <tr class="hover:bg-blue-50 transition">
                                         <td class="p-3 border text-center">{{ $b->id }}</td>
                                         <td class="p-3 border">{{ $b->user->name ?? '-' }}</td>
+                                        <td class="p-3 border">{{ $b->mechanic->name ?? '-' }}</td> <!-- ✅ Nama montir -->
                                         <td class="p-3 border">{{ $b->vehicle_name ?? '-' }}</td>
                                         <td class="p-3 border">{{ $b->service->name ?? '-' }}</td>
                                         <td class="p-3 border">Rp {{ number_format($b->service->price ?? 0, 0, ',', '.') }}</td>
@@ -73,7 +75,9 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="6" class="p-3 border text-center text-gray-500 italic">Tidak ada booking approved</td>
+                                        <td colspan="7" class="p-3 border text-center text-gray-500 italic">
+                                            Tidak ada booking approved
+                                        </td>
                                     </tr>
                                 @endforelse
                             </tbody>
@@ -111,7 +115,9 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="6" class="p-3 border text-center text-gray-500 italic">Tidak ada order disetujui</td>
+                                        <td colspan="6" class="p-3 border text-center text-gray-500 italic">
+                                            Tidak ada order disetujui
+                                        </td>
                                     </tr>
                                 @endforelse
                             </tbody>

@@ -20,6 +20,13 @@
                        focus:ring-2 focus:ring-blue-300 focus:border-blue-400">
         </div>
 
+        <!-- 🔹 Pesan Error -->
+        @if ($errors->any())
+            <div class="text-center text-red-400 text-sm font-medium">
+                {{ $errors->first('email') }}
+            </div>
+        @endif
+
         <!-- Remember & Forgot -->
         <div class="flex items-center justify-between text-sm text-gray-300">
             <label class="flex items-center gap-2">

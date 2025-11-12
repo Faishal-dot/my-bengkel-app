@@ -1,22 +1,22 @@
 <x-app-layout>
     <x-slot name="header">
         <div class="flex items-center gap-2">
-            <i data-lucide="pencil-line" class="w-7 h-7 text-purple-600"></i>
+            <i data-lucide="pencil-line" class="w-7 h-7 text-indigo-600"></i>
             <h2 class="font-bold text-2xl text-gray-800">Edit Mekanik</h2>
         </div>
     </x-slot>
 
-    <div class="py-12 bg-gradient-to-b from-purple-50 via-white to-gray-100 min-h-screen">
+    <div class="py-12 bg-gradient-to-b from-indigo-50 via-white to-gray-100 min-h-screen">
         <div class="max-w-3xl mx-auto">
 
             <!-- Step Indicator -->
-            <div class="flex items-center justify-center gap-2 mb-8">
-                <i data-lucide="edit" class="w-5 h-5 text-purple-600"></i>
-                <span class="text-purple-600 font-semibold">Form Edit</span>
+            <div class="flex items-center justify-center gap-2 mb-8 animate-fadeIn">
+                <i data-lucide="edit" class="w-5 h-5 text-indigo-600"></i>
+                <span class="text-indigo-600 font-semibold">Form Edit</span>
             </div>
 
             <!-- Card -->
-            <div class="bg-white shadow-xl rounded-2xl border border-gray-100 p-8">
+            <div class="bg-white shadow-xl rounded-2xl border border-gray-100 p-8 animate-fadeIn">
 
                 <!-- Error -->
                 @if ($errors->any())
@@ -30,57 +30,93 @@
                 @endif
 
                 <!-- Form -->
-                <form method="POST" action="{{ route('admin.mechanics.update', $mechanic) }}" class="space-y-6">
-                    @csrf
-                    @method('PUT')
+<form method="POST" action="{{ route('admin.mechanics.update', $mechanic) }}" class="space-y-6 animate-fadeIn">
+    @csrf
+    @method('PUT')
 
-                    <!-- Nama -->
-                    <div class="relative">
-                        <input type="text" name="name" value="{{ old('name', $mechanic->name) }}"
-                               class="peer w-full border-gray-300 rounded-lg px-4 pt-5 pb-2 shadow-sm focus:ring-2 focus:ring-purple-400 focus:border-purple-400"
-                               placeholder=" " required>
-                        <label class="absolute left-4 top-2 text-gray-500 text-sm transition-all 
-                                     peer-placeholder-shown:top-3 peer-placeholder-shown:text-gray-400 peer-placeholder-shown:text-base">
-                            Nama Mekanik
-                        </label>
-                    </div>
+    <!-- Nama Mekanik -->
+    <div class="relative transition-all duration-300 hover:scale-[1.02]">
+        <label class="flex items-center gap-2 mb-2 text-gray-600 font-medium">
+            <i data-lucide="user-cog" class="w-4 h-4 text-blue-500"></i>
+            Nama Mekanik
+        </label>
+        <input type="text" name="name" value="{{ old('name', $mechanic->name) }}"
+            class="w-full border-gray-300 rounded-lg px-4 py-3 shadow-sm 
+                   focus:ring-2 focus:ring-blue-400 focus:border-blue-400 
+                   transition-all duration-300 ease-in-out
+                   hover:border-blue-300 hover:shadow-md hover:bg-blue-50/30"
+            placeholder="Masukkan nama mekanik..." required>
+        @error('name')
+            <p class="text-red-600 text-sm mt-1 animate-pulse">⚠️ {{ $message }}</p>
+        @enderror
+    </div>
 
-                    <!-- Telepon -->
-                    <div class="relative">
-                        <input type="text" name="phone" value="{{ old('phone', $mechanic->phone) }}"
-                               class="peer w-full border-gray-300 rounded-lg px-4 pt-5 pb-2 shadow-sm focus:ring-2 focus:ring-purple-400 focus:border-purple-400"
-                               placeholder=" ">
-                        <label class="absolute left-4 top-2 text-gray-500 text-sm transition-all 
-                                     peer-placeholder-shown:top-3 peer-placeholder-shown:text-gray-400 peer-placeholder-shown:text-base">
-                            Telepon (opsional)
-                        </label>
-                    </div>
+    <!-- Telepon -->
+    <div class="relative transition-all duration-300 hover:scale-[1.02]">
+        <label class="flex items-center gap-2 mb-2 text-gray-600 font-medium">
+            <i data-lucide="phone" class="w-4 h-4 text-blue-500"></i>
+            Telepon (opsional)
+        </label>
+        <input type="text" name="phone" value="{{ old('phone', $mechanic->phone) }}"
+            class="w-full border-gray-300 rounded-lg px-4 py-3 shadow-sm 
+                   focus:ring-2 focus:ring-blue-400 focus:border-blue-400 
+                   transition-all duration-300 ease-in-out
+                   hover:border-blue-300 hover:shadow-md hover:bg-blue-50/30"
+            placeholder="Masukkan nomor telepon...">
+        @error('phone')
+            <p class="text-red-600 text-sm mt-1 animate-pulse">⚠️ {{ $message }}</p>
+        @enderror
+    </div>
 
-                    <!-- Spesialisasi -->
-                    <div class="relative">
-                        <input type="text" name="specialization" value="{{ old('specialization', $mechanic->specialization) }}"
-                               class="peer w-full border-gray-300 rounded-lg px-4 pt-5 pb-2 shadow-sm focus:ring-2 focus:ring-purple-400 focus:border-purple-400"
-                               placeholder=" ">
-                        <label class="absolute left-4 top-2 text-gray-500 text-sm transition-all 
-                                     peer-placeholder-shown:top-3 peer-placeholder-shown:text-gray-400 peer-placeholder-shown:text-base">
-                            Spesialisasi (opsional)
-                        </label>
-                    </div>
+    <!-- Spesialisasi -->
+    <div class="relative transition-all duration-300 hover:scale-[1.02]">
+        <label class="flex items-center gap-2 mb-2 text-gray-600 font-medium">
+            <i data-lucide="wrench" class="w-4 h-4 text-blue-500"></i>
+            Spesialisasi (opsional)
+        </label>
+        <input type="text" name="specialization" value="{{ old('specialization', $mechanic->specialization) }}"
+            class="w-full border-gray-300 rounded-lg px-4 py-3 shadow-sm 
+                   focus:ring-2 focus:ring-blue-400 focus:border-blue-400 
+                   transition-all duration-300 ease-in-out
+                   hover:border-blue-300 hover:shadow-md hover:bg-blue-50/30"
+            placeholder="Masukkan bidang spesialisasi...">
+        @error('specialization')
+            <p class="text-red-600 text-sm mt-1 animate-pulse">⚠️ {{ $message }}</p>
+        @enderror
+    </div>
 
-                    <!-- Tombol -->
-                    <div class="flex items-center gap-4 pt-6">
-                        <button type="submit"
-                                class="flex items-center gap-2 bg-gradient-to-r from-purple-500 to-pink-600 text-white px-6 py-3 rounded-lg shadow-md hover:from-purple-600 hover:to-pink-700 transition font-semibold">
-                            <i data-lucide="save" class="w-5 h-5"></i>
-                            Simpan Perubahan
-                        </button>
-                        <a href="{{ route('admin.mechanics.index') }}"
-                           class="flex items-center gap-2 px-6 py-3 rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-100 transition">
-                            <i data-lucide="x-circle" class="w-5 h-5"></i>
-                            Batal
-                        </a>
-                    </div>
-                </form>
+    <!-- Tombol -->
+    <div class="flex items-center gap-4 pt-6">
+        <button type="submit"
+                class="flex items-center gap-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-6 py-3 rounded-lg shadow-md 
+                       hover:from-indigo-600 hover:to-purple-700 transform hover:scale-[1.03] active:scale-95 transition-all duration-200 font-semibold">
+            <i data-lucide="save" class="w-5 h-5"></i>
+            Simpan Perubahan
+        </button>
+        <a href="{{ route('admin.mechanics.index') }}"
+           class="flex items-center gap-2 px-6 py-3 rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-100 transition font-semibold">
+            <i data-lucide="x-circle" class="w-5 h-5"></i>
+            Batal
+        </a>
+    </div>
+</form>
+
+<!-- Animasi -->
+<style>
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(15px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+.animate-fadeIn {
+    animation: fadeIn 0.6s ease-out;
+}
+</style>
+
+<!-- Lucide Icons -->
+<script src="https://unpkg.com/lucide@latest"></script>
+<script>
+    lucide.createIcons();
+</script>
             </div>
         </div>
     </div>

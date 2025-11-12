@@ -12,7 +12,8 @@ use App\Http\Controllers\Admin\ServiceController as AdminService;
 use App\Http\Controllers\Admin\ProductController as AdminProduct;
 use App\Http\Controllers\Admin\OrderController as AdminOrder;
 use App\Http\Controllers\Admin\ReportController;
-use App\Http\Controllers\Admin\MechanicController; // ✅ Tambahkan ini
+use App\Http\Controllers\Admin\MechanicController;
+use App\Http\Controllers\Admin\AdminController;
 
 // =======================
 // Customer Controllers
@@ -23,6 +24,12 @@ use App\Http\Controllers\ServiceController; // layanan umum
 use App\Http\Controllers\Customer\ProductController as CustomerProduct;
 use App\Http\Controllers\Customer\OrderController as CustomerOrder;
 use App\Http\Controllers\Customer\VehicleController;
+use App\Http\Controllers\Customer\CustomerController;
+
+// =======================
+// Mechanic Controllers
+// =======================
+use App\Http\Controllers\Mechanic\DashboardController as MechanicDashboard;
 
 // =======================
 // Middleware
@@ -40,12 +47,11 @@ Route::get('/', fn() => view('welcome'))->name('home');
 Route::middleware(['auth','verified'])->get('/dashboard', function () {
     $user = auth()->user();
 
-    if ($user->role === 'admin') {
-        return redirect()->route('admin.dashboard');
-    }
-
-    // user biasa
-    return app(CustomerDashboard::class)->index();
+    return match ($user->role) {
+        'admin' => redirect()->route('admin.dashboard'),
+        'mechanic' => redirect()->route('mechanic.dashboard'),
+        default => redirect()->route('customer.dashboard'),
+    };
 })->name('dashboard');
 
 // =======================
@@ -77,8 +83,6 @@ Route::middleware(['auth','verified', IsAdmin::class])
         Route::delete('/orders/{order}', [AdminOrder::class, 'destroy'])->name('orders.destroy');
 
         Route::get('/penghasilan', [ReportController::class, 'penghasilan'])->name('penghasilan');
-
-        // ✅ Tambahkan ini di dalam group admin
         Route::resource('mechanics', MechanicController::class)->names('mechanics');
     });
 
@@ -91,49 +95,28 @@ Route::middleware(['auth','verified'])
     ->group(function() {
         Route::get('/dashboard', [CustomerDashboard::class, 'index'])->name('dashboard');
 
-        // Products & Orders
         Route::get('/products', [CustomerProduct::class, 'index'])->name('products');
         Route::get('/products/{product}', [CustomerProduct::class, 'show'])->name('products.show');
         Route::get('/products/{product}/beli', [CustomerOrder::class, 'create'])->name('orders.create');
         Route::post('/products/{product}/beli', [CustomerOrder::class, 'store'])->name('orders.store');
         Route::get('/orders', [CustomerOrder::class, 'index'])->name('orders.index');
 
-        // Booking
         Route::get('/booking', [CustomerBooking::class, 'index'])->name('booking.index');
         Route::get('/booking/create', [CustomerBooking::class, 'create'])->name('booking.create');
         Route::post('/booking', [CustomerBooking::class, 'store'])->name('booking.store');
 
-        // Vehicles
         Route::resource('/vehicles', VehicleController::class)->names('vehicles');
-
-        // Notifications
-        Route::post('/notifications/read', function () {
-            auth()->user()->unreadNotifications->markAsRead();
-            return back();
-        })->name('notifications.read');
-
-        Route::get('/notifications/fetch', function () {
-            $notifications = auth()->user()->unreadNotifications->take(5)->map(fn($n) => [
-                'id' => $n->id,
-                'message' => ($n->data['type'] ?? null) === 'order'
-                    ? "Pesanan produk {$n->data['product_name']} → {$n->data['status']}"
-                    : "Booking #{$n->data['booking_id']} ({$n->data['vehicle']}) → {$n->data['status']}",
-                'time' => $n->created_at->diffForHumans()
-            ])->filter();
-
-            return response()->json([
-                'count' => auth()->user()->unreadNotifications->count(),
-                'notifications' => $notifications->values(),
-            ]);
-        })->name('notifications.fetch');
-
-        Route::get('/notifications', function () {
-            $notifications = auth()->user()->notifications;
-            return view('customer.notifications', compact('notifications'));
-        })->name('notifications.index');
-
-        // Layanan umum
         Route::get('/services', [ServiceController::class, 'index'])->name('services');
+    });
+
+// =======================
+// Mechanic routes
+// =======================
+Route::prefix('mechanic')
+    ->middleware(['auth','verified','role:mechanic']) // ✅ gunakan middleware role
+    ->name('mechanic.')
+    ->group(function () {
+        Route::get('/dashboard', [MechanicDashboard::class, 'index'])->name('dashboard');
     });
 
 // =======================

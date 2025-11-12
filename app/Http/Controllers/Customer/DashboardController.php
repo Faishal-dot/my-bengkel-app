@@ -11,45 +11,46 @@ use Illuminate\Support\Facades\Auth;
 class DashboardController extends Controller
 {
     public function index()
-    {
-        $user = Auth::user();
+{
+    $user = Auth::user();
 
-        // Total booking, orders, services
-        $totalBookings = Booking::where('user_id', $user->id)->count();
-        $totalOrders = Order::where('user_id', $user->id)->count();
-        $totalServices = Service::count();
+    // Hitung total data
+    $totalBookings = Booking::where('user_id', $user->id)->count();
+    $totalOrders = Order::where('user_id', $user->id)->count();
+    $totalServices = Service::count();
 
-        // Ambil 5 aktivitas terakhir (booking & order)
-        $recentBookings = Booking::where('user_id', $user->id)
-            ->latest()
-            ->take(5)
-            ->get()
-            ->map(fn($b) => [
-                'description' => "Booking #{$b->id} (" . ($b->vehicle->name ?? 'Kendaraan') . ") dibuat",
-                'created_at' => $b->created_at,
-            ]);
+    // Ambil 5 booking terakhir
+    $recentBookings = Booking::where('user_id', $user->id)
+        ->latest()
+        ->take(5)
+        ->get()
+        ->map(fn($b) => [
+            'description' => "Booking #{$b->id} (" . ($b->vehicle->name ?? 'Kendaraan') . ") dibuat",
+            'created_at' => $b->created_at,
+        ]);
 
-        $recentOrders = Order::where('user_id', $user->id)
-            ->latest()
-            ->take(5)
-            ->get()
-            ->map(fn($o) => [
-                'description' => "Order #{$o->id} (" . ($o->product->name ?? 'Produk') . ") dibuat",
-                'created_at' => $o->created_at,
-            ]);
+    // Ambil 5 order terakhir
+    $recentOrders = Order::where('user_id', $user->id)
+        ->latest()
+        ->take(5)
+        ->get()
+        ->map(fn($o) => [
+            'description' => "Order #{$o->id} (" . ($o->product->name ?? 'Produk') . ") dibuat",
+            'created_at' => $o->created_at,
+        ]);
 
-        // Gabungkan dan urutkan berdasarkan waktu
-        $recentActivities = $recentBookings
-            ->merge($recentOrders)
-            ->sortByDesc('created_at')
-            ->take(5);
+    // ✅ Gunakan Support Collection agar aman
+    $recentActivities = collect($recentBookings)
+        ->merge(collect($recentOrders))
+        ->sortByDesc('created_at')
+        ->take(5)
+        ->values(); // reset index
 
-        // Panggil view dashboard yang sudah ada
-        return view('dashboard', compact(
-            'totalBookings',
-            'totalOrders',
-            'totalServices',
-            'recentActivities'
-        ));
-    }
+    return view('dashboard', compact(
+        'totalBookings',
+        'totalOrders',
+        'totalServices',
+        'recentActivities'
+    ));
+}
 }

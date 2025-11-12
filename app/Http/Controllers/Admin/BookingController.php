@@ -31,16 +31,25 @@ class BookingController extends Controller
     $booking = Booking::findOrFail($id);
 
     $request->validate([
-        'mechanic_id' => 'nullable|exists:users,id',
-    ]);
+    'status' => 'required|in:pending,approved,rejected',
+    'mechanic_id' => 'nullable|exists:mechanics,id',
+]);
 
-    $booking->mechanic_id = $request->mechanic_id;
+    // ✅ Jangan hapus mechanic_id lama kalau tidak dikirim
+    if ($request->filled('mechanic_id')) {
+        $booking->mechanic_id = $request->mechanic_id;
+    }
+
+    // ✅ Update status booking
+    $booking->status = $request->status;
+
+    // ✅ Simpan perubahan
     $booking->save();
 
-    return redirect()->route('admin.bookings.show', $id)
-        ->with('success', 'Mekanik berhasil diperbarui!');
+    return redirect()
+        ->route('admin.bookings.index')
+        ->with('success', 'Status booking berhasil diperbarui!');
 }
-
 
     // ✅ Hapus booking
     public function destroy($id)

@@ -20,14 +20,14 @@
 
             {{-- Alert sukses --}}
             @if(session('success'))
-                <div class="mb-6 p-4 bg-green-100 text-green-700 border border-green-200 rounded-xl flex items-center gap-2">
+                <div class="mb-6 p-4 bg-green-100 text-green-700 border border-green-200 rounded-xl flex items-center gap-2 animate-fadeIn">
                     <i data-lucide="check-circle" class="w-5 h-5"></i>
                     {{ session('success') }}
                 </div>
             @endif
 
             {{-- Table Booking --}}
-            <div class="overflow-x-auto rounded-lg border border-gray-200 bg-white shadow-lg">
+            <div class="overflow-x-auto rounded-lg border border-gray-200 bg-white shadow-lg transition-all duration-300 animate-fadeIn">
                 <table class="w-full border-collapse text-sm">
                     <thead>
                         <tr class="bg-blue-600 text-white uppercase text-xs">
@@ -61,7 +61,7 @@
                                     'completed' => 'Selesai',
                                 ];
                             @endphp
-                            <tr class="{{ $index % 2 === 0 ? 'bg-gray-50' : 'bg-white' }} hover:bg-blue-50 transition">
+                            <tr class="{{ $index % 2 === 0 ? 'bg-gray-50' : 'bg-white' }} hover:bg-blue-50 transition duration-200">
                                 {{-- Nomor --}}
                                 <td class="px-4 py-3 border text-center font-medium">{{ $index + 1 }}</td>
 
@@ -112,8 +112,9 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="6" class="text-center py-6 text-gray-500 italic">
-                                    Belum ada booking 😔
+                                <td colspan="6" class="text-center py-6 text-gray-500 italic flex items-center justify-center gap-2">
+                                    <i data-lucide="calendar-x" class="w-5 h-5 text-red-500"></i>
+                                    Belum ada booking
                                 </td>
                             </tr>
                         @endforelse
@@ -128,6 +129,17 @@
 
         </div>
     </div>
+
+    {{-- Animasi FadeIn --}}
+    <style>
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fadeIn {
+            animation: fadeIn 0.5s ease-out;
+        }
+    </style>
 
     {{-- Lucide Icons --}}
     <script src="https://unpkg.com/lucide@latest"></script>

@@ -19,6 +19,19 @@
     <div class="py-10 bg-gradient-to-b from-gray-100 to-gray-200 min-h-screen">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
 
+            <!-- ✅ Menampilkan hasil pencarian -->
+            @if(request('q'))
+                <div class="mb-6 p-4 bg-blue-100 text-blue-700 border border-blue-200 rounded-xl flex items-center gap-2 shadow-sm">
+                    <i data-lucide="search" class="w-5 h-5"></i>
+                    Menampilkan hasil untuk: 
+                    <span class="font-semibold">"{{ request('q') }}"</span>
+                    <a href="{{ route('customer.services') }}" 
+                       class="ml-auto text-sm text-blue-600 hover:underline">
+                        Reset
+                    </a>
+                </div>
+            @endif
+
             @if($services->count())
                 <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                     @foreach($services as $service)
@@ -53,7 +66,6 @@
                     <p>Belum ada layanan yang tersedia.</p>
                 </div>
             @endif
-
         </div>
     </div>
 
