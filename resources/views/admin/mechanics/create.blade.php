@@ -1,27 +1,20 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex items-center gap-2">
-            <i data-lucide="plus-circle" class="w-7 h-7 text-indigo-600"></i>
+        <div class="flex items-center gap-2 animate-slideDown">
+            <i data-lucide="wrench" class="w-7 h-7 text-indigo-600"></i>
             <h2 class="font-bold text-2xl text-gray-800">Tambah Mekanik</h2>
         </div>
     </x-slot>
 
     <div class="py-12 bg-gradient-to-b from-indigo-50 via-white to-gray-100 min-h-screen">
-        <div class="max-w-3xl mx-auto">
+        <div class="max-w-3xl mx-auto animate-fadeIn">
 
-            <!-- Step Indicator -->
-            <div class="flex items-center justify-center gap-2 mb-8">
-                <i data-lucide="user-plus" class="w-5 h-5 text-indigo-600"></i>
-                <span class="text-indigo-600 font-semibold">Form Tambah</span>
-            </div>
+            <div class="bg-white shadow-xl rounded-2xl border border-gray-100 p-8 hover:shadow-2xl transition-all duration-300">
 
-            <!-- Card -->
-            <div class="bg-white shadow-xl rounded-2xl border border-gray-100 p-8">
-
-                <!-- Error -->
+                {{-- ERROR BAG --}}
                 @if ($errors->any())
-                    <div class="mb-6 p-4 bg-red-50 border border-red-200 text-red-600 rounded-xl shadow-sm">
-                        <ul class="list-disc pl-6 space-y-1">
+                    <div class="mb-6 p-4 bg-red-50 border border-red-200 text-red-600 rounded-xl shadow-sm animate-pop">
+                        <ul class="pl-6 space-y-1 list-disc">
                             @foreach ($errors->all() as $err)
                                 <li>{{ $err }}</li>
                             @endforeach
@@ -29,95 +22,85 @@
                     </div>
                 @endif
 
-                <!-- Form -->
-<!-- Form Mekanik dengan animasi seperti Tambah Layanan -->
-<form method="POST" action="{{ route('admin.mechanics.store') }}" class="space-y-6 animate-fadeIn">
-    @csrf
+                <form method="POST" action="{{ route('admin.mechanics.store') }}" class="space-y-6">
+                    @csrf
+                    <input type="hidden" name="role" value="mechanic">
 
-    <!-- Nama Mekanik -->
-    <div class="relative transition-all duration-300 hover:scale-[1.02]">
-        <label class="flex items-center gap-2 mb-2 text-gray-600 font-medium">
-            <i data-lucide="user-cog" class="w-4 h-4 text-blue-500"></i>
-            Nama Mekanik
-        </label>
-        <input type="text" name="name" value="{{ old('name') }}"
-            class="w-full border-gray-300 rounded-lg px-4 py-3 shadow-sm 
-                   focus:ring-2 focus:ring-blue-400 focus:border-blue-400 
-                   transition-all duration-300 ease-in-out
-                   hover:border-blue-300 hover:shadow-md hover:bg-blue-50/30"
-            placeholder="Masukkan nama mekanik..." required>
-        @error('name')
-            <p class="text-red-600 text-sm mt-1 animate-pulse">⚠️ {{ $message }}</p>
-        @enderror
-    </div>
+                    {{-- INPUT COMPONENT --}}
+                    @php
+                        $inputs = [
+                            ['label' => 'Nama Mekanik', 'icon' => 'user', 'name' => 'name', 'type' => 'text', 'required' => true],
+                            ['label' => 'Email Login', 'icon' => 'mail', 'name' => 'email', 'type' => 'email', 'required' => true],
+                            ['label' => 'Password Login', 'icon' => 'lock', 'name' => 'password', 'type' => 'password', 'required' => true],
+                            ['label' => 'Konfirmasi Password', 'icon' => 'shield-check', 'name' => 'password_confirmation', 'type' => 'password', 'required' => true],
+                            ['label' => 'Telepon', 'icon' => 'phone', 'name' => 'phone', 'type' => 'text', 'required' => false],
+                            ['label' => 'Spesialisasi', 'icon' => 'settings', 'name' => 'specialization', 'type' => 'text', 'required' => false],
+                        ];
+                    @endphp
 
-    <!-- Telepon -->
-    <div class="relative transition-all duration-300 hover:scale-[1.02]">
-        <label class="flex items-center gap-2 mb-2 text-gray-600 font-medium">
-            <i data-lucide="phone" class="w-4 h-4 text-blue-500"></i>
-            Telepon (opsional)
-        </label>
-        <input type="text" name="phone" value="{{ old('phone') }}"
-            class="w-full border-gray-300 rounded-lg px-4 py-3 shadow-sm 
-                   focus:ring-2 focus:ring-blue-400 focus:border-blue-400 
-                   transition-all duration-300 ease-in-out
-                   hover:border-blue-300 hover:shadow-md hover:bg-blue-50/30"
-            placeholder="Masukkan nomor telepon...">
-        @error('phone')
-            <p class="text-red-600 text-sm mt-1 animate-pulse">⚠️ {{ $message }}</p>
-        @enderror
-    </div>
+                    @foreach ($inputs as $input)
+                        <div class="transition-all duration-300 transform hover:scale-[1.015] animate-fadeInUp">
+                            <label class="block mb-1 text-gray-600 font-medium flex items-center gap-1">
+                                <i data-lucide="{{ $input['icon'] }}" class="w-4 h-4 text-indigo-500"></i>
+                                {{ $input['label'] }}
+                            </label>
 
-    <!-- Spesialisasi -->
-    <div class="relative transition-all duration-300 hover:scale-[1.02]">
-        <label class="flex items-center gap-2 mb-2 text-gray-600 font-medium">
-            <i data-lucide="wrench" class="w-4 h-4 text-blue-500"></i>
-            Spesialisasi (opsional)
-        </label>
-        <input type="text" name="specialization" value="{{ old('specialization') }}"
-            class="w-full border-gray-300 rounded-lg px-4 py-3 shadow-sm 
-                   focus:ring-2 focus:ring-blue-400 focus:border-blue-400 
-                   transition-all duration-300 ease-in-out
-                   hover:border-blue-300 hover:shadow-md hover:bg-blue-50/30"
-            placeholder="Masukkan bidang spesialisasi...">
-        @error('specialization')
-            <p class="text-red-600 text-sm mt-1 animate-pulse">⚠️ {{ $message }}</p>
-        @enderror
-    </div>
+                            <input
+                                type="{{ $input['type'] }}"
+                                name="{{ $input['name'] }}"
+                                value="{{ old($input['name']) }}"
+                                @if($input['required']) required @endif
+                                class="w-full border-gray-300 rounded-xl px-4 py-3 shadow-sm
+                                       focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500
+                                       transition-all duration-300 bg-white hover:bg-indigo-50/20"
+                            >
+                        </div>
+                    @endforeach
 
-    <!-- Tombol -->
-    <div class="flex items-center gap-4 pt-6">
-        <button type="submit"
-                class="flex items-center gap-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-6 py-3 rounded-lg shadow-md 
-                       hover:from-indigo-600 hover:to-purple-700 transform hover:scale-[1.03] active:scale-95 transition-all duration-200 font-semibold">
-            <i data-lucide="save" class="w-5 h-5"></i>
-            Simpan
-        </button>
-        <a href="{{ route('admin.mechanics.index') }}"
-           class="flex items-center gap-2 px-6 py-3 rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-100 transition font-semibold">
-            <i data-lucide="x-circle" class="w-5 h-5"></i>
-            Batal
-        </a>
-    </div>
-</form>
+                    {{-- BUTTON AREA --}}
+                    <div class="flex items-center gap-4 pt-6">
+                        <button type="submit"
+                            class="bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-6 py-3 rounded-xl shadow-md font-semibold
+                                   hover:from-indigo-600 hover:to-purple-700 hover:shadow-lg transform hover:scale-[1.03] active:scale-95 transition-all duration-200 flex items-center gap-2">
+                            <i data-lucide="save" class="w-5 h-5"></i> Simpan
+                        </button>
 
-<!-- Animasi masuk form -->
-<style>
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(15px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-.animate-fadeIn {
-    animation: fadeIn 0.6s ease-out;
-}
-</style>
+                        <a href="{{ route('admin.mechanics.index') }}"
+                           class="px-6 py-3 rounded-xl border border-gray-300 text-gray-600 hover:bg-gray-100 transition font-semibold flex items-center gap-2">
+                            <i data-lucide="x-circle" class="w-5 h-5"></i> Batal
+                        </a>
+                    </div>
 
-<!-- Lucide Icons -->
-<script src="https://unpkg.com/lucide@latest"></script>
-<script>
-    lucide.createIcons();
-</script>
+                </form>
+
             </div>
         </div>
     </div>
+
+    {{-- ANIMATIONS --}}
+    <style>
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(25px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes pop {
+            0% { transform: scale(0.95); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .animate-fadeIn { animation: fadeIn 0.6s ease-out; }
+        .animate-fadeInUp { animation: fadeInUp 0.6s ease-out; }
+        .animate-slideDown { animation: slideDown 0.6s ease-out; }
+        .animate-pop { animation: pop 0.3s ease-out; }
+    </style>
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>lucide.createIcons();</script>
 </x-app-layout>

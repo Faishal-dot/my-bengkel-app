@@ -48,7 +48,7 @@ public function getVehicleNameAttribute()
 
 public function mechanic()
 {
-    return $this->belongsTo(\App\Models\Mechanic::class, 'mechanic_id');
+    return $this->belongsTo(Mechanic::class, 'mechanic_id');
 }
 
 }

@@ -40,9 +40,14 @@ class User extends Authenticatable
         return $this->hasMany(Vehicle::class, 'user_id');
     }
 
-    // ✅ Tambahkan ini untuk memperbaiki error
     public function bookings()
     {
         return $this->hasMany(Booking::class, 'user_id');
+    }
+
+    /** 🔥 Relasi mekanik yang kamu minta */
+    public function mechanic()
+    {
+        return $this->hasOne(Mechanic::class);
     }
 }

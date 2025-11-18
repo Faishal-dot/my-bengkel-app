@@ -1,25 +1,55 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-2xl text-gray-800 flex items-center gap-2">
+        <h2 class="font-semibold text-2xl text-gray-800 flex items-center gap-2 fade-slide">
             <i data-lucide="shopping-cart" class="w-6 h-6 text-blue-600"></i>
             Manajemen Pesanan
         </h2>
     </x-slot>
 
-    <div class="py-10 bg-gradient-to-b from-gray-100 to-gray-200 min-h-screen">
+    {{-- ANIMASI --}}
+    <style>
+        /* Fade-in + slide-up */
+        .fade-slide {
+            opacity: 0;
+            transform: translateY(20px);
+            animation: slideUp 0.6s ease-out forwards;
+        }
+
+        @keyframes slideUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Row fade + delay */
+        .fade-row {
+            opacity: 0;
+            animation: fadeRow 0.6s ease-out forwards;
+        }
+
+        @keyframes fadeRow {
+            to {
+                opacity: 1;
+            }
+        }
+    </style>
+
+    <div class="py-10 bg-gradient-to-b from-gray-100 to-gray-200 min-h-screen fade-slide" style="animation-delay:.1s">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
 
-            <div class="bg-white p-6 rounded-2xl shadow-lg">
+            <div class="bg-white p-6 rounded-2xl shadow-lg fade-slide" style="animation-delay:.2s">
+
                 {{-- Alert success --}}
                 @if(session('success'))
-                    <div class="mb-6 p-4 bg-green-100 text-green-700 border border-green-200 rounded-lg flex items-center gap-2">
+                    <div class="mb-6 p-4 bg-green-100 text-green-700 border border-green-200 rounded-lg flex items-center gap-2 fade-slide" style="animation-delay:.3s">
                         <i data-lucide="check-circle" class="w-5 h-5"></i>
                         {{ session('success') }}
                     </div>
                 @endif
 
                 {{-- Heading --}}
-                <div class="mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                <div class="mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-3 fade-slide" style="animation-delay:.35s">
                     <div>
                         <h3 class="text-xl font-bold text-gray-800">Daftar Pesanan</h3>
                         <p class="text-gray-600 text-sm">Kelola semua pesanan produk pelanggan di sini</p>
@@ -27,7 +57,7 @@
                 </div>
 
                 {{-- Table --}}
-                <div class="overflow-x-auto rounded-lg border border-gray-200">
+                <div class="overflow-x-auto rounded-lg border border-gray-200 fade-slide" style="animation-delay:.45s">
                     <table class="w-full border-collapse text-sm">
                         <thead>
                             <tr class="bg-blue-600 text-white uppercase text-xs">
@@ -41,19 +71,26 @@
                                 <th class="px-4 py-3 border">Aksi</th>
                             </tr>
                         </thead>
+
                         <tbody>
                             @forelse ($orders as $index => $order)
-                                <tr class="{{ $index % 2 === 0 ? 'bg-gray-50' : 'bg-white' }} hover:bg-blue-50 transition">
+                                <tr 
+                                    class="{{ $index % 2 === 0 ? 'bg-gray-50' : 'bg-white' }} hover:bg-blue-50 transition fade-row"
+                                    style="animation-delay: {{ $index * 0.12 }}s">
+
                                     <td class="px-4 py-3 border text-center font-medium">{{ $index + 1 }}</td>
                                     <td class="px-4 py-3 border">{{ $order->user->name ?? '-' }}</td>
                                     <td class="px-4 py-3 border">{{ $order->product->name ?? '-' }}</td>
                                     <td class="px-4 py-3 border text-center">{{ $order->quantity }}</td>
+
                                     <td class="px-4 py-3 border font-semibold">
                                         Rp {{ number_format($order->total_price, 0, ',', '.') }}
                                     </td>
+
                                     <td class="px-4 py-3 border text-center whitespace-nowrap">
                                         {{ $order->created_at->format('d-m-Y') }}
                                     </td>
+
                                     <td class="px-4 py-3 border text-center">
                                         @if($order->status == 'disetujui')
                                             <span class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-semibold inline-flex items-center gap-1">
@@ -69,8 +106,10 @@
                                             </span>
                                         @endif
                                     </td>
+
                                     <td class="px-4 py-3 border">
                                         <div class="flex flex-col md:flex-row md:items-center gap-2">
+
                                             {{-- Detail --}}
                                             <a href="{{ route('admin.orders.show', $order->id) }}"
                                                class="px-3 py-1 bg-blue-500 text-white rounded-lg hover:bg-blue-600 text-xs font-medium shadow flex items-center gap-1">
@@ -104,7 +143,7 @@
                                     </td>
                                 </tr>
                             @empty
-                                <tr>
+                                <tr class="fade-row" style="animation-delay:.3s">
                                     <td colspan="8" class="text-center py-6 text-gray-500 italic">
                                         Belum ada pesanan
                                     </td>
@@ -123,4 +162,5 @@
     <script>
         lucide.createIcons();
     </script>
+
 </x-app-layout>

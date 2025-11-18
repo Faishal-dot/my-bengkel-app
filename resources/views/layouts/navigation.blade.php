@@ -17,32 +17,45 @@
 </div>
 
     <!-- Menu Utama -->
-    <div class="flex-1 px-4 py-6 overflow-y-auto">
-        @auth
-          @php
-if (auth()->user()->role === 'admin') {
-    $menus = [
-        ['route' => 'admin.dashboard', 'icon' => 'home', 'label' => 'Dashboard'],
-        ['route' => 'admin.services.index', 'icon' => 'wrench', 'label' => 'Layanan'],
-        ['route' => 'admin.mechanics.index', 'icon' => 'users', 'label' => 'Mekanik'],
-        ['route' => 'admin.products.index', 'icon' => 'package', 'label' => 'Produk'],
-        ['route' => 'admin.bookings.index', 'icon' => 'calendar', 'label' => 'Booking'],
-        ['route' => 'admin.orders.index', 'icon' => 'shopping-cart', 'label' => 'Pesanan'],
-        ['route' => 'admin.penghasilan', 'icon' => 'wallet', 'label' => 'Penghasilan'],
-    ];
-} else {
-    $menus = [
-        ['route' => 'customer.dashboard', 'icon' => 'home', 'label' => 'Dashboard'],
-        ['route' => 'customer.services', 'icon' => 'wrench', 'label' => 'Layanan'],
-        ['route' => 'customer.products', 'icon' => 'package', 'label' => 'Produk'],
-        ['route' => 'customer.vehicles.index', 'icon' => 'car', 'label' => 'Kendaraan'],
-        ['route' => 'customer.booking.index', 'icon' => 'calendar', 'label' => 'Booking Saya'],
-        ['route' => 'customer.orders.index', 'icon' => 'shopping-cart', 'label' => 'Pesanan Saya'],
-    ];
-}
-@endphp
+<div class="flex-1 px-4 py-6 overflow-y-auto">
+    @auth
+        @php
+            if (auth()->user()->role === 'admin') {
 
+                $menus = [
+                    ['route' => 'admin.dashboard', 'icon' => 'home', 'label' => 'Dashboard'],
+                    ['route' => 'admin.services.index', 'icon' => 'wrench', 'label' => 'Layanan'],
+                    ['route' => 'admin.mechanics.index', 'icon' => 'users', 'label' => 'Mekanik'],
+                    ['route' => 'admin.products.index', 'icon' => 'package', 'label' => 'Produk'],
+                    ['route' => 'admin.bookings.index', 'icon' => 'calendar', 'label' => 'Booking'],
+                    ['route' => 'admin.orders.index', 'icon' => 'shopping-cart', 'label' => 'Pesanan'],
+                    ['route' => 'admin.penghasilan', 'icon' => 'wallet', 'label' => 'Penghasilan'],
+                ];
 
+            } elseif (auth()->user()->role === 'mechanic') {
+
+                // MENU UNTUK MEKANIK
+                $menus = [
+                    ['route' => 'mechanic.dashboard', 'icon' => 'home', 'label' => 'Dashboard'],
+                    ['route' => 'mechanic.jobs.index', 'icon' => 'wrench', 'label' => 'Pekerjaan Saya'],
+                    ['route' => 'mechanic.bookings.index', 'icon' => 'calendar', 'label' => 'Booking Masuk'],
+                    ['route' => 'mechanic.orders.index', 'icon' => 'shopping-cart', 'label' => 'Pesanan Masuk'],
+                    ['route' => 'mechanic.history.index', 'icon' => 'history', 'label' => 'Riwayat'],
+                ];
+
+            } else {
+
+                // MENU CUSTOMER
+                $menus = [
+                    ['route' => 'customer.dashboard', 'icon' => 'home', 'label' => 'Dashboard'],
+                    ['route' => 'customer.services', 'icon' => 'wrench', 'label' => 'Layanan'],
+                    ['route' => 'customer.products', 'icon' => 'package', 'label' => 'Produk'],
+                    ['route' => 'customer.vehicles.index', 'icon' => 'car', 'label' => 'Kendaraan'],
+                    ['route' => 'customer.booking.index', 'icon' => 'calendar', 'label' => 'Booking Saya'],
+                    ['route' => 'customer.orders.index', 'icon' => 'shopping-cart', 'label' => 'Pesanan Saya'],
+                ];
+            }
+        @endphp
             
             <ul class="space-y-1" x-data>
                 @foreach ($menus as $i => $menu)
