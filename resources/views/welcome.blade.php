@@ -5,59 +5,60 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Bengkel Oto</title>
 
-    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
 
-    <!-- Styles & Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
-<style>
-html { scroll-behavior: smooth; }
+    <style>
+        html { scroll-behavior: smooth; }
 
-/* Scrollbar */
-::-webkit-scrollbar { width: 8px; }
-::-webkit-scrollbar-track { background: #0f172a; }
-::-webkit-scrollbar-thumb { background-color: #3b82f6; border-radius: 10px; border: 2px solid #0f172a; }
-::-webkit-scrollbar-thumb:hover { background-color: #2563eb; }
-* { scrollbar-width: thin; scrollbar-color: #3b82f6 #0f172a; }
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background-color: #3b82f6; border-radius: 10px; border: 2px solid #0f172a; }
+        ::-webkit-scrollbar-thumb:hover { background-color: #2563eb; }
+        * { scrollbar-width: thin; scrollbar-color: #3b82f6 #0f172a; }
 
-html, body { height: 100%; margin: 0; padding: 0; background-color: #0f172a; overflow-x: hidden; font-family: 'Figtree', sans-serif; }
+        html, body { height: 100%; margin: 0; padding: 0; background-color: #0f172a; overflow-x: hidden; font-family: 'Figtree', sans-serif; }
 
-/* ========================== ANIMASI HALUS CARD ========================== */
-.fade-slide { opacity: 0; transform: translateY(20px); transition: all .6s ease-out; }
-.fade-slide.appear { opacity: 1; transform: translateY(0); }
-.fade-zoom { opacity: 0; transform: scale(0.95); transition: all .6s ease-out; }
-.fade-zoom.appear { opacity: 1; transform: scale(1); }
+        /* ========================== ANIMASI HALUS CARD ========================== */
+        .fade-slide { opacity: 0; transform: translateY(20px); transition: all .6s ease-out; }
+        .fade-slide.appear { opacity: 1; transform: translateY(0); }
+        .fade-zoom { opacity: 0; transform: scale(0.95); transition: all .6s ease-out; }
+        .fade-zoom.appear { opacity: 1; transform: scale(1); }
 
-/* FAQ */
-.faq-content { max-height: 0; overflow: hidden; padding-top: 0; padding-bottom: 0; transition: max-height 0.4s ease, padding 0.4s ease; }
-.faq-open { max-height: 500px; padding-top: 0.5rem; padding-bottom: 0.5rem; }
+        /* FAQ Accordion */
+        .faq-content { max-height: 0; overflow: hidden; padding-top: 0; padding-bottom: 0; transition: max-height 0.4s ease, padding 0.4s ease; }
+        .faq-open { max-height: 500px; padding-top: 0.5rem; padding-bottom: 0.5rem; }
 
-/* Navbar highlight */
-.nav-link { transition: color 0.25s ease; position: relative; padding-bottom: 6px; }
-.nav-link::after { content: ""; position: absolute; left: 50%; transform: translateX(-50%) scaleX(0); bottom: 0; width: 60%; height: 2px; background: #3b82f6; transform-origin: center; transition: transform 0.25s ease; }
-.nav-link.active { color: #3b82f6; font-weight: 600; }
-.nav-link.active::after { transform: translateX(-50%) scaleX(1); }
+        /* Navbar Link Highlight */
+        .nav-link { transition: color 0.25s ease; position: relative; padding-bottom: 6px; }
+        .nav-link::after { 
+            content: ""; position: absolute; left: 50%; transform: translateX(-50%) scaleX(0); 
+            bottom: 0; width: 60%; height: 2px; background: #3b82f6; 
+            transform-origin: center; transition: transform 0.25s ease; 
+        }
+        .nav-link.active { color: #3b82f6; font-weight: 600; }
+        .nav-link.active::after { transform: translateX(-50%) scaleX(1); }
 
-@media (max-width: 767px) { .nav-link::after { width: 80%; } }
-section { scroll-margin-top: 84px; }
+        @media (max-width: 767px) { .nav-link::after { width: 80%; } }
+        section { scroll-margin-top: 84px; }
 
-/* HERO WAVE ANIMASI */
-.hero-wave span {
-    display: inline-block;
-    animation: wave 1.2s infinite;
-}
-@keyframes wave {
-    0%, 60%, 100% { transform: translateY(0); }
-    30% { transform: translateY(-12px); }
-}
-</style>
+        /* HERO WAVE ANIMASI */
+        .hero-wave span {
+            display: inline-block;
+            animation: wave 1.2s infinite;
+        }
+        @keyframes wave {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-12px); }
+        }
+    </style>
 </head>
 
 <body class="antialiased bg-gradient-to-br from-gray-900 via-blue-900 to-gray-800 text-white">
 
-<!-- NAVBAR -->
 <nav class="flex items-center justify-between px-6 py-4 bg-black/20 backdrop-blur-lg fixed w-full z-50 shadow-md">
     <div class="flex items-center gap-2">
         <i data-lucide="wrench" class="w-6 h-6 text-blue-400"></i>
@@ -83,7 +84,6 @@ section { scroll-margin-top: 84px; }
     </button>
 </nav>
 
-<!-- MOBILE MENU -->
 <div id="mobile-menu" class="hidden fixed top-0 right-0 h-full w-2/3 bg-gray-900/95 p-6 z-40 flex flex-col gap-4">
     <button id="close-btn" class="self-end text-gray-400 hover:text-white">
         <i data-lucide="x" class="w-6 h-6"></i>
@@ -98,7 +98,6 @@ section { scroll-margin-top: 84px; }
     <a href="{{ route('register') }}" class="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 transition font-semibold text-center">Daftar</a>
 </div>
 
-<!-- HERO -->
 <section class="h-screen flex flex-col items-center justify-center text-center px-6 fade-slide">
     <h1 class="text-3xl sm:text-4xl md:text-6xl font-bold leading-tight drop-shadow-lg hero-wave">
         Solusi Perawatan & Perbaikan <span class="text-blue-400">Kendaraan</span> Anda
@@ -115,7 +114,6 @@ section { scroll-margin-top: 84px; }
     </div>
 </section>
 
-<!-- LAYANAN -->
 <section id="layanan" class="py-20 px-6 bg-gray-900/60 backdrop-blur-lg">
     <div class="max-w-6xl mx-auto text-center">
         <h2 class="text-2xl sm:text-3xl font-bold mb-12 fade-slide">Layanan Unggulan Kami</h2>
@@ -139,7 +137,6 @@ section { scroll-margin-top: 84px; }
     </div>
 </section>
 
-<!-- TENTANG -->
 <section id="tentang" class="py-20 px-6 fade-slide">
     <div class="max-w-5xl mx-auto grid md:grid-cols-2 gap-12 items-center">
         <div class="relative w-full overflow-hidden rounded-2xl shadow-lg">
@@ -162,7 +159,6 @@ section { scroll-margin-top: 84px; }
     </div>
 </section>
 
-<!-- TESTIMONI -->
 <section id="testimoni" class="py-20 px-6 bg-gray-900/60 backdrop-blur-lg fade-slide">
     <div class="max-w-6xl mx-auto text-center">
         <h2 class="text-2xl sm:text-3xl font-bold mb-12">Apa Kata Pelanggan?</h2>
@@ -183,7 +179,6 @@ section { scroll-margin-top: 84px; }
     </div>
 </section>
 
-<!-- FAQ -->
 <section id="faq" class="py-20 px-6 bg-gray-800/50 backdrop-blur-lg fade-slide">
     <div class="max-w-4xl mx-auto">
         <h2 class="text-2xl sm:text-3xl font-bold mb-10 text-center">Pertanyaan Umum</h2>
@@ -200,20 +195,19 @@ section { scroll-margin-top: 84px; }
                     Metode pembayaran?
                     <i data-lucide="chevron-down" class="w-5 h-5"></i>
                 </button>
-                <div class="faq-content px-6 text-gray-300">Tunai, transfer bank, OVO, DANA, GoPay.</div>
+                <div class="faq-content px-6 text-gray-300">Tunai, transfer bank.</div>
             </div>
             <div class="bg-white/10 rounded-xl shadow-lg overflow-hidden">
                 <button class="w-full flex justify-between items-center px-6 py-4 text-left font-semibold faq-toggle">
                     Bisa servis motor?
                     <i data-lucide="chevron-down" class="w-5 h-5"></i>
                 </button>
-                <div class="faq-content px-6 text-gray-300">Ya, kami melayani servis mobil dan motor.</div>
+                <div class="faq-content px-6 text-gray-300">Sayang nya tidak, kami hanya melayani servis mobil.</div>
             </div>
         </div>
     </div>
 </section>
 
-<!-- KONTAK -->
 <section id="kontak" class="py-20 px-6 bg-gray-900/60 backdrop-blur-lg fade-slide">
     <div class="max-w-4xl mx-auto text-center">
         <h2 class="text-2xl sm:text-3xl font-bold mb-6">Kontak Kami</h2>
@@ -229,7 +223,6 @@ section { scroll-margin-top: 84px; }
     </div>
 </section>
 
-<!-- LOKASI -->
 <section id="lokasi" class="py-20 px-6 fade-slide">
     <div class="max-w-4xl mx-auto text-center">
         <h2 class="text-2xl sm:text-3xl font-bold mb-10">Lokasi Kami</h2>
@@ -240,81 +233,113 @@ section { scroll-margin-top: 84px; }
     </div>
 </section>
 
-<!-- FOOTER -->
 <footer class="py-6 text-center text-gray-400 text-sm border-t border-gray-700 bg-black/40">
     © {{ date('Y') }} Bengkel Oto. All rights reserved.
 </footer>
 
-<!-- SCRIPTS -->
 <script src="https://unpkg.com/lucide@latest"></script>
 <script>
+    // Inisialisasi Lucide Icons
     lucide.createIcons();
 
-    // Fade Animasi muncul saat scroll
+    // ========================== ANIMASI MUNCUL SAAT SCROLL (Intersection Observer) ==========================
     const animatedEls = document.querySelectorAll('.fade-slide, .fade-zoom');
     const observer = new IntersectionObserver(entries => {
-        entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('appear'); });
+        entries.forEach(e => {
+            if (e.isIntersecting) {
+                e.target.classList.add('appear');
+                // Berhenti mengamati setelah muncul
+                observer.unobserve(e.target); 
+            }
+        });
     }, { threshold: 0.2 });
     animatedEls.forEach(el => observer.observe(el));
 
-    // Carousel
+    // ========================== CAROUSEL ==========================
     const carousel = document.getElementById("carousel");
     if(carousel){
-        let index=0;
-        const slides=carousel.children;
-        setInterval(()=>{ index=(index+1)%slides.length; carousel.style.transform=`translateX(-${index*100}%)`; },3000);
+        let index = 0;
+        const slides = carousel.children;
+        setInterval(() => {
+            index = (index + 1) % slides.length;
+            carousel.style.transform = `translateX(-${index * 100}%)`;
+        }, 3000);
     }
 
-    // Navbar active highlight
+    // ========================== NAVBAR ACTIVE HIGHLIGHT ==========================
     const navLinks = document.querySelectorAll('.nav-link');
     function setActiveLink(){
-        let current="";
-        const sections=document.querySelectorAll("section[id]");
-        const scrollY=window.pageYOffset;
-        sections.forEach(sec=>{
-            const secTop=sec.offsetTop-120;
-            const secHeight=sec.offsetHeight;
-            if(scrollY>=secTop && scrollY<secTop+secHeight) current=sec.getAttribute("id");
+        let current = "";
+        // Ambil semua section dengan ID, kecuali yang di dalam menu mobile (yang tidak punya ID)
+        const sections = document.querySelectorAll("section[id]");
+        const scrollY = window.pageYOffset;
+
+        sections.forEach(sec => {
+            const secTop = sec.offsetTop - 120; // Sesuaikan offset navbar
+            const secHeight = sec.offsetHeight;
+            if(scrollY >= secTop && scrollY < secTop + secHeight) {
+                current = sec.getAttribute("id");
+            }
         });
-        navLinks.forEach(link=>{ link.classList.remove("active"); if(link.getAttribute("href")==`#${current}`) link.classList.add("active"); });
+        
+        navLinks.forEach(link => {
+            link.classList.remove("active");
+            // Cek href dari link (misalnya: "#layanan")
+            if(link.getAttribute("href") === `#${current}`) { 
+                link.classList.add("active"); 
+            }
+        });
     }
     window.addEventListener("scroll", setActiveLink);
     window.addEventListener("load", setActiveLink);
 
-    // FAQ toggle
-    document.querySelectorAll('.faq-toggle').forEach(button=>{
-        button.addEventListener('click',()=>{
-            const content=button.nextElementSibling;
-            const icon=button.querySelector('i');
+    // ========================== FAQ TOGGLE ==========================
+    document.querySelectorAll('.faq-toggle').forEach(button => {
+        button.addEventListener('click', () => {
+            const content = button.nextElementSibling;
+            const icon = button.querySelector('i');
+            
+            // Tutup semua yang lain sebelum membuka
+            document.querySelectorAll('.faq-content').forEach(otherContent => {
+                if (otherContent !== content && otherContent.classList.contains('faq-open')) {
+                    otherContent.classList.remove('faq-open');
+                    otherContent.previousElementSibling.querySelector('i').classList.remove('rotate-180');
+                }
+            });
+
             content.classList.toggle('faq-open');
             icon.classList.toggle('rotate-180');
         });
     });
 
-    // Mobile menu
-    const menuBtn=document.getElementById("menu-btn");
-    const closeBtn=document.getElementById("close-btn");
-    const mobileMenu=document.getElementById("mobile-menu");
-    if(menuBtn) menuBtn.addEventListener("click",()=>mobileMenu.classList.toggle("hidden"));
-    if(closeBtn) closeBtn.addEventListener("click",()=>mobileMenu.classList.add("hidden"));
+    // ========================== MOBILE MENU ==========================
+    const menuBtn = document.getElementById("menu-btn");
+    const closeBtn = document.getElementById("close-btn");
+    const mobileMenu = document.getElementById("mobile-menu");
+    
+    if(menuBtn) menuBtn.addEventListener("click", () => mobileMenu.classList.toggle("hidden"));
+    if(closeBtn) closeBtn.addEventListener("click", () => mobileMenu.classList.add("hidden"));
 
-    // HERO WAVE ANIMASI PER HURUF
-    const hero = document.querySelector(".hero-wave");
-    if(hero){
-        [...hero.childNodes].forEach(node=>{
-            if(node.nodeType===Node.TEXT_NODE){
-                const text=node.textContent;
-                node.textContent='';
-                [...text].forEach(char=>{
-                    const span=document.createElement('span');
-                    span.textContent=char===' ' ? '\u00A0' : char;
-                    span.style.animationDelay=`${Math.random()*0.6}s`;
-                    node.parentNode.insertBefore(span,node);
-                });
-            }
-        });
-    }
+    // HERO WAVE ANIMASI PER HURUF (BERURUTAN)
+const hero = document.querySelector(".hero-wave");
+if(hero){
+    [...hero.childNodes].forEach(node => {
+        if(node.nodeType === Node.TEXT_NODE){
+            const text = node.textContent;
+            node.textContent = '';
+
+            let i = 0;
+            [...text].forEach(char => {
+                const span = document.createElement('span');
+                span.textContent = char === ' ' ? '\u00A0' : char;
+                span.style.animationDelay = `${i * 0.05}s`; // <<< urut
+                i++;
+                node.parentNode.insertBefore(span, node);
+            });
+        }
+    });
+}
 </script>
 
 </body>
-</html>
+</html

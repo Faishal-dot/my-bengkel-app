@@ -1,12 +1,14 @@
 import './bootstrap';
 
 import Alpine from 'alpinejs';
-import { createIcons, icons } from 'lucide'; // ✅ betul
+import { createIcons, icons } from 'lucide';
 
 window.Alpine = Alpine;
 Alpine.start();
 
-// Jalankan lucide setelah DOM siap
 document.addEventListener("DOMContentLoaded", () => {
-    createIcons({ icons });
+    createIcons({
+        ...icons,
+        laravel: LaravelIcon, // <-- Registrasi ikon
+    });
 });

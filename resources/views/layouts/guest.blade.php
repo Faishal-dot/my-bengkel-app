@@ -27,7 +27,6 @@
             opacity: 1;
         }
 
-        /* Cursor berkedip untuk teks animasi */
         @keyframes blink {
             50% { border-color: transparent; }
         }
@@ -35,12 +34,10 @@
             animation: blink 1s step-end infinite;
         }
 
-        /* Warna biru biasa tanpa efek glow */
         .text-blue {
             color: #3B82F6;
         }
 
-        /* Efek fade-in */
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(8px); }
             to { opacity: 1; transform: translateY(0); }
@@ -64,7 +61,8 @@
 
         <!-- Konten utama -->
         <div class="relative z-10 w-full px-4 sm:px-6 lg:px-8">
-            <div class="mx-auto w-full max-w-sm sm:max-w-md md:max-w-lg lg:max-w-xl 
+            <div class="mx-auto w-full 
+                        max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg
                         bg-white/10 backdrop-blur-lg 
                         rounded-xl p-4 sm:p-6 lg:p-8 shadow-lg">
 
@@ -122,7 +120,7 @@
 
         setInterval(changeBackground, 5000);
 
-        // ==== Animasi "Oto" mengetik, menghapus & fade-in ====
+        // ==== Animasi teks "Oto" ====
         document.addEventListener("DOMContentLoaded", function () {
             const element = document.getElementById("typing-text");
             const text = "Oto";
@@ -136,7 +134,7 @@
                 if (typing) {
                     if (index < text.length) {
                         element.textContent += text.charAt(index);
-                        element.classList.add("fade-in"); // efek muncul lembut
+                        element.classList.add("fade-in");
                         index++;
                         setTimeout(typeLoop, speed);
                     } else {

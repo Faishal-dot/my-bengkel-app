@@ -19,10 +19,10 @@ use App\Http\Controllers\Admin\MechanicController;
 // =======================
 use App\Http\Controllers\Customer\DashboardController as CustomerDashboard;
 use App\Http\Controllers\Customer\BookingController as CustomerBooking;
-use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\Customer\ProductController as CustomerProduct;
 use App\Http\Controllers\Customer\OrderController as CustomerOrder;
 use App\Http\Controllers\Customer\VehicleController;
+use App\Http\Controllers\Customer\BookingQueueController;
 
 // =======================
 // Mechanic Controllers
@@ -37,7 +37,7 @@ use App\Http\Middleware\IsAdmin;
 
 
 // =======================
-// Landing page
+// Landing Page
 // =======================
 Route::get('/', fn() => view('welcome'))->name('home');
 
@@ -57,7 +57,7 @@ Route::middleware(['auth', 'verified'])->get('/dashboard', function () {
 
 
 // =======================
-// Profile routes
+// Profile Routes
 // =======================
 Route::middleware(['auth'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -104,6 +104,10 @@ Route::middleware(['auth', 'verified'])
 
         Route::get('/dashboard', [CustomerDashboard::class, 'index'])->name('dashboard');
 
+        // ========= ANTRIAN BOOKING (QUEUE) =========
+        Route::get('/queue', [BookingQueueController::class, 'index'])->name('queue.index');
+        Route::get('/queue/filter', [BookingQueueController::class, 'filter'])->name('queue.filter');
+
         // Produk
         Route::get('/products', [CustomerProduct::class, 'index'])->name('products');
         Route::get('/products/{product}', [CustomerProduct::class, 'show'])->name('products.show');
@@ -120,7 +124,7 @@ Route::middleware(['auth', 'verified'])
         Route::resource('/vehicles', VehicleController::class)->names('vehicles');
 
         // Layanan
-        Route::get('/services', [ServiceController::class, 'index'])->name('services');
+        Route::get('/services', [\App\Http\Controllers\ServiceController::class, 'index'])->name('services');
     });
 
 
@@ -132,14 +136,11 @@ Route::middleware(['auth', 'verified', 'role:mechanic'])
     ->name('mechanic.')
     ->group(function () {
 
-        // Dashboard mekanik
         Route::get('/dashboard', [MechanicDashboard::class, 'index'])->name('dashboard');
 
-        // Pekerjaan
         Route::get('/jobs', [MechanicJobController::class, 'index'])->name('jobs.index');
         Route::patch('/jobs/{job}/status', [MechanicJobController::class, 'updateStatus'])->name('jobs.updateStatus');
 
-        // Placeholder route (bisa kamu ganti dengan controller nanti)
         Route::get('/bookings', fn() => "Halaman Booking Masuk")->name('bookings.index');
         Route::get('/orders', fn() => "Halaman Pesanan Masuk")->name('orders.index');
         Route::get('/history', fn() => "Halaman Riwayat Pekerjaan")->name('history.index');

@@ -10,28 +10,34 @@ return new class extends Migration
      * Run the migrations.
      */
     public function up(): void
-    {
-        Schema::table('bookings', function (Blueprint $table) {
-            // relasi ke services
-            $table->foreignId('service_id')
-                  ->nullable()
-                  ->constrained('services')
-                  ->onDelete('set null');
+{
+    Schema::table('bookings', function (Blueprint $table) {
 
-            // tambahkan kolom vehicle & notes
-            $table->string('vehicle')->after('service_id');
-            $table->text('notes')->nullable()->after('vehicle');
-        });
-    }
+        // relasi service
+        if (!Schema::hasColumn('bookings', 'service_id')) {
+            $table->foreignId('service_id')->nullable()->constrained('services')->onDelete('set null');
+        }
 
-    /**
-     * Reverse the migrations.
-     */
-    public function down(): void
-    {
-        Schema::table('bookings', function (Blueprint $table) {
+        // Hapus: $table->string('vehicle')
+        // karena sekarang pakai vehicle_id
+
+        if (!Schema::hasColumn('bookings', 'notes')) {
+            $table->text('notes')->nullable();
+        }
+    });
+}
+
+public function down(): void
+{
+    Schema::table('bookings', function (Blueprint $table) {
+        if (Schema::hasColumn('bookings', 'service_id')) {
             $table->dropForeign(['service_id']);
-            $table->dropColumn(['service_id', 'vehicle', 'notes']);
-        });
-    }
+            $table->dropColumn('service_id');
+        }
+
+        if (Schema::hasColumn('bookings', 'notes')) {
+            $table->dropColumn('notes');
+        }
+    });
+}
 };

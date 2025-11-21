@@ -31,19 +31,33 @@ class BookingController extends Controller
     $booking = Booking::findOrFail($id);
 
     $request->validate([
-    'status' => 'required|in:pending,approved,rejected',
-    'mechanic_id' => 'nullable|exists:mechanics,id',
-]);
+        'status' => 'required|in:pending,approved,rejected',
+        'mechanic_id' => 'nullable|exists:mechanics,id',
+    ]);
 
-    // ✅ Jangan hapus mechanic_id lama kalau tidak dikirim
+    // Jika mekanik diisi, update
     if ($request->filled('mechanic_id')) {
         $booking->mechanic_id = $request->mechanic_id;
     }
 
-    // ✅ Update status booking
+    // Jika status berubah menjadi approved → kasih nomor antrian
+    if ($request->status === 'approved' && $booking->queue_number === null) {
+
+        // Ambil nomor antrian terakhir di hari yang sama
+        $lastQueue = Booking::whereDate('booking_date', $booking->booking_date)
+            ->where('status', 'approved')
+            ->max('queue_number');
+
+        // Tentukan nomor antrian baru
+        $nextQueue = $lastQueue ? $lastQueue + 1 : 1;
+
+        $booking->queue_number = $nextQueue;
+    }
+
+    // Update status
     $booking->status = $request->status;
 
-    // ✅ Simpan perubahan
+    // Simpan
     $booking->save();
 
     return redirect()

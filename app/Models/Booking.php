@@ -14,8 +14,10 @@ class Booking extends Model
     'vehicle_id',
     'service_id',
     'booking_date',
+    'notes',
     'status',
     'mechanic_id',
+    'payment_status',
 ];
 
     // Relasi ke User

@@ -16,7 +16,7 @@ class BookingController extends Controller
      */
     public function index()
     {
-        $bookings = Booking::with(['service', 'vehicle', 'mechanic']) // ✅ FIX: load mekanik
+        $bookings = Booking::with(['service', 'vehicle', 'mechanic'])
             ->where('user_id', Auth::id())
             ->latest()
             ->paginate(10);
@@ -31,13 +31,13 @@ class BookingController extends Controller
     {
         $services  = Service::all();
         $vehicles  = Auth::user()->vehicles ?? collect();
-        $mechanics = Mechanic::all(); // tetap
+        $mechanics = Mechanic::all();
 
         return view('customer.booking', compact('services', 'vehicles', 'mechanics'));
     }
 
     /**
-     * Simpan booking baru
+     * Simpan booking baru TANPA MIDTRANS
      */
     public function store(Request $request)
     {
@@ -50,13 +50,16 @@ class BookingController extends Controller
         ]);
 
         $validated['user_id'] = Auth::id();
-        $validated['status']  = 'pending';
+        $validated['status'] = 'pending';          // status booking
+        $validated['payment_status'] = 'unpaid';   // tidak pakai midtrans
 
-        Booking::create($validated);
+        // SIMPAN BOOKING
+        $booking = Booking::create($validated);
 
+        // Redirect kembali ke halaman "Booking Saya"
         return redirect()
             ->route('customer.booking.index')
-            ->with('success', 'Booking berhasil dikirim, tunggu konfirmasi admin.');
+            ->with('success', 'Booking berhasil dibuat tanpa pembayaran online.');
     }
 
     /**
@@ -64,7 +67,7 @@ class BookingController extends Controller
      */
     public function history()
     {
-        $bookings = Booking::with(['service', 'vehicle', 'mechanic']) // ✅ FIX: load mekanik
+        $bookings = Booking::with(['service', 'vehicle', 'mechanic'])
             ->where('user_id', Auth::id())
             ->orderByDesc('booking_date')
             ->paginate(10);
