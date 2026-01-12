@@ -3,18 +3,15 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>Bengkel Oto</title>
 
-    <title>{{ config('app.name', 'Laravel') }}</title>
-
-    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
 
-    <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
     <style>
+        /* Animasi Background Fade */
         .bg-fade {
             position: absolute;
             inset: 0;
@@ -22,11 +19,13 @@
             background-position: center;
             opacity: 0;
             transition: opacity 1.5s ease-in-out;
+            z-index: 0;
         }
         .bg-fade.active {
             opacity: 1;
         }
 
+        /* Animasi Kursor Kedip */
         @keyframes blink {
             50% { border-color: transparent; }
         }
@@ -34,12 +33,14 @@
             animation: blink 1s step-end infinite;
         }
 
+        /* Warna Custom */
         .text-blue {
             color: #3B82F6;
         }
 
+        /* Animasi Fade In untuk Text */
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(8px); }
+            from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
         .fade-in {
@@ -47,54 +48,80 @@
         }
     </style>
 </head>
-<body class="font-sans antialiased">
+<body class="font-sans antialiased text-white">
 
-    <!-- Background wrapper -->
     <div id="slideshow" class="min-h-screen flex flex-col items-center justify-center relative overflow-hidden bg-black">
         
-        <!-- Layer background (fade effect) -->
+        {{-- Background Images Slideshow --}}
         <div id="bg1" class="bg-fade active" style="background-image: url('https://plus.unsplash.com/premium_photo-1682142297775-c73dfbaf8a79?q=80&w=1170&auto=format&fit=crop');"></div>
         <div id="bg2" class="bg-fade"></div>
 
-        <!-- Overlay gelap -->
-        <div class="absolute inset-0 bg-black/50"></div>
+        {{-- Dark Overlay --}}
+        <div class="absolute inset-0 bg-black/60 z-0"></div>
 
-        <!-- Konten utama -->
-        <div class="relative z-10 w-full px-4 sm:px-6 lg:px-8">
-            <div class="mx-auto w-full 
-                        max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg
-                        bg-white/10 backdrop-blur-lg 
-                        rounded-xl p-4 sm:p-6 lg:p-8 shadow-lg">
+        {{-- Main Content Container (Glassmorphism) --}}
+        <div class="relative z-10 w-full px-4 sm:px-6 lg:px-8 flex flex-col items-center">
+            
+            <div class="w-full max-w-md bg-white/10 backdrop-blur-lg border border-white/10 rounded-2xl p-8 shadow-2xl transform transition-all hover:scale-[1.01]">
+                
+                {{-- Logo / Title Section --}}
+                <div class="text-center mb-8">
+                    {{-- Icon Bengkel (Optional) --}}
+                    <div class="flex justify-center mb-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                    </div>
 
-                <!-- Judul -->
-                <div class="text-center mb-6">
-                    <h1 class="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-extrabold text-white drop-shadow">
+                    <h1 class="text-3xl font-extrabold text-white tracking-tight">
                         Bengkel 
-                        <span id="typing-text" 
-                              class="inline-block border-r-4 border-white pr-2 animate-blink text-blue">
-                        </span>
+                        <span id="typing-text" class="inline-block text-blue-400 border-r-4 border-blue-400 pr-1 animate-blink"></span>
                     </h1>
-                    <p class="mt-2 text-gray-200 text-sm sm:text-base md:text-lg">
-                        Selamat datang, silakan masuk atau daftar
+                    <p class="mt-3 text-gray-300 text-sm sm:text-base">
+                        Solusi terpercaya untuk perawatan kendaraan Anda.
                     </p>
                 </div>
 
-                <!-- Slot Form (Login/Register) -->
-                <div class="space-y-4 text-sm sm:text-base md:text-lg text-white">
-                    {{ $slot }}
+                {{-- Auth Buttons Section --}}
+                <div class="space-y-4">
+                    @if (Route::has('login'))
+                        @auth
+                            {{-- Tombol Dashboard jika sudah login --}}
+                            <a href="{{ url('/dashboard') }}" 
+                               class="block w-full text-center py-3 px-4 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-semibold transition-all duration-300 shadow-[0_0_15px_rgba(59,130,246,0.5)] hover:shadow-[0_0_25px_rgba(59,130,246,0.7)]">
+                                Menuju Dashboard
+                            </a>
+                        @else
+                            {{-- Tombol Login --}}
+                            <a href="{{ route('login') }}" 
+                               class="block w-full text-center py-3 px-4 rounded-lg bg-white text-gray-900 hover:bg-gray-100 font-bold transition-all duration-300">
+                                Masuk
+                            </a>
+
+                            @if (Route::has('register'))
+                                {{-- Tombol Register --}}
+                                <a href="{{ route('register') }}" 
+                                   class="block w-full text-center py-3 px-4 rounded-lg border border-white/30 hover:bg-white/10 text-white font-semibold transition-all duration-300 backdrop-blur-sm">
+                                    Daftar Akun Baru
+                                </a>
+                            @endif
+                        @endauth
+                    @endif
                 </div>
+
             </div>
         </div>
 
-        <!-- Footer -->
-        <footer class="relative z-10 mt-6 mb-4 text-center text-xs sm:text-sm md:text-base text-gray-200">
-            © {{ date('Y') }} Bengkel Oto. All rights reserved.
+        {{-- Footer --}}
+        <footer class="relative z-10 mt-8 mb-4 text-center text-xs text-gray-400">
+            <p>&copy; {{ date('Y') }} Bengkel Oto. All rights reserved.</p>
         </footer>
     </div>
 
-    <!-- Script fade background & animasi teks -->
+    {{-- Javascript Logic (Background & Typing) --}}
     <script>
-        // ==== Background slideshow ====
+        // 1. Background Slideshow Logic
         const backgrounds = [
             "https://plus.unsplash.com/premium_photo-1682142297775-c73dfbaf8a79?q=80&w=1170&auto=format&fit=crop",
             "https://plus.unsplash.com/premium_photo-1682142309989-45735a64218b?q=80&w=1198&auto=format&fit=crop",
@@ -103,58 +130,70 @@
             "https://plus.unsplash.com/premium_photo-1682141766135-95d9c398babb?q=80&w=1172&auto=format&fit=crop"
         ];
 
-        let index = 0;
+        let bgIndex = 0;
         const bg1 = document.getElementById("bg1");
         const bg2 = document.getElementById("bg2");
         let activeBg = bg1;
 
         function changeBackground() {
-            index = (index + 1) % backgrounds.length;
+            bgIndex = (bgIndex + 1) % backgrounds.length;
             const nextBg = (activeBg === bg1) ? bg2 : bg1;
 
-            nextBg.style.backgroundImage = `url('${backgrounds[index]}')`;
+            // Set image to the hidden div
+            nextBg.style.backgroundImage = `url('${backgrounds[bgIndex]}')`;
+            
+            // Fade in the new div, fade out the old one
             nextBg.classList.add("active");
             activeBg.classList.remove("active");
+            
+            // Swap references
             activeBg = nextBg;
         }
 
+        // Ganti background setiap 5 detik
         setInterval(changeBackground, 5000);
 
-        // ==== Animasi teks "Oto" ====
+
+        // 2. Typing Animation Logic
         document.addEventListener("DOMContentLoaded", function () {
             const element = document.getElementById("typing-text");
-            const text = "Oto";
-            const speed = 150;
+            const textToType = "Oto."; // Text yang akan diketik
+            const typeSpeed = 200;
             const eraseSpeed = 100;
-            const delayBetween = 1000;
-            let index = 0;
-            let typing = true;
+            const delayBeforeErase = 2000;
+            const delayBeforeType = 500;
+            
+            let charIndex = 0;
+            let isTyping = true;
 
-            function typeLoop() {
-                if (typing) {
-                    if (index < text.length) {
-                        element.textContent += text.charAt(index);
-                        element.classList.add("fade-in");
-                        index++;
-                        setTimeout(typeLoop, speed);
+            function typeWriter() {
+                if (isTyping) {
+                    // Typing...
+                    if (charIndex < textToType.length) {
+                        element.textContent += textToType.charAt(charIndex);
+                        charIndex++;
+                        setTimeout(typeWriter, typeSpeed);
                     } else {
-                        typing = false;
-                        setTimeout(typeLoop, delayBetween);
+                        // Selesai ngetik, tunggu sebentar lalu hapus
+                        isTyping = false;
+                        setTimeout(typeWriter, delayBeforeErase);
                     }
                 } else {
-                    if (index > 0) {
-                        element.textContent = text.substring(0, index - 1);
-                        index--;
-                        setTimeout(typeLoop, eraseSpeed);
+                    // Erasing...
+                    if (charIndex > 0) {
+                        element.textContent = textToType.substring(0, charIndex - 1);
+                        charIndex--;
+                        setTimeout(typeWriter, eraseSpeed);
                     } else {
-                        typing = true;
-                        setTimeout(typeLoop, delayBetween);
+                        // Selesai hapus, mulai ngetik lagi
+                        isTyping = true;
+                        setTimeout(typeWriter, delayBeforeType);
                     }
                 }
             }
 
-            element.textContent = "";
-            typeLoop();
+            // Mulai animasi
+            setTimeout(typeWriter, 500);
         });
     </script>
 </body>

@@ -15,12 +15,8 @@
             0% { opacity: 0; transform: translateY(-10px); }
             100% { opacity: 1; transform: translateY(0); }
         }
-        .animate-fade-up {
-            animation: fadeUp 0.6s ease-out forwards;
-        }
-        .animate-fade-in-down {
-            animation: fadeDown 0.6s ease-out forwards;
-        }
+        .animate-fade-up { animation: fadeUp 0.6s ease-out forwards; }
+        .animate-fade-in-down { animation: fadeDown 0.6s ease-out forwards; }
     </style>
 
     <div class="py-12 bg-gradient-to-b from-gray-100 to-gray-200 min-h-screen">
@@ -55,7 +51,6 @@
                     </h3>
                     <div class="space-y-3 text-gray-700">
 
-                        {{-- Queue Number --}}
                         <p>
                             <span class="font-semibold">Nomor Antrian:</span>
                             @if($booking->queue_number)
@@ -74,7 +69,7 @@
                                 <span class="text-sm text-gray-500">
                                     ({{ $booking->vehicle->brand ?? '-' }}
                                     {{ $booking->vehicle->model ? '- ' . $booking->vehicle->model : '' }}
-                                    {{ $booking->vehicle->year ? '(' . $booking->vehicle->year . ')' : '' }})
+                                    {{ $booking->vehicle->year ? '(' . $booking->vehicle->year . ')' : '' }} )
                                 </span>
                             @else
                                 <span class="text-gray-400 italic">Tidak ada kendaraan</span>
@@ -99,27 +94,47 @@
                     </div>
                 </div>
 
-                {{-- Penugasan Mekanik --}}
-                <div class="animate-fade-up">
+                {{-- Penugasan Mekanik oleh Admin --}}
+                <div class="animate-fade-up mt-8">
                     <h3 class="text-lg font-bold mb-4 flex items-center gap-2 text-blue-700 border-b pb-2">
                         <i data-lucide="wrench" class="w-5 h-5"></i>
-                        Mekanik Dipilih Customer
+                        Penugasan Mekanik
                     </h3>
 
-                    @if($booking->mechanic)
-                        <div class="bg-gray-50 border border-gray-200 rounded-lg p-4 shadow-sm hover:shadow-md transition-all duration-300">
-                            <p class="font-medium text-gray-800 flex items-center gap-2">
-                                <i data-lucide="user-cog" class="w-5 h-5 text-blue-600"></i>
-                                <span class="font-semibold text-blue-700">{{ $booking->mechanic->name }}</span>
-                                <span class="text-gray-500 text-sm">
-                                    ({{ $booking->mechanic->specialization ?? 'Umum' }})
-                                </span>
-                            </p>
-                        </div>
-                    @else
-                        <p class="text-gray-500 italic">Customer belum memilih mekanik.</p>
-                    @endif
+                    <div class="bg-white border border-gray-200 rounded-lg p-5 shadow-sm hover:shadow-md transition-all duration-300">
 
+                        @if($booking->mechanic)
+                            <p class="text-gray-800 font-medium flex items-center gap-2 mb-3">
+                                <i data-lucide="user-check" class="w-5 h-5 text-green-600"></i>
+                                Mekanik saat ini:
+                                <span class="text-blue-700 font-semibold">{{ $booking->mechanic->name }}</span>
+                            </p>
+                        @endif
+
+                        <form action="{{ route('admin.bookings.assign', $booking->id) }}" method="POST" class="space-y-3">
+                            @csrf
+
+                            <label class="font-semibold text-gray-700">Pilih Mekanik</label>
+
+                            <select name="mechanic_id"
+                                class="w-full border-gray-300 rounded-lg px-4 py-2 shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                                <option value="">-- Pilih Mekanik --</option>
+                                @foreach ($mechanics as $mechanic)
+                                    <option value="{{ $mechanic->id }}"
+                                        {{ $booking->mechanic_id == $mechanic->id ? 'selected' : '' }}>
+                                        {{ $mechanic->name }} — {{ $mechanic->specialization ?? 'Umum' }}
+                                    </option>
+                                @endforeach
+                            </select>
+
+                            <button type="submit"
+                                class="px-5 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-transform duration-300 hover:scale-105 font-medium shadow">
+                                <i data-lucide="save" class="inline w-4 h-4 mr-1"></i>
+                                Simpan Mekanik
+                            </button>
+                        </form>
+
+                    </div>
                 </div>
 
                 {{-- Ringkasan --}}
@@ -132,18 +147,25 @@
                     <div class="space-y-3 text-gray-700">
                         <p>
                             <span class="font-semibold">Status:</span>
-
-                            @if($booking->status == 'approved')
+                            @if($booking->status == 'pending')
+                                <span class="inline-flex items-center gap-1 px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full text-xs font-semibold shadow-sm">
+                                    <i data-lucide="hourglass" class="w-4 h-4"></i> Menunggu
+                                </span>
+                            @elseif($booking->status == 'approved')
                                 <span class="inline-flex items-center gap-1 px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-semibold shadow-sm">
                                     <i data-lucide="check-circle" class="w-4 h-4"></i> Disetujui
+                                </span>
+                            @elseif($booking->status == 'proses')
+                                <span class="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-semibold shadow-sm">
+                                    <i data-lucide="loader" class="w-4 h-4 animate-spin"></i> Dikerjakan
+                                </span>
+                            @elseif($booking->status == 'selesai')
+                                <span class="inline-flex items-center gap-1 px-3 py-1 bg-indigo-100 text-indigo-700 rounded-full text-xs font-semibold shadow-sm">
+                                    <i data-lucide="check-circle" class="w-4 h-4"></i> Selesai
                                 </span>
                             @elseif($booking->status == 'rejected')
                                 <span class="inline-flex items-center gap-1 px-3 py-1 bg-red-100 text-red-700 rounded-full text-xs font-semibold shadow-sm">
                                     <i data-lucide="x-circle" class="w-4 h-4"></i> Ditolak
-                                </span>
-                            @else
-                                <span class="inline-flex items-center gap-1 px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full text-xs font-semibold shadow-sm">
-                                    <i data-lucide="hourglass" class="w-4 h-4"></i> Menunggu
                                 </span>
                             @endif
                         </p>
@@ -155,37 +177,8 @@
                     </div>
                 </div>
 
-                {{-- Tombol --}}
+                {{-- Tombol Kembali --}}
                 <div class="mt-6 flex flex-wrap gap-3 animate-fade-up">
-                    @if($booking->status == 'pending')
-
-                        {{-- Setujui --}}
-                        <form action="{{ route('admin.bookings.update', $booking->id) }}" method="POST">
-                            @csrf
-                            @method('PATCH')
-                            <input type="hidden" name="status" value="approved">
-                            <button type="submit"
-                                class="px-5 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-transform duration-300 hover:scale-105 font-medium shadow">
-                                <i data-lucide="check" class="inline w-4 h-4 mr-1"></i>
-                                Setujui
-                            </button>
-                        </form>
-
-                        {{-- Tolak --}}
-                        <form action="{{ route('admin.bookings.update', $booking->id) }}" method="POST">
-                            @csrf
-                            @method('PATCH')
-                            <input type="hidden" name="status" value="rejected">
-                            <button type="submit"
-                                class="px-5 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-transform duration-300 hover:scale-105 font-medium shadow">
-                                <i data-lucide="x" class="inline w-4 h-4 mr-1"></i>
-                                Tolak
-                            </button>
-                        </form>
-
-                    @endif
-
-                    {{-- Kembali --}}
                     <a href="{{ route('admin.bookings.index') }}"
                         class="px-5 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-transform duration-300 hover:scale-105 font-medium shadow">
                         <i data-lucide="arrow-left" class="inline w-4 h-4 mr-1"></i>

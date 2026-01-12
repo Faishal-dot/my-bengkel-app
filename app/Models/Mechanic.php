@@ -10,7 +10,9 @@ class Mechanic extends Model
     protected $fillable = [
         'user_id',
         'name',
+        'ktp',
         'phone',
+        'address',
         'specialization',
     ];
 

@@ -49,11 +49,11 @@
                                 {{ $service->description ?? 'Tidak ada deskripsi.' }}
                             </p>
 
-                            <a href="{{ route('customer.booking.create') }}" 
-                               class="mt-auto inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-medium text-center transition">
-                                <i data-lucide="car" class="w-4 h-4"></i>
-                                Booking Layanan
-                            </a>
+                            <a href="{{ route('customer.booking.create', ['service_id' => $service->id]) }}" 
+                                class="mt-auto inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-medium text-center transition">
+                                    <i data-lucide="car" class="w-4 h-4"></i>
+                                    Booking Layanan
+                                </a>
                         </div>
                     @endforeach
                 </div>

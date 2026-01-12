@@ -11,12 +11,20 @@ class ReportController extends Controller
 {
     public function penghasilan()
     {
-        // Ambil semua booking yang approved
-        $bookings = Booking::where('status', 'approved')->with('service')->get();
-        $totalBooking = $bookings->sum(fn($b) => $b->service->price);
+        // Ambil semua booking yang statusnya selesai
+        $bookings = Booking::where('status', 'selesai')
+            ->with(['service', 'user', 'mechanic'])
+            ->get();
+
+        // Hitung total harga layanan dari booking yang selesai
+        $totalBooking = $bookings->sum(fn($b) => $b->service->price ?? 0);
 
         // Ambil semua order produk yang disetujui
-        $orders = Order::where('status', 'disetujui')->with('product','user')->get();
+        $orders = Order::where('status', 'disetujui')
+            ->with(['product', 'user'])
+            ->get();
+
+        // Hitung total harga order produk
         $totalOrder = $orders->sum('total_price');
 
         // Total keseluruhan

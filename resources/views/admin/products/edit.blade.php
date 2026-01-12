@@ -8,7 +8,7 @@
 
     <div class="py-12 bg-gradient-to-b from-blue-50 via-white to-gray-100 min-h-screen">
         <div class="max-w-3xl mx-auto animate-fadeIn">
-            
+
             <!-- Step Indicator -->
             <div class="flex items-center justify-center gap-2 mb-8">
                 <i data-lucide="edit-3" class="w-5 h-5 text-blue-600"></i>
@@ -16,8 +16,8 @@
             </div>
 
             <!-- Card -->
-            <div class="bg-white shadow-xl rounded-2xl border border-gray-100 p-8 transition-all duration-500 hover:shadow-2xl">
-                
+            <div class="bg-white shadow-xl rounded-2xl border border-gray-100 p-8">
+
                 <!-- Error -->
                 @if ($errors->any())
                     <div class="mb-6 p-4 bg-red-50 border border-red-200 text-red-600 rounded-xl shadow-sm">
@@ -29,85 +29,128 @@
                     </div>
                 @endif
 
-                <!-- Form Edit Produk -->
+                <!-- Form -->
                 <form method="POST" action="{{ route('admin.products.update', $product) }}" enctype="multipart/form-data" class="space-y-6">
                     @csrf
                     @method('PUT')
 
                     <!-- Nama Produk -->
-                    <div class="relative transition-all duration-300 hover:scale-[1.02]">
+                    <div>
                         <label class="flex items-center gap-2 mb-2 text-gray-600 font-medium">
                             <i data-lucide="package" class="w-4 h-4 text-blue-500"></i>
                             Nama Produk
                         </label>
                         <input type="text" name="name" value="{{ old('name', $product->name) }}"
-                            class="w-full border-gray-300 rounded-lg px-4 py-3 shadow-sm 
-                                   focus:ring-2 focus:ring-blue-400 focus:border-blue-400 
-                                   transition-all duration-300 ease-in-out
-                                   hover:border-blue-300 hover:shadow-md hover:bg-blue-50/30"
+                            class="w-full border-gray-300 rounded-lg px-4 py-3 shadow-sm focus:ring-2 focus:ring-blue-400"
                             placeholder="Masukkan nama produk..." required>
                     </div>
 
                     <!-- Deskripsi -->
-                    <div class="relative transition-all duration-300 hover:scale-[1.02]">
+                    <div>
                         <label class="flex items-center gap-2 mb-2 text-gray-600 font-medium">
                             <i data-lucide="file-text" class="w-4 h-4 text-blue-500"></i>
                             Deskripsi
                         </label>
                         <textarea name="description" rows="3"
-                            class="w-full border-gray-300 rounded-lg px-4 py-3 shadow-sm 
-                                   focus:ring-2 focus:ring-blue-400 focus:border-blue-400 
-                                   transition-all duration-300 ease-in-out
-                                   hover:border-blue-300 hover:shadow-md hover:bg-blue-50/30"
+                            class="w-full border-gray-300 rounded-lg px-4 py-3 shadow-sm focus:ring-2 focus:ring-blue-400"
                             placeholder="Masukkan deskripsi produk...">{{ old('description', $product->description) }}</textarea>
                     </div>
 
-                    <!-- Harga -->
-                    <div class="relative transition-all duration-300 hover:scale-[1.02]">
+                    <!-- Harga Beli -->
+                    <div>
+                        <label class="flex items-center gap-2 mb-2 text-gray-600 font-medium">
+                            <i data-lucide="wallet" class="w-4 h-4 text-blue-500"></i>
+                            Harga Beli
+                        </label>
+                        <input type="number" id="harga_beli" name="purchase_price"
+                               value="{{ old('purchase_price', $product->purchase_price) }}"
+                            class="w-full border-gray-300 rounded-lg px-4 py-3 shadow-sm focus:ring-2 focus:ring-blue-400"
+                            placeholder="Harga beli..." required>
+                    </div>
+
+                    <!-- Harga Jual -->
+                    <div>
                         <label class="flex items-center gap-2 mb-2 text-gray-600 font-medium">
                             <i data-lucide="credit-card" class="w-4 h-4 text-blue-500"></i>
-                            Harga
+                            Harga Jual
                         </label>
-                        <input type="number" name="price" value="{{ old('price', $product->price) }}" step="1000"
-                            class="w-full border-gray-300 rounded-lg px-4 py-3 shadow-sm 
-                                   focus:ring-2 focus:ring-blue-400 focus:border-blue-400 
-                                   transition-all duration-300 ease-in-out
-                                   hover:border-blue-300 hover:shadow-md hover:bg-blue-50/30"
-                            placeholder="Masukkan harga produk..." required>
+                        <input type="number" id="harga_jual" name="price"
+                               value="{{ old('price', $product->price) }}"
+                            class="w-full border-gray-300 rounded-lg px-4 py-3 shadow-sm focus:ring-2 focus:ring-blue-400"
+                            placeholder="Harga jual..." required>
+                    </div>
+
+                    <!-- Laba -->
+                    <div>
+                        <label class="flex items-center gap-2 mb-2 text-gray-600 font-medium">
+                            <i data-lucide="badge-dollar-sign" class="w-4 h-4 text-blue-500"></i>
+                            Laba
+                        </label>
+
+                        <input type="number" id="laba_otomatis" disabled
+                            class="w-full bg-gray-100 border-gray-300 rounded-lg px-4 py-3 shadow-sm">
+
+                        <!-- Warning rugi -->
+                        <div id="warning_rugi" class="mt-2 flex items-center text-red-600 font-semibold gap-2 hidden animate-pulse">
+                            <i data-lucide="alert-triangle" class="w-5 h-5"></i>
+                            <span>Harga jual lebih kecil dari harga beli! Kamu rugi.</span>
+                        </div>
                     </div>
 
                     <!-- Stok -->
-                    <div class="relative transition-all duration-300 hover:scale-[1.02]">
+                    <div>
                         <label class="flex items-center gap-2 mb-2 text-gray-600 font-medium">
                             <i data-lucide="boxes" class="w-4 h-4 text-blue-500"></i>
                             Stok
                         </label>
-                        <input type="number" name="stock" value="{{ old('stock', $product->stock ?? 0) }}" min="0"
-                            class="w-full border-gray-300 rounded-lg px-4 py-3 shadow-sm 
-                                   focus:ring-2 focus:ring-blue-400 focus:border-blue-400 
-                                   transition-all duration-300 ease-in-out
-                                   hover:border-blue-300 hover:shadow-md hover:bg-blue-50/30"
-                            placeholder="Masukkan jumlah stok..." required>
+                        <input type="number" name="stock" value="{{ old('stock', $product->stock) }}" min="0"
+                            class="w-full border-gray-300 rounded-lg px-4 py-3 shadow-sm focus:ring-2 focus:ring-blue-400"
+                            placeholder="Jumlah stok..." required>
                     </div>
 
                     <!-- Tombol -->
                     <div class="flex items-center gap-4 pt-6">
-                        <button type="submit" 
-                                class="flex items-center gap-2 bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-6 py-3 rounded-lg shadow-md 
-                                       hover:from-blue-600 hover:to-indigo-700 transform hover:scale-[1.03] active:scale-95 transition-all duration-200 font-semibold">
+                        <button type="submit"
+                                class="flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-lg shadow-md hover:bg-blue-700">
                             <i data-lucide="save" class="w-5 h-5"></i>
                             Simpan Perubahan
                         </button>
-                        <a href="{{ route('admin.products.index') }}" 
-                           class="flex items-center gap-2 px-6 py-3 rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-100 transition font-semibold">
+
+                        <a href="{{ route('admin.products.index') }}"
+                           class="flex items-center gap-2 px-6 py-3 rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-100">
                             <i data-lucide="x-circle" class="w-5 h-5"></i>
                             Batal
                         </a>
                     </div>
                 </form>
+
             </div>
         </div>
     </div>
+
+    <!-- Script Laba -->
+    <script>
+        function hitungLaba() {
+            let beli = parseFloat(document.getElementById('harga_beli').value) || 0;
+            let jual = parseFloat(document.getElementById('harga_jual').value) || 0;
+
+            let laba = jual - beli;
+            document.getElementById('laba_otomatis').value = laba;
+
+            let warning = document.getElementById('warning_rugi');
+            if (jual < beli && jual !== 0) {
+                warning.classList.remove('hidden');
+            } else {
+                warning.classList.add('hidden');
+            }
+        }
+
+        document.getElementById('harga_beli').addEventListener('input', hitungLaba);
+        document.getElementById('harga_jual').addEventListener('input', hitungLaba);
+
+        // Hitung saat halaman dibuka
+        hitungLaba();
+    </script>
 
     <!-- Animasi -->
     <style>
@@ -122,7 +165,6 @@
 
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
-    <script>
-        lucide.createIcons();
-    </script>
+    <script> lucide.createIcons(); </script>
+
 </x-app-layout>

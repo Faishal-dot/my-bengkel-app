@@ -95,8 +95,8 @@
     </div>
 
     <!-- ============================
-         WAJIB: SCRIPT LUCIDE ICON
-         ============================ -->
+         LUCIDE ICON
+    ============================ -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <script>
         document.addEventListener("DOMContentLoaded", () => {
@@ -104,7 +104,38 @@
         });
     </script>
 
-    <!-- Untuk script tambahan dari tiap halaman -->
+    <!-- ============================
+         SWEETALERT 2 (wajib supaya notifikasi muncul)
+    ============================ -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <!-- ============================
+         NOTIFIKASI AUTO DARI SESSION
+    ============================ -->
+    @if (session('success'))
+        <script>
+            Swal.fire({
+                icon: 'success',
+                title: 'Berhasil!',
+                text: '{{ session("success") }}',
+                showConfirmButton: false,
+                timer: 1800
+            });
+        </script>
+    @endif
+
+    @if (session('error'))
+        <script>
+            Swal.fire({
+                icon: 'error',
+                title: 'Gagal!',
+                text: '{{ session("error") }}',
+                showConfirmButton: true,
+            });
+        </script>
+    @endif
+
+    <!-- Script tambahan dari tiap halaman -->
     @stack('scripts')
 
 </body>

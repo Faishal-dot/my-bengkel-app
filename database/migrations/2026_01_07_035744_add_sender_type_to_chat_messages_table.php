@@ -1,0 +1,31 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up()
+{
+    Schema::table('chat_messages', function (Blueprint $table) {
+        // Tambahkan kolom sender_type jika belum ada
+        if (!Schema::hasColumn('chat_messages', 'sender_type')) {
+            $table->string('sender_type')->default('user')->after('message');
+        }
+    });
+}
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::table('chat_messages', function (Blueprint $table) {
+            //
+        });
+    }
+};

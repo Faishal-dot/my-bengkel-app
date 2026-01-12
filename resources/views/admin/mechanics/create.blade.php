@@ -30,10 +30,12 @@
                     @php
                         $inputs = [
                             ['label' => 'Nama Mekanik', 'icon' => 'user', 'name' => 'name', 'type' => 'text', 'required' => true],
+                            ['label' => 'Nomor KTP', 'icon' => 'id-card', 'name' => 'ktp', 'type' => 'text', 'required' => true],
                             ['label' => 'Email Login', 'icon' => 'mail', 'name' => 'email', 'type' => 'email', 'required' => true],
                             ['label' => 'Password Login', 'icon' => 'lock', 'name' => 'password', 'type' => 'password', 'required' => true],
                             ['label' => 'Konfirmasi Password', 'icon' => 'shield-check', 'name' => 'password_confirmation', 'type' => 'password', 'required' => true],
                             ['label' => 'Telepon', 'icon' => 'phone', 'name' => 'phone', 'type' => 'text', 'required' => false],
+                            ['label' => 'Alamat Rumah', 'icon' => 'map-pin', 'name' => 'address', 'type' => 'text', 'required' => false],
                             ['label' => 'Spesialisasi', 'icon' => 'settings', 'name' => 'specialization', 'type' => 'text', 'required' => false],
                         ];
                     @endphp

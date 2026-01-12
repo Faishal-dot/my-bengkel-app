@@ -1,18 +1,28 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex items-center gap-3">
-            <i data-lucide="plus-circle" class="w-7 h-7 text-blue-600"></i>
-            <h2 class="font-bold text-2xl text-gray-800">Tambah Kendaraan</h2>
-        </div>
+        <h2 class="font-semibold text-2xl text-gray-800 flex items-center gap-2 fade-slide">
+            <i data-lucide="plus-circle" class="w-6 h-6 text-blue-600"></i>
+            Tambah Kendaraan Baru
+        </h2>
     </x-slot>
 
-    <div class="py-12 bg-gradient-to-b from-blue-50 via-white to-gray-100 min-h-screen">
+    {{-- STYLE ANIMASI (Konsisten dengan halaman lain) --}}
+    <style>
+        .fade-slide { opacity:0; transform:translateY(20px); animation: slideUp .6s ease-out forwards; }
+        @keyframes slideUp { to { opacity:1; transform:translateY(0);} }
+    </style>
+
+    <div class="py-10 bg-gradient-to-b from-gray-100 to-gray-200 min-h-screen fade-slide" style="animation-delay:.15s">
         <div class="max-w-3xl mx-auto sm:px-6 lg:px-8">
 
-            <!-- Error (server-side) -->
+            {{-- Error Validation Alert --}}
             @if ($errors->any())
-                <div class="mb-6 p-4 bg-red-50 border border-red-200 text-red-600 rounded-xl shadow-sm">
-                    <ul class="list-disc pl-6 space-y-1">
+                <div class="mb-6 p-4 bg-red-50 border border-red-200 text-red-700 rounded-xl shadow-sm fade-slide" style="animation-delay:.25s">
+                    <div class="flex items-center gap-2 font-bold mb-2">
+                        <i data-lucide="alert-triangle" class="w-5 h-5"></i>
+                        Terjadi Kesalahan:
+                    </div>
+                    <ul class="list-disc pl-6 space-y-1 text-sm">
                         @foreach ($errors->all() as $err)
                             <li>{{ $err }}</li>
                         @endforeach
@@ -20,180 +30,131 @@
                 </div>
             @endif
 
-            <!-- Form Card (initially hidden for animation) -->
-            <div id="vehicleCard"
-                 class="bg-white shadow-xl rounded-2xl border border-gray-100 p-8
-                        opacity-0 translate-y-6 transform
-                        will-change-transform will-change-opacity">
-                <form id="vehicleForm" action="{{ route('customer.vehicles.store') }}" method="POST" class="space-y-8">
+            {{-- White Card Form --}}
+            <div class="bg-white p-8 rounded-2xl shadow-lg border border-gray-100 fade-slide" style="animation-delay:.25s">
+                
+                <div class="mb-6 border-b border-gray-100 pb-4">
+                    <h3 class="text-xl font-bold text-gray-800">Formulir Kendaraan</h3>
+                    <p class="text-gray-500 text-sm">Lengkapi data kendaraan untuk memudahkan proses servis.</p>
+                </div>
+
+                <form id="vehicleForm" action="{{ route('customer.vehicles.store') }}" method="POST" class="space-y-6">
                     @csrf
 
-                    <!-- Plat Nomor -->
-                    <div class="relative transition-all duration-300 transform hover:scale-[1.02]">
-                        <label class="flex items-center gap-2 mb-2 text-gray-600 font-medium">
-                            <i data-lucide="ticket" class="w-4 h-4 text-blue-500"></i>
-                            Plat Nomor
+                    {{-- Plat Nomor --}}
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1 flex items-center gap-1">
+                            <i data-lucide="ticket" class="w-4 h-4 text-blue-500"></i> Plat Nomor
                         </label>
                         <input type="text" name="plate_number" value="{{ old('plate_number') }}"
-                               class="w-full border-gray-300 rounded-lg px-4 py-3 shadow-sm 
-                                      focus:ring-2 focus:ring-blue-400 focus:border-blue-400
-                                      transition-all duration-300 ease-in-out
-                                      hover:border-blue-300 hover:shadow-md hover:bg-blue-50/30 uppercase transform"
+                               class="w-full border-gray-300 rounded-lg px-4 py-2.5 shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition uppercase font-semibold text-gray-800 tracking-wide"
                                placeholder="Contoh: B 1234 XYZ" required>
                     </div>
 
-                    <!-- Merk -->
-                    <div class="relative transition-all duration-300 transform hover:scale-[1.02]">
-                        <label class="flex items-center gap-2 mb-2 text-gray-600 font-medium">
-                            <i data-lucide="factory" class="w-4 h-4 text-blue-500"></i>
-                            Merk
-                        </label>
-                        <input type="text" name="brand" value="{{ old('brand') }}"
-                               class="w-full border-gray-300 rounded-lg px-4 py-3 shadow-sm 
-                                      focus:ring-2 focus:ring-blue-400 focus:border-blue-400
-                                      transition-all duration-300 ease-in-out
-                                      hover:border-blue-300 hover:shadow-md hover:bg-blue-50/30 transform"
-                               placeholder="Contoh: Honda, Yamaha..." required>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {{-- Merk --}}
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1 flex items-center gap-1">
+                                <i data-lucide="copyright" class="w-4 h-4 text-blue-500"></i> Merk
+                            </label>
+                            <input type="text" name="brand" value="{{ old('brand') }}"
+                                   class="w-full border-gray-300 rounded-lg px-4 py-2.5 shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                                   placeholder="Contoh: Toyota, Honda" required>
+                        </div>
+
+                        {{-- Model --}}
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1 flex items-center gap-1">
+                                <i data-lucide="car-front" class="w-4 h-4 text-blue-500"></i> Model
+                            </label>
+                            <input type="text" name="model" value="{{ old('model') }}"
+                                   class="w-full border-gray-300 rounded-lg px-4 py-2.5 shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                                   placeholder="Contoh: Avanza, Jazz" required>
+                        </div>
                     </div>
 
-                    <!-- Model -->
-                    <div class="relative transition-all duration-300 transform hover:scale-[1.02]">
-                        <label class="flex items-center gap-2 mb-2 text-gray-600 font-medium">
-                            <i data-lucide="car" class="w-4 h-4 text-blue-500"></i>
-                            Model
-                        </label>
-                        <input type="text" name="model" value="{{ old('model') }}"
-                               class="w-full border-gray-300 rounded-lg px-4 py-3 shadow-sm 
-                                      focus:ring-2 focus:ring-blue-400 focus:border-blue-400
-                                      transition-all duration-300 ease-in-out
-                                      hover:border-blue-300 hover:shadow-md hover:bg-blue-50/30 transform"
-                               placeholder="Contoh: Supra X, Avanza..." required>
-                    </div>
-
-                    <!-- Tahun -->
-                    <div class="relative transition-all duration-300 transform hover:scale-[1.02]">
-                        <label class="flex items-center gap-2 mb-2 text-gray-600 font-medium">
-                            <i data-lucide="calendar" class="w-4 h-4 text-blue-500"></i>
-                            Tahun
+                    {{-- Tahun --}}
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1 flex items-center gap-1">
+                            <i data-lucide="calendar-range" class="w-4 h-4 text-blue-500"></i> Tahun Pembuatan
                         </label>
                         <input type="number" name="year" value="{{ old('year') }}"
-                               min="1980" max="{{ date('Y') + 1 }}"
-                               class="w-full border-gray-300 rounded-lg px-4 py-3 shadow-sm 
-                                      focus:ring-2 focus:ring-blue-400 focus:border-blue-400
-                                      transition-all duration-300 ease-in-out
-                                      hover:border-blue-300 hover:shadow-md hover:bg-blue-50/30 transform"
-                               placeholder="Masukkan tahun kendaraan (misal: 2020)" required>
+                               min="1990" max="{{ date('Y') + 1 }}"
+                               class="w-full border-gray-300 rounded-lg px-4 py-2.5 shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                               placeholder="Contoh: 2022" required>
                     </div>
 
-                    <!-- Tombol -->
-                    <div class="flex items-center justify-end gap-4 pt-4">
+                    {{-- Tombol Aksi --}}
+                    <div class="flex items-center justify-end gap-3 pt-6 border-t border-gray-100 mt-6">
                         <a href="{{ route('customer.vehicles.index') }}"
-                           class="flex items-center gap-2 px-6 py-3 rounded-lg border border-gray-300 text-gray-600 
-                                  hover:bg-gray-100 transition font-medium transform hover:scale-105 duration-300">
-                            <i data-lucide="x-circle" class="w-5 h-5"></i> Batal
+                           class="px-5 py-2.5 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 transition font-medium text-sm">
+                            Batal
                         </a>
-
                         <button type="submit"
-                                class="flex items-center gap-2 bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-6 py-3 
-                                       rounded-lg shadow-md hover:from-blue-600 hover:to-indigo-700 transition transform hover:scale-105 active:scale-95 duration-300 font-semibold">
-                            <i data-lucide="save" class="w-5 h-5"></i> Simpan Kendaraan
+                                class="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-lg shadow-md transition transform hover:scale-105 font-medium text-sm">
+                            <i data-lucide="save" class="w-4 h-4"></i> Simpan Kendaraan
                         </button>
                     </div>
+
                 </form>
             </div>
         </div>
     </div>
-
-    {{-- KEYFRAMES + small helper styles --}}
-    <style>
-        @keyframes fadeUp {
-            from { opacity: 0; transform: translateY(18px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        /* make sure transitions are smooth */
-        #vehicleCard.show {
-            animation: fadeUp 450ms cubic-bezier(.2,.9,.2,1) both;
-            opacity: 1 !important;
-            transform: translateY(0) !important;
-        }
-    </style>
 
     {{-- SCRIPTS --}}
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
-        // icons
         lucide.createIcons();
 
-        // animate card in (use class 'show' to trigger keyframes)
-        document.addEventListener('DOMContentLoaded', () => {
-            const card = document.getElementById('vehicleCard');
-            // small delay so browser renders initial styles before animating
-            setTimeout(() => {
-                card.classList.add('show');
-            }, 80);
-        });
-
-        // SweetAlert2 confirm before submit (prettier and non-blocking)
+        // SweetAlert Confirmation saat Submit
         document.getElementById('vehicleForm').addEventListener('submit', function (e) {
-            e.preventDefault();
+            e.preventDefault(); // Tahan submit asli
 
             const plate = document.querySelector('input[name="plate_number"]').value.trim();
             const brand = document.querySelector('input[name="brand"]').value.trim();
             const model = document.querySelector('input[name="model"]').value.trim();
-            const year = document.querySelector('input[name="year"]').value.trim();
+            const year  = document.querySelector('input[name="year"]').value.trim();
 
-            // basic client-side validation
+            // Validasi Sederhana
             if (!plate || !brand || !model || !year) {
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'Data belum lengkap',
-                    text: 'Mohon isi semua field terlebih dahulu.',
-                    confirmButtonText: 'Oke'
+                return Swal.fire({
+                    icon: 'error',
+                    title: 'Data Belum Lengkap',
+                    text: 'Mohon isi semua kolom formulir.',
+                    confirmButtonColor: '#3b82f6',
+                    customClass: { popup: 'rounded-2xl' }
                 });
-                return;
             }
 
-            // show confirmation summary
+            // Tampilkan Konfirmasi
             Swal.fire({
-                title: 'Konfirmasi Tambah Kendaraan',
+                title: 'Simpan Kendaraan?',
                 html: `
-                    <div class="text-left">
-                        <p><strong>Plat Nomor:</strong> ${plate}</p>
-                        <p><strong>Merk:</strong> ${brand}</p>
-                        <p><strong>Model:</strong> ${model}</p>
+                    <div class="text-left bg-gray-50 p-4 rounded-lg text-sm text-gray-700 space-y-1">
+                        <p><strong>Plat:</strong> ${plate.toUpperCase()}</p>
+                        <p><strong>Merk/Model:</strong> ${brand} - ${model}</p>
                         <p><strong>Tahun:</strong> ${year}</p>
                     </div>
-                    <p class="mt-3 text-sm text-gray-600">Pastikan data di atas benar.</p>
                 `,
                 icon: 'question',
                 showCancelButton: true,
-                confirmButtonText: 'Ya, simpan',
-                cancelButtonText: 'Periksa lagi',
-                focusCancel: true,
+                confirmButtonColor: '#2563eb', // Blue-600
+                cancelButtonColor: '#9ca3af', // Gray-400
+                confirmButtonText: 'Ya, Simpan',
+                cancelButtonText: 'Cek Lagi',
                 customClass: {
-                  popup: 'rounded-xl'
+                    popup: 'rounded-2xl',
+                    confirmButton: 'rounded-lg px-5 py-2.5',
+                    cancelButton: 'rounded-lg px-5 py-2.5'
                 }
-            }).then((res) => {
-                if (res.isConfirmed) {
-                    // allow submit
-                    e.target.submit();
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    e.target.submit(); // Lanjutkan submit jika dikonfirmasi
                 }
             });
         });
-
-        // if there is a success message from server, show SweetAlert success
-        @if(session('success'))
-            document.addEventListener('DOMContentLoaded', () => {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Berhasil',
-                    text: {!! json_encode(session('success')) !!},
-                    confirmButtonText: 'OK',
-                    customClass: { popup: 'rounded-xl' }
-                });
-            });
-        @endif
     </script>
+
 </x-app-layout>

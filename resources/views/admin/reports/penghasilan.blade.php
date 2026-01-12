@@ -117,7 +117,7 @@
                                 @empty
                                     <tr class="fade-row">
                                         <td colspan="7" class="p-3 border text-center text-gray-500 italic">
-                                            Tidak ada booking approved
+                                            Tidak ada booking disetujui
                                         </td>
                                     </tr>
                                 @endforelse

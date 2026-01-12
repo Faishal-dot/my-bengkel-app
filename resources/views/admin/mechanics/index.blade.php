@@ -13,7 +13,7 @@
                         name="q"
                         placeholder="Cari mekanik..."
                         value="{{ request('q') }}"
-                        class="pl-10 pr-4 py-2 text-sm border rounded-xl shadow-sm focus:ring-2 focus:ring-indigo-500"
+                        class="pl-10 pr-4 py-2 text-sm border rounded-xl shadow-sm focus:ring-2 focus:ring-indigo-500 border-gray-300"
                     >
                     <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
                 </form>
@@ -37,29 +37,43 @@
                 </div>
             @endif
 
-            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                @forelse($mechanics as $mechanic)
-                    <div class="bg-white shadow-lg hover:shadow-2xl rounded-2xl p-6 transition transform hover:-translate-y-1 animate-card">
-                        <div class="flex justify-between items-start mb-4">
-                            <h3 class="font-semibold text-lg text-gray-800">
-                                {{ $mechanic->name }}
-                            </h3>
-                            <span class="px-3 py-1 rounded-full text-xs font-medium bg-indigo-100 text-indigo-700">
-                                {{ $mechanic->specialization ?? 'Umum' }}
-                            </span>
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8"> @forelse($mechanics as $mechanic)
+                    <div class="bg-white shadow-lg hover:shadow-2xl rounded-2xl p-7 transition transform hover:-translate-y-1 animate-card border border-gray-100"> <div class="flex items-center gap-4 mb-5">
+                            <div class="flex-shrink-0 w-12 h-12 bg-indigo-600 rounded-full flex items-center justify-center text-white shadow-md">
+                                <span class="text-lg font-bold">{{ strtoupper(substr($mechanic->name, 0, 1)) }}</span>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <h3 class="font-bold text-xl text-gray-800 truncate">
+                                    {{ $mechanic->name }}
+                                </h3>
+                                <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-indigo-100 text-indigo-700 uppercase tracking-wider">
+                                    {{ $mechanic->specialization ?? 'Umum' }}
+                                </span>
+                            </div>
                         </div>
 
-                        <p class="text-sm text-gray-600">
-                            <strong>Email:</strong> {{ $mechanic->user->email ?? '-' }}
-                        </p>
+                        <div class="space-y-2 border-t border-gray-50 pt-4">
+                            <p class="text-sm text-gray-600 flex items-center gap-2">
+                                <i data-lucide="id-card" class="w-4 h-4 text-gray-400"></i>
+                                <strong>KTP:</strong> {{ $mechanic->ktp ?? '-' }}
+                            </p>
+                            <p class="text-sm text-gray-600 flex items-center gap-2">
+                                <i data-lucide="mail" class="w-4 h-4 text-gray-400"></i>
+                                <strong>Email:</strong> {{ $mechanic->user->email ?? '-' }}
+                            </p>
+                            <p class="text-sm text-gray-600 flex items-center gap-2">
+                                <i data-lucide="phone" class="w-4 h-4 text-gray-400"></i>
+                                <strong>Telp:</strong> {{ $mechanic->phone ?? '-' }}
+                            </p>
+                            <p class="text-sm text-gray-600 flex items-start gap-2">
+                                <i data-lucide="map-pin" class="w-4 h-4 text-gray-400 mt-1"></i>
+                                <span><strong>Alamat:</strong> {{ $mechanic->address ?? '-' }}</span>
+                            </p>
+                        </div>
 
-                        <p class="text-sm text-gray-600 mb-4 mt-1">
-                            <strong>Telp:</strong> {{ $mechanic->phone ?? '-' }}
-                        </p>
-
-                        <div class="flex justify-end gap-3 mt-3">
+                        <div class="flex justify-end gap-3 mt-6 pt-4 border-t border-gray-50">
                             <a href="{{ route('admin.mechanics.edit', $mechanic->id) }}"
-                               class="p-2 bg-yellow-500 text-white rounded-full hover:bg-yellow-600 shadow transition"
+                               class="p-2.5 bg-yellow-500 text-white rounded-xl hover:bg-yellow-600 shadow-sm transition-all"
                                title="Edit">
                                 <i data-lucide="pencil" class="w-4 h-4"></i>
                             </a>
@@ -69,7 +83,7 @@
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit"
-                                    class="p-2 bg-red-600 text-white rounded-full hover:bg-red-700 shadow transition"
+                                    class="p-2.5 bg-red-600 text-white rounded-xl hover:bg-red-700 shadow-sm transition-all"
                                     title="Hapus">
                                     <i data-lucide="trash-2" class="w-4 h-4"></i>
                                 </button>
@@ -77,8 +91,9 @@
                         </div>
                     </div>
                 @empty
-                    <div class="col-span-full text-center py-10 text-gray-500 italic animate-fadeIn">
-                        Belum ada mekanik.
+                    <div class="col-span-full text-center py-20 text-gray-500 italic animate-fadeIn bg-white rounded-2xl shadow-inner border-2 border-dashed border-gray-200">
+                        <i data-lucide="user-x" class="w-12 h-12 mx-auto mb-3 text-gray-300"></i>
+                        Belum ada mekanik yang terdaftar.
                     </div>
                 @endforelse
             </div>
@@ -89,28 +104,20 @@
         </div>
     </div>
 
-    <!-- Animasi -->
     <style>
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(15px); }
             to { opacity: 1; transform: translateY(0); }
         }
-
-        .animate-fadeIn {
-            animation: fadeIn 0.6s ease-out;
-        }
+        .animate-fadeIn { animation: fadeIn 0.6s ease-out; }
 
         @keyframes cardPop {
             from { opacity: 0; transform: scale(0.95); }
             to { opacity: 1; transform: scale(1); }
         }
-
-        .animate-card {
-            animation: cardPop 0.5s ease-out;
-        }
+        .animate-card { animation: cardPop 0.5s ease-out; }
     </style>
 
-    <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <script>
         lucide.createIcons();

@@ -11,7 +11,6 @@
     <div class="py-12 bg-gradient-to-b from-indigo-50 via-white to-gray-100 min-h-screen">
         <div class="max-w-3xl mx-auto">
 
-            <!-- Step Indicator -->
             <div class="flex items-center justify-center gap-2 mb-8 animate-fadeSlideUp">
                 <i data-lucide="edit" class="w-5 h-5 text-indigo-600"></i>
                 <span class="text-indigo-600 font-semibold text-lg tracking-wide">
@@ -19,10 +18,8 @@
                 </span>
             </div>
 
-            <!-- Card -->
             <div class="bg-white shadow-xl rounded-2xl border border-gray-100 p-8 animate-fadeIn">
 
-                <!-- Error -->
                 @if ($errors->any())
                     <div class="mb-6 p-4 bg-red-50 border border-red-200 text-red-600 rounded-xl shadow-sm animate-shake">
                         <ul class="list-disc pl-6 space-y-1">
@@ -33,7 +30,6 @@
                     </div>
                 @endif
 
-                <!-- Form -->
                 <form
                     method="POST"
                     action="{{ route('admin.mechanics.update', $mechanic) }}"
@@ -42,14 +38,11 @@
                     @csrf
                     @method('PUT')
 
-                    <!-- Nama Mekanik -->
                     <div class="group transition-all duration-300">
                         <label class="flex items-center gap-2 mb-2 text-gray-600 font-medium">
-                            <i data-lucide="user-cog"
-                               class="w-4 h-4 text-indigo-500 group-hover:rotate-12 transition"></i>
+                            <i data-lucide="user-cog" class="w-4 h-4 text-indigo-500 group-hover:rotate-12 transition"></i>
                             Nama Mekanik
                         </label>
-
                         <input
                             type="text"
                             name="name"
@@ -58,25 +51,40 @@
                                    focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400
                                    transition-all duration-300 bg-white
                                    hover:border-indigo-300 hover:shadow-md hover:bg-indigo-50/30"
-                            placeholder="Masukkan nama mekanik..."
+                            placeholder="Masukkan nama mekanic..."
                             required
                         >
-
                         @error('name')
-                        <p class="text-red-600 text-sm mt-1 animate-pulse">
-                            ⚠️ {{ $message }}
-                        </p>
+                        <p class="text-red-600 text-sm mt-1">⚠️ {{ $message }}</p>
                         @enderror
                     </div>
 
-                    <!-- Telepon -->
                     <div class="group transition-all duration-300">
                         <label class="flex items-center gap-2 mb-2 text-gray-600 font-medium">
-                            <i data-lucide="phone"
-                               class="w-4 h-4 text-indigo-500 group-hover:rotate-12 transition"></i>
+                            <i data-lucide="id-card" class="w-4 h-4 text-indigo-500 group-hover:rotate-12 transition"></i>
+                            Nomor KTP
+                        </label>
+                        <input
+                            type="text"
+                            name="ktp"
+                            value="{{ old('ktp', $mechanic->ktp) }}"
+                            class="w-full border-gray-300 rounded-xl px-4 py-3 shadow-sm
+                                   focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400
+                                   transition-all duration-300 bg-white
+                                   hover:border-indigo-300 hover:shadow-md hover:bg-indigo-50/30"
+                            placeholder="Masukkan nomor KTP..."
+                            required
+                        >
+                        @error('ktp')
+                        <p class="text-red-600 text-sm mt-1">⚠️ {{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div class="group transition-all duration-300">
+                        <label class="flex items-center gap-2 mb-2 text-gray-600 font-medium">
+                            <i data-lucide="phone" class="w-4 h-4 text-indigo-500 group-hover:rotate-12 transition"></i>
                             Telepon
                         </label>
-
                         <input
                             type="text"
                             name="phone"
@@ -87,22 +95,35 @@
                                    hover:border-indigo-300 hover:shadow-md hover:bg-indigo-50/30"
                             placeholder="Masukkan nomor telepon..."
                         >
-
                         @error('phone')
-                        <p class="text-red-600 text-sm mt-1 animate-pulse">
-                            ⚠️ {{ $message }}
-                        </p>
+                        <p class="text-red-600 text-sm mt-1">⚠️ {{ $message }}</p>
                         @enderror
                     </div>
 
-                    <!-- Spesialisasi -->
                     <div class="group transition-all duration-300">
                         <label class="flex items-center gap-2 mb-2 text-gray-600 font-medium">
-                            <i data-lucide="wrench"
-                               class="w-4 h-4 text-indigo-500 group-hover:rotate-12 transition"></i>
+                            <i data-lucide="map-pin" class="w-4 h-4 text-indigo-500 group-hover:rotate-12 transition"></i>
+                            Alamat Rumah
+                        </label>
+                        <textarea
+                            name="address"
+                            rows="3"
+                            class="w-full border-gray-300 rounded-xl px-4 py-3 shadow-sm
+                                   focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400
+                                   transition-all duration-300
+                                   hover:border-indigo-300 hover:shadow-md hover:bg-indigo-50/30"
+                            placeholder="Masukkan alamat lengkap..."
+                        >{{ old('address', $mechanic->address) }}</textarea>
+                        @error('address')
+                        <p class="text-red-600 text-sm mt-1">⚠️ {{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div class="group transition-all duration-300">
+                        <label class="flex items-center gap-2 mb-2 text-gray-600 font-medium">
+                            <i data-lucide="wrench" class="w-4 h-4 text-indigo-500 group-hover:rotate-12 transition"></i>
                             Spesialisasi
                         </label>
-
                         <input
                             type="text"
                             name="specialization"
@@ -113,15 +134,11 @@
                                    hover:border-indigo-300 hover:shadow-md hover:bg-indigo-50/30"
                             placeholder="Masukkan bidang spesialisasi..."
                         >
-
                         @error('specialization')
-                        <p class="text-red-600 text-sm mt-1 animate-pulse">
-                            ⚠️ {{ $message }}
-                        </p>
+                        <p class="text-red-600 text-sm mt-1">⚠️ {{ $message }}</p>
                         @enderror
                     </div>
 
-                    <!-- Tombol -->
                     <div class="flex items-center gap-4 pt-6">
                         <button
                             type="submit"
@@ -144,7 +161,6 @@
         </div>
     </div>
 
-    <!-- Animations -->
     <style>
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(20px); }
@@ -172,7 +188,6 @@
         .animate-shake { animation: shake .4s ease-in-out; }
     </style>
 
-    <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <script> lucide.createIcons(); </script>
 </x-app-layout>

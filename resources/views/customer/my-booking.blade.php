@@ -1,149 +1,181 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-            {{-- Judul --}}
-            <h2 class="font-bold text-2xl text-gray-800 flex items-center gap-2">
-                <i data-lucide="calendar-check" class="w-6 h-6 text-blue-600"></i>
-                Histori Booking
-            </h2>
-
-            {{-- Tombol booking --}}
-            <a href="{{ route('customer.booking.create') }}"
-               class="flex items-center gap-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow text-sm font-medium transition">
-                <i data-lucide="plus" class="w-4 h-4"></i> Booking Baru
-            </a>
-        </div>
+        <h2 class="font-semibold text-2xl text-gray-800 flex items-center gap-2 fade-slide">
+            <i data-lucide="calendar-check" class="w-6 h-6 text-blue-600"></i>
+            Histori Booking
+        </h2>
     </x-slot>
 
-    <div class="py-10 bg-gradient-to-b from-gray-100 to-gray-200 min-h-screen">
+    {{-- STYLE ANIMASI (Sama seperti Admin) --}}
+    <style>
+        .fade-slide { opacity:0; transform:translateY(20px); animation: slideUp .6s ease-out forwards; }
+        @keyframes slideUp { to { opacity:1; transform:translateY(0);} }
+
+        .fade-row { opacity:0; animation: fadeRow .6s ease-out forwards; }
+        @keyframes fadeRow { to { opacity:1; } }
+    </style>
+
+    <div class="py-10 bg-gradient-to-b from-gray-100 to-gray-200 min-h-screen fade-slide" style="animation-delay:.15s">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
 
-            {{-- Alert sukses --}}
-            @if(session('success'))
-                <div class="mb-6 p-4 bg-green-100 text-green-700 border border-green-200 rounded-xl flex items-center gap-2 animate-fadeIn">
-                    <i data-lucide="check-circle" class="w-5 h-5"></i>
-                    {{ session('success') }}
+            {{-- Container Putih (White Card) --}}
+            <div class="bg-white p-6 rounded-2xl shadow-lg fade-slide" style="animation-delay:.25s">
+
+                {{-- Alert Sukses --}}
+                @if(session('success'))
+                    <div class="mb-6 p-4 bg-green-100 text-green-700 border border-green-200 rounded-lg flex items-center gap-2 fade-slide" style="animation-delay:.35s">
+                        <i data-lucide="check-circle" class="w-5 h-5"></i>
+                        {{ session('success') }}
+                    </div>
+                @endif
+
+                {{-- Header Section dalam Card --}}
+                <div class="mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-3 fade-slide" style="animation-delay:.45s">
+                    <div>
+                        <h3 class="text-xl font-bold text-gray-800">Daftar Booking Saya</h3>
+                        <p class="text-gray-600 text-sm">Pantau status servis kendaraan Anda di sini</p>
+                    </div>
+
+                    {{-- Tombol Booking Baru --}}
+                    <a href="{{ route('customer.booking.create') }}"
+                       class="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-md text-sm font-medium transition transform hover:scale-105">
+                        <i data-lucide="plus" class="w-4 h-4"></i> Booking Baru
+                    </a>
                 </div>
-            @endif
 
-            {{-- Table Booking --}}
-            <div class="overflow-x-auto rounded-lg border border-gray-200 bg-white shadow-lg transition-all duration-300 animate-fadeIn">
-                <table class="w-full border-collapse text-sm">
-                    <thead>
-                        <tr class="bg-blue-600 text-white uppercase text-xs">
-                            <th class="px-4 py-3 border text-center">No</th>
-                            <th class="px-4 py-3 border text-left">Layanan</th>
-                            <th class="px-4 py-3 border text-left">Kendaraan</th>
-                            <th class="px-4 py-3 border text-left">Mekanik</th>
-                            <th class="px-4 py-3 border text-center">Tanggal</th>
-                            <th class="px-4 py-3 border text-center">Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @forelse ($bookings as $index => $booking)
-                            @php
-                                $statusClasses = [
-                                    'pending' => 'bg-yellow-100 text-yellow-700',
-                                    'approved' => 'bg-green-100 text-green-700',
-                                    'rejected' => 'bg-red-100 text-red-700',
-                                    'completed' => 'bg-blue-100 text-blue-700',
-                                ];
-                                $statusIcons = [
-                                    'pending' => 'clock',
-                                    'approved' => 'check-circle',
-                                    'rejected' => 'x-circle',
-                                    'completed' => 'award',
-                                ];
-                                $statusLabels = [
-                                    'pending' => 'Menunggu',
-                                    'approved' => 'Disetujui',
-                                    'rejected' => 'Ditolak',
-                                    'completed' => 'Selesai',
-                                ];
-                            @endphp
-                            <tr class="{{ $index % 2 === 0 ? 'bg-gray-50' : 'bg-white' }} hover:bg-blue-50 transition duration-200">
-                                {{-- Nomor --}}
-                                <td class="px-4 py-3 border text-center font-medium">{{ $index + 1 }}</td>
+                {{-- Table Booking --}}
+                <div class="overflow-x-auto rounded-lg border border-gray-200 fade-slide" style="animation-delay:.55s">
+                    <table class="w-full border-collapse text-sm">
+                        <thead>
+                            <tr class="bg-blue-600 text-white uppercase text-xs">
+                                <th class="px-4 py-3 border-r border-blue-500 text-center">No</th>
+                                <th class="px-4 py-3 border-r border-blue-500 text-center">Antrian</th>
+                                <th class="px-4 py-3 border-r border-blue-500 text-left">Layanan</th>
+                                <th class="px-4 py-3 border-r border-blue-500 text-left">Kendaraan</th>
+                                <th class="px-4 py-3 border-r border-blue-500 text-left">Mekanik</th>
+                                <th class="px-4 py-3 border-r border-blue-500 text-center">Tanggal</th>
+                                <th class="px-4 py-3 border-r border-blue-500 text-center">Status</th>
+                                <th class="px-4 py-3 border-r border-blue-500 text-center">Aksi</th>
+                            </tr>
+                        </thead>
 
-                                {{-- Layanan --}}
-                                <td class="px-4 py-3 border">
-                                    <span class="font-semibold">{{ $booking->service->name ?? '-' }}</span>
-                                    <span class="text-xs text-gray-500 block">
-                                        Rp {{ number_format($booking->service->price ?? 0, 0, ',', '.') }}
-                                    </span>
-                                </td>
+                        <tbody>
+                            @forelse ($bookings as $index => $booking)
+                                <tr class="{{ $index % 2 === 0 ? 'bg-gray-50' : 'bg-white' }} hover:bg-blue-50 transition fade-row"
+                                    style="animation-delay: {{ $index * 0.12 }}s">
 
-                                {{-- Kendaraan --}}
-                                <td class="px-4 py-3 border">
-                                    @if($booking->vehicle)
-                                        <span class="font-semibold">{{ $booking->vehicle->plate_number }}</span><br>
-                                        <span class="text-xs text-gray-600">
-                                            {{ $booking->vehicle->brand }} - {{ $booking->vehicle->model }} ({{ $booking->vehicle->year }})
+                                    {{-- No --}}
+                                    <td class="px-4 py-3 border-r border-gray-200 text-center font-medium">{{ $index + 1 }}</td>
+
+                                    {{-- Antrian --}}
+                                    <td class="px-4 py-3 border-r border-gray-200 text-center font-semibold">
+                                        @if($booking->queue_number)
+                                            <span class="inline-block w-8 h-8 rounded-full bg-blue-600 text-white leading-8 shadow-sm">
+                                                {{ $booking->queue_number }}
+                                            </span>
+                                        @else
+                                            <span class="text-gray-400 text-lg">—</span>
+                                        @endif
+                                    </td>
+
+                                    {{-- Layanan --}}
+                                    <td class="px-4 py-3 border-r border-gray-200">
+                                        <span class="font-semibold text-gray-800">{{ $booking->service->name ?? '-' }}</span>
+                                        <span class="text-xs text-gray-500 block">
+                                            Rp {{ number_format($booking->service->price ?? 0, 0, ',', '.') }}
                                         </span>
-                                    @else
-                                        <span class="text-gray-400 italic">Belum ada kendaraan</span>
-                                    @endif
-                                </td>
+                                    </td>
 
-                                {{-- Mekanik --}}
-                                <td class="px-4 py-3 border">
-                                    @if($booking->mechanic)
-                                        <p class="font-semibold text-gray-800">{{ $booking->mechanic->name }}</p>
-                                        <p class="text-xs text-gray-500">
-                                            {{ $booking->mechanic->specialization ?? '-' }}
-                                        </p>
-                                    @else
-                                        <span class="text-gray-400 italic">Belum ditugaskan</span>
-                                    @endif
-                                </td>
+                                    {{-- Kendaraan --}}
+                                    <td class="px-4 py-3 border-r border-gray-200">
+                                        @if($booking->vehicle)
+                                            <span class="font-semibold text-gray-800">{{ $booking->vehicle->plate_number }}</span>
+                                            <div class="text-xs text-gray-600">
+                                                {{ $booking->vehicle->brand }} - {{ $booking->vehicle->model }}
+                                            </div>
+                                        @else
+                                            <span class="text-gray-400 italic">Belum ada kendaraan</span>
+                                        @endif
+                                    </td>
 
-                                {{-- Tanggal --}}
-                                <td class="px-4 py-3 border text-center">
-                                    {{ \Carbon\Carbon::parse($booking->booking_date)->format('d-m-Y') }}
-                                </td>
+                                    {{-- Mekanik --}}
+                                    <td class="px-4 py-3 border-r border-gray-200">
+                                        @if($booking->mechanic)
+                                            <div class="flex items-center gap-1.5">
+                                                <i data-lucide="wrench" class="w-3 h-3 text-gray-400"></i>
+                                                <span class="font-medium text-gray-700">{{ $booking->mechanic->name }}</span>
+                                            </div>
+                                        @else
+                                            <span class="text-gray-400 italic text-xs">Belum ditugaskan</span>
+                                        @endif
+                                    </td>
 
-                                {{-- Status --}}
-                                <td class="px-4 py-3 border text-center">
-                                    <span class="px-3 py-1 rounded-full text-xs font-semibold inline-flex items-center gap-1 {{ $statusClasses[$booking->status] ?? 'bg-gray-100 text-gray-700' }}">
-                                        <i data-lucide="{{ $statusIcons[$booking->status] ?? 'info' }}" class="w-4 h-4"></i>
-                                        {{ $statusLabels[$booking->status] ?? ucfirst($booking->status) }}
-                                    </span>
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="6" class="text-center py-6 text-gray-500 italic flex items-center justify-center gap-2">
-                                    <i data-lucide="calendar-x" class="w-5 h-5 text-red-500"></i>
-                                    Belum ada booking
-                                </td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
+                                    {{-- Tanggal --}}
+                                    <td class="px-4 py-3 border-r border-gray-200 text-center whitespace-nowrap">
+                                        {{ \Carbon\Carbon::parse($booking->booking_date)->format('d-m-Y') }}
+                                    </td>
+
+                                    {{-- STATUS (Menggunakan Style Badge Admin) --}}
+                                    <td class="px-4 py-3 border-r border-gray-200 text-center">
+                                        @if($booking->status == 'disetujui')
+                                            <span class="px-2 py-1 bg-green-100 text-green-700 rounded text-xs font-bold border border-green-200 inline-flex items-center gap-1">
+                                                <i data-lucide="check-circle" class="w-3 h-3"></i> Disetujui
+                                            </span>
+                                        @elseif($booking->status == 'proses')
+                                            <span class="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs font-bold border border-blue-200 inline-flex items-center gap-1">
+                                                <i data-lucide="loader" class="w-3 h-3 animate-spin"></i> Dikerjakan
+                                            </span>
+                                        @elseif($booking->status == 'selesai')
+                                            <span class="px-2 py-1 bg-indigo-100 text-indigo-700 rounded text-xs font-bold border border-indigo-200 inline-flex items-center gap-1">
+                                                <i data-lucide="check-circle" class="w-3 h-3"></i> Selesai
+                                            </span>
+                                        @elseif($booking->status == 'rejected' || $booking->status == 'ditolak')
+                                            <span class="px-2 py-1 bg-red-100 text-red-700 rounded text-xs font-bold border border-red-200 inline-flex items-center gap-1">
+                                                <i data-lucide="x-circle" class="w-3 h-3"></i> Ditolak
+                                            </span>
+                                        @else
+                                            <span class="px-2 py-1 bg-yellow-100 text-yellow-700 rounded text-xs font-bold border border-yellow-200 inline-flex items-center gap-1">
+                                                <i data-lucide="clock" class="w-3 h-3"></i> Menunggu
+                                            </span>
+                                        @endif
+                                    </td>
+
+                                    {{-- AKSI (Tombol Chat) --}}
+                                    <td class="px-4 py-3 border-r border-gray-200 text-center">
+                                        <a href="{{ route('chat.show', $booking->id) }}"
+                                           class="inline-flex items-center gap-1 px-3 py-1.5 bg-blue-500 hover:bg-blue-600 text-white rounded-lg text-xs font-medium shadow transition">
+                                            <i data-lucide="message-circle" class="w-3 h-3"></i>
+                                            Chat
+                                        </a>
+                                    </td>
+
+                                </tr>
+
+                            @empty
+                                <tr class="fade-row" style="animation-delay:.3s">
+                                    <td colspan="8" class="text-center py-8 text-gray-500 italic bg-gray-50">
+                                        <div class="flex flex-col items-center justify-center">
+                                            <i data-lucide="calendar-x" class="w-10 h-10 text-gray-300 mb-2"></i>
+                                            <p>Belum ada riwayat booking.</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+
+                {{-- Pagination --}}
+                <div class="mt-6">
+                    {{ $bookings->links() }}
+                </div>
+
             </div>
-
-            {{-- Pagination --}}
-            <div class="mt-6">
-                {{ $bookings->links() }}
-            </div>
-
         </div>
     </div>
 
-    {{-- Animasi FadeIn --}}
-    <style>
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .animate-fadeIn {
-            animation: fadeIn 0.5s ease-out;
-        }
-    </style>
-
-    {{-- Lucide Icons --}}
+    {{-- Script Lucide --}}
     <script src="https://unpkg.com/lucide@latest"></script>
-    <script>
-        lucide.createIcons();
-    </script>
+    <script> lucide.createIcons(); </script>
+
 </x-app-layout>

@@ -3,7 +3,7 @@
         <div class="flex items-center justify-between w-full animate-fadeSlide">
             <h2 class="font-semibold text-2xl text-gray-800 flex items-center gap-2">
                 <i data-lucide="package" class="w-6 h-6 text-indigo-600"></i>
-                Daftar Produk Bengkel
+                Daftar Produk
             </h2>
 
             <!-- 🔍 Search -->
