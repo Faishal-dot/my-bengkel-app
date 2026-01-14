@@ -66,7 +66,7 @@
                                     {{-- NO --}}
                                     <td class="px-4 py-3 border-r border-gray-200 text-center font-medium">{{ $index + 1 }}</td>
 
-                                    {{-- SERVICE (Disesuaikan dengan style histori booking) --}}
+                                    {{-- SERVICE --}}
                                     <td class="px-4 py-3 border-r border-gray-200">
                                         <span class="font-semibold text-gray-800">{{ $payment->booking->service->name ?? '-' }}</span>
                                         <div class="text-xs">
@@ -90,7 +90,7 @@
                                         @endif
                                     </td>
 
-                                    {{-- TOTAL (Tampilkan harga diskon jika ada) --}}
+                                    {{-- TOTAL --}}
                                     <td class="px-4 py-3 border-r border-gray-200 font-bold {{ $payment->booking->service->discount_price ? 'text-rose-600' : 'text-gray-700' }}">
                                         @if($payment->booking->service && $payment->booking->service->discount_price)
                                             Rp {{ number_format($payment->booking->service->discount_price, 0, ',', '.') }}
@@ -122,7 +122,7 @@
                                             <span class="px-2 py-1 bg-green-100 text-green-700 rounded text-xs font-bold border border-green-200 inline-flex items-center gap-1">
                                                 <i data-lucide="check-circle" class="w-3 h-3"></i> Lunas
                                             </span>
-                                        @elseif(in_array($status, ['rejected', 'ditolak', 'gagal']))
+                                        @elseif(in_array($status, ['rejected', 'ditolak', 'failed', 'gagal']))
                                             <span class="px-2 py-1 bg-red-100 text-red-700 rounded text-xs font-bold border border-red-200 inline-flex items-center gap-1">
                                                 <i data-lucide="x-circle" class="w-3 h-3"></i> Ditolak
                                             </span>
@@ -138,9 +138,9 @@
                                                class="inline-flex items-center gap-1 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold shadow transition transform hover:scale-105">
                                                 <i data-lucide="credit-card" class="w-3 h-3"></i> Bayar
                                             </a>
-                                        @elseif(in_array($status, ['rejected', 'ditolak']))
+                                        @elseif(in_array($status, ['rejected', 'ditolak', 'failed', 'gagal']))
                                             <a href="{{ route('customer.payment.create', $payment->booking_id) }}" 
-                                               class="inline-flex items-center gap-1 px-3 py-1.5 bg-red-100 hover:bg-red-200 text-red-700 border border-red-200 rounded-lg text-xs font-bold transition">
+                                               class="inline-flex items-center gap-1 px-3 py-1.5 bg-red-500 hover:bg-red-600 text-white rounded-lg text-xs font-bold shadow-md transition transform hover:scale-105">
                                                 <i data-lucide="refresh-cw" class="w-3 h-3"></i> Re-Upload
                                             </a>
                                         @elseif($status == 'pending')

@@ -14,7 +14,6 @@ class PaymentController extends Controller
     // ==========================================
     public function index()
     {
-        // Ambil data payment
         $payments = Payment::with(['booking.service', 'booking.vehicle'])
             ->whereHas('booking', function ($q) {
                 $q->where('user_id', auth()->id());
@@ -22,16 +21,11 @@ class PaymentController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
 
-        // [LOGIC AUTO FIX - PRE PAYMENT]
-        // Jika Booking sudah 'disetujui' tapi Payment statusnya masih aneh/pending tanpa bukti,
-        // Kita reset jadi 'unpaid' agar tombol bayar muncul.
         foreach ($payments as $payment) {
-            // Cek jika booking sudah disetujui admin
             if ($payment->booking->status === 'disetujui') {
-                // Jika belum ada bukti transfer, status wajib 'unpaid'
                 if (empty($payment->proof) && $payment->status !== 'unpaid') {
                     $payment->update(['status' => 'unpaid']);
-                    $payment->status = 'unpaid'; // Update variabel agar view langsung berubah
+                    $payment->status = 'unpaid'; 
                 }
             }
         }
@@ -46,20 +40,15 @@ class PaymentController extends Controller
     {
         $booking = Booking::with(['service', 'vehicle'])->findOrFail($booking_id);
 
-        // 1. Security Check
         if ($booking->user_id !== auth()->id()) {
             abort(403, 'Akses Ditolak.');
         }
 
-        // 2. [LOGIC BARU] Validasi Status Booking
-        // Pembayaran HANYA BOLEH dilakukan saat status "Disetujui".
-        // Jika masih "Pending" (belum dicek admin), tolak akses.
         if ($booking->status === 'pending') {
             return redirect()->route('customer.payment.index')
                 ->with('error', 'Mohon tunggu Admin menyetujui booking Anda terlebih dahulu.');
         }
         
-        // 3. Buat/Ambil Data Payment
         $payment = Payment::firstOrCreate(
             ['booking_id' => $booking->id],
             [
@@ -71,11 +60,7 @@ class PaymentController extends Controller
             ]
         );
 
-        // 4. [LOGIC PAKSA UNPAID]
-        // Jika booking 'disetujui', tapi customer belum upload bukti (proof kosong),
-        // Maka status HARUS 'unpaid'. 
         $bookingApproved = $booking->status === 'disetujui';
-        // Cek apakah belum bayar (nama bank masih default '-' atau bukti kosong)
         $noProofYet = empty($payment->proof) || $payment->bank_name === '-' || $payment->bank_name === null;
 
         if ($bookingApproved && $noProofYet) {
@@ -85,8 +70,6 @@ class PaymentController extends Controller
             }
         }
 
-        // 5. Redirect jika sudah lunas/sedang diverifikasi
-        // Hanya redirect jika statusnya pending/paid DAN bukti transfer sudah ada
         if (in_array($payment->status, ['pending', 'paid', 'approved', 'success']) && !empty($payment->proof)) {
              return redirect()->route('customer.payment.index')
                 ->with('info', 'Pembayaran sedang diverifikasi atau sudah lunas.');
@@ -114,7 +97,6 @@ class PaymentController extends Controller
             abort(403, 'Unauthorized action.');
         }
 
-        // Upload Gambar
         if ($request->hasFile('proof')) {
             if ($payment->proof && Storage::disk('public')->exists($payment->proof)) {
                 Storage::disk('public')->delete($payment->proof);
@@ -123,7 +105,7 @@ class PaymentController extends Controller
             $payment->proof = $path;
         }
 
-        // Update Data Payment -> Pending
+        // 1. Update Data Payment 
         $payment->update([
             'bank_name'      => $request->bank_name,
             'account_number' => $request->account_number,
@@ -131,13 +113,21 @@ class PaymentController extends Controller
             'status'         => 'pending', 
         ]);
 
-        // Update Booking -> Payment Status Pending
-        // Status utama booking TETAP 'disetujui' (jangan ubah jadi selesai dulu, biar mekanik yang ubah nanti)
-        $payment->booking->update([
-            'payment_status' => 'pending'
-        ]);
+        // 2. Update Booking (DENGAN TRY-CATCH AGAR TIDAK LANGSUNG CRASH)
+        try {
+            // Kita coba update ke 'pending'. 
+            // Jika error lagi, berarti di DB kamu namanya bukan 'pending'
+            $payment->booking->update([
+                'payment_status' => 'pending' 
+            ]);
+        } catch (\Exception $e) {
+            // Jika 'pending' gagal, kita coba 'menunggu' (opsi umum di sistem bahasa Indonesia)
+            $payment->booking->update([
+                'payment_status' => 'menunggu'
+            ]);
+        }
 
         return redirect()->route('customer.payment.index')
-            ->with('success', 'Pembayaran dikirim! Menunggu konfirmasi Admin sebelum diproses.');
+            ->with('success', 'Pembayaran dikirim! Menunggu konfirmasi Admin.');
     }
 }

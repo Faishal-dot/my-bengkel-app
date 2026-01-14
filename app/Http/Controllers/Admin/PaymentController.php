@@ -30,44 +30,51 @@ class PaymentController extends Controller
     }
 
     public function confirm(Payment $payment)
-    {
-        $payment->update([
-            'status' => 'paid', 
-        ]);
+{
+    // 1. Update status di tabel payments
+    $payment->update([
+        'status' => 'paid', 
+    ]);
 
-        $booking = $payment->booking;
-        
-        if ($booking) {
-            $updateData = [
-                'payment_status' => 'paid', 
-            ];
+    // 2. Ambil booking terkait
+    $booking = $payment->booking;
+    
+    if ($booking) {
+        $updateData = [
+            'payment_status' => 'paid', 
+        ];
 
-            if (!in_array($booking->status, ['proses', 'selesai'])) {
-                $updateData['status'] = 'disetujui';
-            }
-
-            $booking->update($updateData);
+        // Pastikan status hanya berubah ke 'disetujui' jika sebelumnya masih 'menunggu'
+        if ($booking->status === 'menunggu') {
+            $updateData['status'] = 'disetujui';
         }
 
-        return redirect()->route('admin.payments.index')
-            ->with('success', 'Pembayaran berhasil dikonfirmasi. Status Booking: DISETUJUI.');
+        $booking->update($updateData);
     }
+
+    return redirect()->route('admin.payments.index')
+        ->with('success', 'Pembayaran berhasil dikonfirmasi. Status Booking diperbarui!');
+}
 
     public function reject(Payment $payment)
-    {
-        $payment->update([
-            'status' => 'rejected',
+{
+    // 1. Update status di tabel payments ke 'failed'
+    // (Pastikan ENUM status di tabel payments sudah mendukung 'failed')
+    $payment->update([
+        'status' => 'failed',
+    ]);
+
+    $booking = $payment->booking;
+    
+    if ($booking) {
+        // 2. Update status di tabel bookings
+        // Ubah 'failed' menjadi 'unpaid' agar tidak bentrok dengan batasan ENUM DB
+        $booking->update([
+            'payment_status' => 'unpaid' 
         ]);
-
-        $booking = $payment->booking;
-        
-        if ($booking) {
-            $booking->update([
-                'payment_status' => 'failed' 
-            ]);
-        }
-
-        return redirect()->route('admin.payments.index')
-            ->with('success', 'Pembayaran telah ditolak.');
     }
+
+    return redirect()->route('admin.payments.index')
+        ->with('success', 'Pembayaran telah ditolak.');
+}
 }

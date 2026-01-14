@@ -68,16 +68,11 @@
                                     </td>
                                     <td class="px-4 py-4 border-r border-gray-200 text-gray-700">{{ $row->booking->service->name ?? '-' }}</td>
                                     
-                                    {{-- Kolom Total Dengan Logika Diskon Terperbaiki --}}
+                                    {{-- Kolom Total --}}
                                     <td class="px-4 py-4 border-r border-gray-200 font-bold text-gray-800">
                                         @php
-                                            // 1. Ambil Harga Asli dari Master Service
                                             $originalPrice = $row->booking->service->price ?? 0;
-
-                                            // 2. Ambil Harga yang dibayar (Cek total_price di booking dulu, baru amount di payment)
                                             $paidAmount = $row->booking->total_price ?? $row->amount;
-
-                                            // 3. Logika Diskon: Harga asli harus lebih besar dari yang dibayar
                                             $hasDiscount = ($originalPrice > $paidAmount) && ($paidAmount > 0);
                                         @endphp
 
@@ -97,7 +92,6 @@
                                         @endif
                                     </td>
                                     
-                                    {{-- Kolom Detail --}}
                                     <td class="px-4 py-4 border-r border-gray-200 text-center">
                                         <a href="{{ route('admin.payments.show', $row->id) }}" class="text-blue-600 hover:text-blue-800 hover:underline text-xs font-semibold flex items-center justify-center gap-1">
                                             <i data-lucide="eye" class="w-3 h-3"></i> Detail
@@ -114,7 +108,8 @@
                                             <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700 border border-emerald-200">
                                                 <i data-lucide="check-circle-2" class="w-3 h-3"></i> Lunas
                                             </span>
-                                        @elseif(in_array($status, ['rejected', 'ditolak']))
+                                        @elseif(in_array($status, ['rejected', 'ditolak', 'failed']))
+                                            {{-- BAGIAN INI SUDAH DITAMBAHKAN 'failed' DENGAN WARNA MERAH ROSE --}}
                                             <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-rose-100 text-rose-700 border border-rose-200">
                                                 <i data-lucide="x-circle" class="w-3 h-3"></i> Ditolak
                                             </span>
@@ -141,6 +136,8 @@
                                             </div>
                                         @elseif(in_array(strtolower($row->status), ['paid', 'approved', 'lunas']))
                                             <span class="text-emerald-600 text-xs font-bold flex items-center justify-center gap-1 opacity-70"><i data-lucide="check-check" class="w-4 h-4"></i> Terverifikasi</span>
+                                        @elseif(in_array(strtolower($row->status), ['failed', 'rejected', 'ditolak']))
+                                             <span class="text-rose-600 text-xs font-bold flex items-center justify-center gap-1 opacity-70"><i data-lucide="alert-circle" class="w-4 h-4"></i> Gagal</span>
                                         @else
                                             <span class="text-gray-400 text-xs italic">Selesai</span>
                                         @endif

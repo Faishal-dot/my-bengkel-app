@@ -116,15 +116,19 @@
                                     </td>
 
                                     <td class="px-4 py-3 border-r border-gray-200 text-center">
-                                        @if($booking->status == 'approved') {{-- Sesuai ENUM DB --}}
+                                        @if($booking->status == 'disetujui') {{-- UBAH DARI 'approved' KE 'disetujui' --}}
                                             <span class="px-2 py-1 bg-green-100 text-green-700 rounded text-xs font-bold border border-green-200 inline-flex items-center gap-1">
                                                 <i data-lucide="check-circle" class="w-3 h-3"></i> Disetujui
                                             </span>
-                                        @elseif($booking->status == 'rejected') {{-- Sesuai ENUM DB --}}
+                                        @elseif($booking->status == 'rejected' || $booking->status == 'ditolak')
                                             <span class="px-2 py-1 bg-red-100 text-red-700 rounded text-xs font-bold border border-red-200 inline-flex items-center gap-1">
                                                 <i data-lucide="x-circle" class="w-3 h-3"></i> Ditolak
                                             </span>
-                                        @else {{-- Ini untuk status 'pending' --}}
+                                        @elseif($booking->status == 'proses')
+                                            <span class="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs font-bold border border-blue-200 inline-flex items-center gap-1">
+                                                <i data-lucide="settings" class="w-3 h-3"></i> Sedang Diproses
+                                            </span>
+                                        @else {{-- Status 'menunggu' --}}
                                             <span class="px-2 py-1 bg-yellow-100 text-yellow-700 rounded text-xs font-bold border border-yellow-200 inline-flex items-center gap-1">
                                                 <i data-lucide="clock" class="w-3 h-3"></i> Menunggu
                                             </span>
