@@ -224,38 +224,59 @@
         <h2 class="text-2xl sm:text-3xl font-bold mb-12 text-white">Apa Kata Pelanggan?</h2>
     </div>
 
-    @if($testimonials->count() > 0)
-        <div class="relative w-full">
-            <div class="animate-scroll gap-6 pl-6">
-                @foreach(range(1, 2) as $loop) 
-                    @foreach($testimonials as $t)
-                        <div class="w-[300px] sm:w-[350px] flex-shrink-0 p-6 bg-white/5 rounded-2xl shadow-lg border border-white/5 flex flex-col items-center text-center transition-transform hover:scale-105 hover:bg-white/10 cursor-pointer">
-                            <div class="w-14 h-14 rounded-full bg-gradient-to-tr from-blue-500 to-blue-700 flex items-center justify-center text-white font-bold text-xl shadow-md mb-3 ring-2 ring-blue-400/30">
-                                {{ strtoupper(substr($t->user->name, 0, 1)) }}
-                            </div>
-                            <p class="text-blue-400 font-semibold text-lg mb-1 truncate w-full">
-                                {{ $t->user->name }}
-                            </p>
-                            <div class="flex justify-center gap-1 mb-4">
-                                @for($i = 1; $i <= 5; $i++)
-                                    <i data-lucide="star"
-                                    class="w-4 h-4 {{ $i <= $t->rating ? 'text-yellow-400 fill-yellow-400' : 'text-gray-600 fill-gray-600/30' }}">
-                                    </i>
-                                @endfor
-                            </div>
-                            <p class="text-gray-300 text-sm italic leading-relaxed line-clamp-4">
-                                “{{ $t->message }}”
-                            </p>
+@if($testimonials->count() > 0)
+    <div class="relative w-full">
+        {{-- Jika data <= 3, kita hilangkan animasi 'animate-scroll' agar tidak terlihat aneh --}}
+        <div class="{{ $testimonials->count() > 3 ? 'animate-scroll' : 'flex justify-center' }} gap-6 px-6">
+            
+            {{-- Loop pertama (Data Asli) --}}
+            @foreach($testimonials as $t)
+                <div class="w-[300px] sm:w-[350px] flex-shrink-0 p-6 bg-white/5 rounded-2xl shadow-lg border border-white/5 flex flex-col items-center text-center transition-transform hover:scale-105 hover:bg-white/10 cursor-pointer">
+                    <div class="w-14 h-14 rounded-full bg-gradient-to-tr from-blue-500 to-blue-700 flex items-center justify-center text-white font-bold text-xl shadow-md mb-3 ring-2 ring-blue-400/30">
+                        {{ strtoupper(substr($t->user->name, 0, 1)) }}
+                    </div>
+                    <p class="text-blue-400 font-semibold text-lg mb-1 truncate w-full">
+                        {{ $t->user->name }}
+                    </p>
+                    <div class="flex justify-center gap-1 mb-4">
+                        @for($i = 1; $i <= 5; $i++)
+                            <i data-lucide="star"
+                            class="w-4 h-4 {{ $i <= $t->rating ? 'text-yellow-400 fill-yellow-400' : 'text-gray-600 fill-gray-600/30' }}">
+                            </i>
+                        @endfor
+                    </div>
+                    <p class="text-gray-300 text-sm italic leading-relaxed line-clamp-4">
+                        “{{ $t->message }}”
+                    </p>
+                </div>
+            @endforeach
+
+            {{-- Loop kedua (Data Kloning) HANYA muncul jika data > 3 untuk keperluan animasi infinite --}}
+            @if($testimonials->count() > 3)
+                @foreach($testimonials as $t)
+                    <div class="w-[300px] sm:w-[350px] flex-shrink-0 p-6 bg-white/5 rounded-2xl shadow-lg border border-white/5 flex flex-col items-center text-center transition-transform hover:scale-105 hover:bg-white/10 cursor-pointer">
+                        {{-- Isi kartu sama persis dengan di atas --}}
+                        <div class="w-14 h-14 rounded-full bg-gradient-to-tr from-blue-500 to-blue-700 flex items-center justify-center text-white font-bold text-xl shadow-md mb-3 ring-2 ring-blue-400/30">
+                            {{ strtoupper(substr($t->user->name, 0, 1)) }}
                         </div>
-                    @endforeach
+                        <p class="text-blue-400 font-semibold text-lg mb-1 truncate w-full">{{ $t->user->name }}</p>
+                        <div class="flex justify-center gap-1 mb-4">
+                            @for($i = 1; $i <= 5; $i++)
+                                <i data-lucide="star" class="w-4 h-4 {{ $i <= $t->rating ? 'text-yellow-400 fill-yellow-400' : 'text-gray-600 fill-gray-600/30' }}"></i>
+                            @endfor
+                        </div>
+                        <p class="text-gray-300 text-sm italic leading-relaxed line-clamp-4">“{{ $t->message }}”</p>
+                    </div>
                 @endforeach
-            </div>
+            @endif
+
         </div>
-    @else
-        <div class="text-center pb-10">
-            <p class="text-gray-400">Belum ada testimoni.</p>
-        </div>
-    @endif
+    </div>
+@else
+    <div class="text-center pb-10">
+        <p class="text-gray-300 italic">Belum ada testimoni dari pelanggan.</p>
+    </div>
+@endif
 
     <script>
         document.addEventListener("DOMContentLoaded", function() {
