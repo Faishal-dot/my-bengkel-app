@@ -14,8 +14,13 @@ return new class extends Migration
             $table->string('vehicle');
             $table->date('booking_date');
             $table->text('notes')->nullable();
-            $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
+            // PERUBAHAN DI SINI: approved diganti disetujui
+            $table->enum('status', ['pending', 'disetujui', 'rejected', 'proses', 'selesai'])->default('pending');
+            $table->unsignedBigInteger('mechanic_id')->nullable(); // Pastikan kolom ini ada
+            $table->integer('queue_number')->nullable(); // Pastikan kolom ini ada
             $table->timestamps();
+            
+            $table->foreign('mechanic_id')->references('id')->on('mechanics')->onDelete('set null');
         });
     }
 

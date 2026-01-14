@@ -116,29 +116,20 @@
                                     </td>
 
                                     <td class="px-4 py-3 border-r border-gray-200 text-center">
-                                        @if($booking->status == 'disetujui')
+                                        @if($booking->status == 'approved') {{-- Sesuai ENUM DB --}}
                                             <span class="px-2 py-1 bg-green-100 text-green-700 rounded text-xs font-bold border border-green-200 inline-flex items-center gap-1">
                                                 <i data-lucide="check-circle" class="w-3 h-3"></i> Disetujui
                                             </span>
-                                        @elseif($booking->status == 'proses')
-                                            <span class="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs font-bold border border-blue-200 inline-flex items-center gap-1">
-                                                <i data-lucide="loader" class="w-3 h-3 animate-spin"></i> Dikerjakan
-                                            </span>
-                                        @elseif($booking->status == 'selesai')
-                                            <span class="px-2 py-1 bg-indigo-100 text-indigo-700 rounded text-xs font-bold border border-indigo-200 inline-flex items-center gap-1">
-                                                <i data-lucide="check-circle" class="w-3 h-3"></i> Selesai
-                                            </span>
-                                        @elseif($booking->status == 'rejected' || $booking->status == 'ditolak')
+                                        @elseif($booking->status == 'rejected') {{-- Sesuai ENUM DB --}}
                                             <span class="px-2 py-1 bg-red-100 text-red-700 rounded text-xs font-bold border border-red-200 inline-flex items-center gap-1">
                                                 <i data-lucide="x-circle" class="w-3 h-3"></i> Ditolak
                                             </span>
-                                        @else
+                                        @else {{-- Ini untuk status 'pending' --}}
                                             <span class="px-2 py-1 bg-yellow-100 text-yellow-700 rounded text-xs font-bold border border-yellow-200 inline-flex items-center gap-1">
                                                 <i data-lucide="clock" class="w-3 h-3"></i> Menunggu
                                             </span>
                                         @endif
                                     </td>
-
                                     <td class="px-4 py-3 border-r border-gray-200 text-center">
                                         <a href="{{ route('chat.show', $booking->id) }}"
                                            class="inline-flex items-center gap-1 px-3 py-1.5 bg-blue-500 hover:bg-blue-600 text-white rounded-lg text-xs font-medium shadow transition">

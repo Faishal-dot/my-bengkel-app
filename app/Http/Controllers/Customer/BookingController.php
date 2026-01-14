@@ -77,7 +77,7 @@ class BookingController extends Controller
 
         // 2. SET VALUE TAMBAHAN
         $validated['user_id']        = Auth::id();
-        $validated['status']         = 'menunggu'; 
+        $validated['status'] = 'pending';
         $validated['payment_status'] = 'unpaid';
         $validated['queue_number']   = null; 
         
