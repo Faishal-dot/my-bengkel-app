@@ -9,16 +9,13 @@
     <div class="py-12 bg-gradient-to-b from-indigo-50 via-white to-gray-100 min-h-screen">
         <div class="max-w-3xl mx-auto animate-fadeIn">
             
-            <!-- Step Indicator -->
             <div class="flex items-center justify-center gap-2 mb-8">
                 <i data-lucide="edit-3" class="w-5 h-5 text-indigo-600"></i>
                 <span class="text-indigo-600 font-semibold">Form Edit</span>
             </div>
 
-            <!-- Card -->
             <div class="bg-white shadow-xl rounded-2xl border border-gray-100 p-8 transition-all duration-500 hover:shadow-2xl">
                 
-                <!-- Error -->
                 @if ($errors->any())
                     <div class="mb-6 p-4 bg-red-50 border border-red-200 text-red-600 rounded-xl shadow-sm">
                         <ul class="list-disc pl-6 space-y-1">
@@ -29,12 +26,10 @@
                     </div>
                 @endif
 
-                <!-- Form Edit Layanan -->
                 <form method="POST" action="{{ route('admin.services.update', $service) }}" class="space-y-6">
                     @csrf
                     @method('PUT')
 
-                    <!-- Nama Layanan -->
                     <div class="relative transition-all duration-300 hover:scale-[1.02]">
                         <label class="flex items-center gap-2 mb-2 text-gray-600 font-medium">
                             <i data-lucide="wrench" class="w-4 h-4 text-indigo-500"></i>
@@ -48,7 +43,6 @@
                             placeholder="Masukkan nama layanan..." required>
                     </div>
 
-                    <!-- Deskripsi -->
                     <div class="relative transition-all duration-300 hover:scale-[1.02]">
                         <label class="flex items-center gap-2 mb-2 text-gray-600 font-medium">
                             <i data-lucide="file-text" class="w-4 h-4 text-indigo-500"></i>
@@ -62,21 +56,34 @@
                             placeholder="Masukkan deskripsi layanan...">{{ old('description', $service->description) }}</textarea>
                     </div>
 
-                    <!-- Harga -->
-                    <div class="relative transition-all duration-300 hover:scale-[1.02]">
-                        <label class="flex items-center gap-2 mb-2 text-gray-600 font-medium">
-                            <i data-lucide="wallet" class="w-4 h-4 text-indigo-500"></i>
-                            Harga
-                        </label>
-                        <input type="number" name="price" value="{{ old('price', $service->price) }}" step="1000"
-                            class="w-full border-gray-300 rounded-lg px-4 py-3 shadow-sm 
-                                   focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 
-                                   transition-all duration-300 ease-in-out
-                                   hover:border-indigo-300 hover:shadow-md hover:bg-indigo-50/30"
-                            placeholder="Masukkan harga layanan..." required>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="relative transition-all duration-300 hover:scale-[1.02]">
+                            <label class="flex items-center gap-2 mb-2 text-gray-600 font-medium">
+                                <i data-lucide="wallet" class="w-4 h-4 text-indigo-500"></i>
+                                Harga Asli
+                            </label>
+                            <input type="number" name="price" value="{{ old('price', $service->price) }}" step="1000"
+                                class="w-full border-gray-300 rounded-lg px-4 py-3 shadow-sm 
+                                       focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 
+                                       transition-all duration-300 ease-in-out
+                                       hover:border-indigo-300 hover:shadow-md hover:bg-indigo-50/30 font-semibold"
+                                placeholder="Contoh: 200000" required>
+                        </div>
+
+                        <div class="relative transition-all duration-300 hover:scale-[1.02]">
+                            <label class="flex items-center gap-2 mb-2 text-indigo-600 font-bold">
+                                <i data-lucide="tag" class="w-4 h-4 text-rose-500"></i>
+                                Harga Diskon
+                            </label>
+                            <input type="number" name="discount_price" value="{{ old('discount_price', $service->discount_price) }}" step="1000"
+                                class="w-full border-rose-200 bg-rose-50/30 rounded-lg px-4 py-3 shadow-sm 
+                                       focus:ring-2 focus:ring-rose-400 focus:border-rose-400 
+                                       transition-all duration-300 ease-in-out
+                                       hover:border-rose-300 hover:shadow-md hover:bg-rose-50 font-bold text-rose-600"
+                                placeholder="Kosongkan jika tidak ada diskon">
+                        </div>
                     </div>
 
-                    <!-- Tombol -->
                     <div class="flex items-center gap-4 pt-6">
                         <button type="submit" 
                                 class="flex items-center gap-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-6 py-3 rounded-lg shadow-md 
@@ -95,7 +102,6 @@
         </div>
     </div>
 
-    <!-- Animasi -->
     <style>
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(15px); }
@@ -106,7 +112,6 @@
         }
     </style>
 
-    <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <script>
         lucide.createIcons();

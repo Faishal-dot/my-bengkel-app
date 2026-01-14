@@ -6,7 +6,6 @@
                 Daftar Layanan Bengkel
             </h2>
 
-            <!-- Search -->
             <form method="GET" action="{{ route('customer.services') }}" class="relative">
                 <input type="text" name="q" placeholder="Cari layanan..."
                        class="pl-10 pr-4 py-2 text-sm border rounded-xl shadow-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none"
@@ -19,7 +18,6 @@
     <div class="py-10 bg-gradient-to-b from-gray-100 to-gray-200 min-h-screen">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
 
-            <!-- Hasil pencarian -->
             @if(request('q'))
                 <div class="mb-6 p-4 bg-blue-100 text-blue-700 border border-blue-200 rounded-xl flex items-center gap-2 shadow-sm animate-fadeSlide">
                     <i data-lucide="search" class="w-5 h-5"></i>
@@ -36,13 +34,33 @@
                 <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                     @foreach($services as $service)
                         <div class="bg-white shadow-md rounded-2xl p-5 transition transform 
-                                    hover:-translate-y-2 hover:shadow-2xl animate-cardFade flex flex-col">
+                                    hover:-translate-y-2 hover:shadow-2xl animate-cardFade flex flex-col relative">
                             
+                            @if($service->discount_price)
+                                <div class="absolute -top-2 -right-2 z-10">
+                                    <span class="bg-rose-500 text-white text-[10px] font-bold px-2 py-1 rounded-lg shadow-md">
+                                        -{{ round((($service->price - $service->discount_price) / $service->price) * 100) }}%
+                                    </span>
+                                </div>
+                            @endif
+
                             <div class="flex justify-between items-start mb-4">
-                                <h3 class="font-semibold text-lg text-gray-800">{{ $service->name }}</h3>
-                                <span class="px-3 py-1 rounded-full text-xs font-medium bg-indigo-100 text-indigo-700">
-                                    Rp {{ number_format($service->price, 0, ',', '.') }}
-                                </span>
+                                <h3 class="font-semibold text-lg text-gray-800 pr-4">{{ $service->name }}</h3>
+                                
+                                <div class="flex flex-col items-end">
+                                    @if($service->discount_price)
+                                        <span class="px-3 py-1 rounded-full text-xs font-bold bg-rose-100 text-rose-700">
+                                            Rp {{ number_format($service->discount_price, 0, ',', '.') }}
+                                        </span>
+                                        <span class="text-[10px] text-gray-400 line-through mt-1">
+                                            Rp {{ number_format($service->price, 0, ',', '.') }}
+                                        </span>
+                                    @else
+                                        <span class="px-3 py-1 rounded-full text-xs font-medium bg-indigo-100 text-indigo-700">
+                                            Rp {{ number_format($service->price, 0, ',', '.') }}
+                                        </span>
+                                    @endif
+                                </div>
                             </div>
 
                             <p class="text-sm text-gray-600 mb-4 flex-grow">
@@ -50,15 +68,14 @@
                             </p>
 
                             <a href="{{ route('customer.booking.create', ['service_id' => $service->id]) }}" 
-                                class="mt-auto inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-medium text-center transition">
+                                class="mt-auto inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-medium text-center transition justify-center">
                                     <i data-lucide="car" class="w-4 h-4"></i>
                                     Booking Layanan
-                                </a>
+                            </a>
                         </div>
                     @endforeach
                 </div>
 
-                <!-- Pagination -->
                 <div class="mt-8 animate-fadeSlide">
                     {{ $services->withQueryString()->links() }}
                 </div>

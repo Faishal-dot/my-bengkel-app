@@ -4,73 +4,63 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Booking extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $fillable = [
         'user_id',
         'vehicle_id',
         'service_id',
-        'booking_date',
-        'notes',
-        'complaint',
-        'status',
         'mechanic_id',
+        'booking_date',
+        'status',
         'payment_status',
         'queue_number',
+        'notes',
+        'complaint',
+        'customer_name',
+        'customer_phone',
+        'customer_address',
+        'total_price',
     ];
 
-    // Relasi ke customer (user yang booking)
-    public function customer()
+    protected static function booted()
     {
-        return $this->belongsTo(User::class, 'user_id');
+        static::deleting(function ($booking) {
+            if ($booking->isForceDeleting()) {
+                $booking->payment()?->forceDelete();
+            } else {
+                $booking->payment()?->delete();
+            }
+        });
+
+        static::restoring(function ($booking) {
+            $booking->payment()?->restore();
+        });
     }
 
-    // Relasi ke User (alias)
-    public function user()
+    /**
+     * Relasi ke ChatMessage
+     * Nama fungsi ini harus 'messages' agar sesuai dengan 'with(messages)' di Controller
+     */
+    public function messages(): HasMany
     {
-        return $this->belongsTo(User::class, 'user_id');
+        return $this->hasMany(ChatMessage::class, 'booking_id');
     }
 
-    // Relasi ke Service
-    public function service()
-    {
-        return $this->belongsTo(Service::class, 'service_id');
-    }
-
-    // Relasi ke Vehicle
-    public function vehicle()
-    {
-        return $this->belongsTo(Vehicle::class, 'vehicle_id');
-    }
-
-    // Relasi ke Mechanic
-    public function mechanic()
-    {
-        return $this->belongsTo(Mechanic::class, 'mechanic_id');
-    }
-
-    // Relasi ke Payment
-    public function payment()
+    public function payment(): HasOne
     {
         return $this->hasOne(Payment::class);
     }
 
-    // Accessor Nama Kendaraan
-    public function getVehicleNameAttribute()
-    {
-        if ($this->vehicle) {
-            return $this->vehicle->brand . ' ' . $this->vehicle->plate_number;
-        }
-        return '-';
-    }
-
-    // --- TAMBAHAN BARU ---
-    // Relasi ke ChatMessage (Sistem Chat)
-    public function messages()
-    {
-        return $this->hasMany(ChatMessage::class);
-    }
+    public function user(): BelongsTo { return $this->belongsTo(User::class); }
+    public function service(): BelongsTo { return $this->belongsTo(Service::class); }
+    public function vehicle(): BelongsTo { return $this->belongsTo(Vehicle::class); }
+    public function mechanic(): BelongsTo { return $this->belongsTo(Mechanic::class); }
 }

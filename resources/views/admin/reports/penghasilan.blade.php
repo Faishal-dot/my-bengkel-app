@@ -1,179 +1,216 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-2xl text-blue-700 flex items-center gap-2 fade-slide">
-            <i data-lucide="wallet-cards" class="w-7 h-7 text-blue-600"></i>
+        <h2 class="font-semibold text-2xl text-gray-800 flex items-center gap-2 fade-slide">
+            <i data-lucide="wallet-cards" class="w-6 h-6 text-blue-600"></i>
             Laporan Penghasilan
         </h2>
     </x-slot>
 
-    <!-- ANIMASI GLOBAL -->
     <style>
-        /* Fade + slide */
-        .fade-slide {
-            opacity: 0;
-            transform: translateY(20px);
-            animation: slideUp .7s ease-out forwards;
-        }
+        .fade-slide { opacity:0; transform:translateY(20px); animation: slideUp .6s ease-out forwards; }
+        @keyframes slideUp { to { opacity:1; transform:translateY(0);} }
 
-        @keyframes slideUp {
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* Fade-in biasa */
-        .fade {
-            opacity: 0;
-            animation: fadeIn .8s ease-out forwards;
-        }
-
-        @keyframes fadeIn {
-            to { opacity: 1; }
-        }
-
-        /* Baris tabel muncul berurutan */
-        .fade-row {
-            opacity: 0;
-            animation: fadeRow .5s ease-out forwards;
-        }
-
-        @keyframes fadeRow {
-            to { opacity: 1; }
-        }
+        .fade-row { opacity:0; animation: fadeRow .5s ease-out forwards; }
+        @keyframes fadeRow { to { opacity:1; } }
     </style>
 
-    <div class="py-8 bg-gray-50 min-h-screen fade">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+    <div class="py-10 bg-gradient-to-b from-gray-100 to-gray-200 min-h-screen fade-slide">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-10">
 
-            <!-- Card Utama -->
-            <div class="bg-white shadow-lg rounded-2xl p-8 space-y-10 fade-slide" style="animation-delay: .1s">
+            {{-- ================= SUMMARY CARD ================= --}}
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
 
-                <!-- Ringkasan -->
-                <div>
-                    <h3 class="text-xl font-semibold text-gray-800 mb-6 flex items-center gap-2 fade-slide" style="animation-delay:.2s">
-                        <i data-lucide="bar-chart-3" class="w-6 h-6 text-indigo-600"></i>
-                        Ringkasan Penghasilan
-                    </h3>
-
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-
-                        <!-- Booking -->
-                        <div class="p-6 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-2xl shadow-md flex flex-col gap-1 fade-slide"
-                             style="animation-delay:.3s">
-                            <i data-lucide="calendar-check" class="w-6 h-6 opacity-80"></i>
-                            <h4 class="text-sm opacity-80">Dari Booking</h4>
-                            <p class="text-2xl font-bold">Rp {{ number_format($totalBooking, 0, ',', '.') }}</p>
-                        </div>
-
-                        <!-- Produk -->
-                        <div class="p-6 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-2xl shadow-md flex flex-col gap-1 fade-slide"
-                             style="animation-delay:.4s">
-                            <i data-lucide="shopping-bag" class="w-6 h-6 opacity-80"></i>
-                            <h4 class="text-sm opacity-80">Dari Penjualan Produk</h4>
-                            <p class="text-2xl font-bold">Rp {{ number_format($totalOrder, 0, ',', '.') }}</p>
-                        </div>
-
-                        <!-- Total -->
-                        <div class="p-6 bg-gradient-to-r from-yellow-400 to-yellow-500 text-gray-900 rounded-2xl shadow-md flex flex-col gap-1 fade-slide"
-                             style="animation-delay:.5s">
-                            <i data-lucide="wallet" class="w-6 h-6 opacity-80"></i>
-                            <h4 class="text-sm opacity-80">Total Keseluruhan</h4>
-                            <p class="text-2xl font-bold">Rp {{ number_format($total, 0, ',', '.') }}</p>
-                        </div>
+                <div class="p-6 bg-blue-600 text-white rounded-2xl shadow-lg">
+                    <div class="flex items-center justify-between">
+                        <i data-lucide="calendar-check" class="w-8 h-8 opacity-70"></i>
+                        <span class="text-xs uppercase font-bold">Booking</span>
                     </div>
+                    <p class="mt-4 text-sm opacity-80">Penghasilan Jasa</p>
+                    <p class="text-3xl font-extrabold">
+                        Rp {{ number_format($totalBooking, 0, ',', '.') }}
+                    </p>
                 </div>
 
-                <!-- Tabel Booking -->
-                <div class="fade-slide" style="animation-delay:.6s">
-                    <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
-                        <i data-lucide="calendar" class="w-5 h-5 text-blue-500"></i>
-                        Booking
-                    </h3>
-                    <div class="overflow-x-auto rounded-lg shadow">
-                        <table class="w-full text-sm border border-gray-200">
-                            <thead class="bg-blue-100 text-gray-800 font-medium">
-                                <tr>
-                                    <th class="p-3 border">ID</th>
-                                    <th class="p-3 border">User</th>
-                                    <th class="p-3 border">Mekanik</th>
-                                    <th class="p-3 border">Kendaraan</th>
-                                    <th class="p-3 border">Layanan</th>
-                                    <th class="p-3 border">Harga</th>
-                                    <th class="p-3 border">Tanggal</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @forelse($bookings as $index => $b)
-                                    <tr class="hover:bg-blue-50 transition fade-row"
-                                        style="animation-delay: {{ $index * 0.12 }}s">
-                                        <td class="p-3 border text-center">{{ $b->id }}</td>
-                                        <td class="p-3 border">{{ $b->user->name ?? '-' }}</td>
-                                        <td class="p-3 border">{{ $b->mechanic->name ?? '-' }}</td>
-                                        <td class="p-3 border">{{ $b->vehicle_name ?? '-' }}</td>
-                                        <td class="p-3 border">{{ $b->service->name ?? '-' }}</td>
-                                        <td class="p-3 border">
-                                            Rp {{ number_format($b->service->price ?? 0, 0, ',', '.') }}
-                                        </td>
-                                        <td class="p-3 border">{{ $b->created_at->format('d-m-Y') }}</td>
-                                    </tr>
-                                @empty
-                                    <tr class="fade-row">
-                                        <td colspan="7" class="p-3 border text-center text-gray-500 italic">
-                                            Tidak ada booking disetujui
-                                        </td>
-                                    </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
+                <div class="p-6 bg-green-600 text-white rounded-2xl shadow-lg">
+                    <div class="flex items-center justify-between">
+                        <i data-lucide="shopping-bag" class="w-8 h-8 opacity-70"></i>
+                        <span class="text-xs uppercase font-bold">Produk</span>
                     </div>
+                    <p class="mt-4 text-sm opacity-80">Penjualan Produk</p>
+                    <p class="text-3xl font-extrabold">
+                        Rp {{ number_format($totalOrder, 0, ',', '.') }}
+                    </p>
                 </div>
 
-                <!-- Tabel Orders -->
-                <div class="fade-slide" style="animation-delay:.7s">
-                    <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
-                        <i data-lucide="shopping-cart" class="w-5 h-5 text-green-600"></i>
-                        Pesanan Produk
-                    </h3>
-                    <div class="overflow-x-auto rounded-lg shadow">
-                        <table class="w-full text-sm border border-gray-200">
-                            <thead class="bg-green-100 text-gray-800 font-medium">
-                                <tr>
-                                    <th class="p-3 border">ID</th>
-                                    <th class="p-3 border">User</th>
-                                    <th class="p-3 border">Produk</th>
-                                    <th class="p-3 border">Jumlah</th>
-                                    <th class="p-3 border">Total Harga</th>
-                                    <th class="p-3 border">Tanggal</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @forelse($orders as $index => $o)
-                                    <tr class="hover:bg-green-50 transition fade-row"
-                                        style="animation-delay: {{ $index * 0.12 }}s">
-                                        <td class="p-3 border text-center">{{ $o->id }}</td>
-                                        <td class="p-3 border">{{ $o->user->name ?? '-' }}</td>
-                                        <td class="p-3 border">{{ $o->product->name ?? '-' }}</td>
-                                        <td class="p-3 border text-center">{{ $o->quantity }}</td>
-                                        <td class="p-3 border">Rp {{ number_format($o->total_price, 0, ',', '.') }}</td>
-                                        <td class="p-3 border">{{ $o->created_at->format('d-m-Y') }}</td>
-                                    </tr>
-                                @empty
-                                    <tr class="fade-row">
-                                        <td colspan="6" class="p-3 border text-center text-gray-500 italic">
-                                            Tidak ada order disetujui
-                                        </td>
-                                    </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
+                <div class="p-6 bg-indigo-600 text-white rounded-2xl shadow-lg">
+                    <div class="flex items-center justify-between">
+                        <i data-lucide="trending-up" class="w-8 h-8 opacity-70"></i>
+                        <span class="text-xs uppercase font-bold">Total</span>
                     </div>
+                    <p class="mt-4 text-sm opacity-80">Total Keseluruhan</p>
+                    <p class="text-3xl font-extrabold">
+                        Rp {{ number_format($total, 0, ',', '.') }}
+                    </p>
                 </div>
 
             </div>
+
+            {{-- ================= HISTORY BOOKING ================= --}}
+            <div class="bg-white p-6 rounded-2xl shadow-lg fade-slide">
+
+                <div class="mb-6 flex items-center justify-between">
+                    <div>
+                        <h3 class="text-xl font-bold text-gray-800 flex items-center gap-2">
+                            <i data-lucide="history" class="w-5 h-5 text-blue-600"></i>
+                            History Booking
+                        </h3>
+                        <p class="text-sm text-gray-500">Riwayat penyelesaian jasa servis</p>
+                    </div>
+                    <span class="px-3 py-1 bg-blue-100 text-blue-700 rounded-lg text-sm font-bold">
+                        {{ $bookings->count() }} Transaksi
+                    </span>
+                </div>
+
+                <div class="overflow-x-auto rounded-lg border border-gray-200">
+                    <table class="w-full border-collapse text-sm">
+                        <thead>
+                            <tr class="bg-blue-600 text-white uppercase text-xs">
+                                <th class="px-4 py-3 border-r border-blue-500 text-center">ID</th>
+                                <th class="px-4 py-3 border-r border-blue-500 text-left">Customer</th>
+                                <th class="px-4 py-3 border-r border-blue-500 text-left">Kendaraan</th>
+                                <th class="px-4 py-3 border-r border-blue-500 text-left">Layanan</th>
+                                <th class="px-4 py-3 border-r border-blue-500 text-right">Subtotal</th>
+                                <th class="px-4 py-3 text-center">Tanggal</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            @forelse($bookings as $index => $b)
+                                <tr class="{{ $index % 2 === 0 ? 'bg-gray-50' : 'bg-white' }} hover:bg-blue-50 transition fade-row"
+                                    style="animation-delay: {{ $index * 0.08 }}s">
+
+                                    <td class="px-4 py-3 border-r border-gray-200 text-center font-mono text-xs font-bold text-blue-600">
+                                        #{{ $b->id }}
+                                    </td>
+
+                                    <td class="px-4 py-3 border-r border-gray-200">
+                                        <p class="font-bold text-gray-800">
+                                            {{ $b->customer_name ?? ($b->user->name ?? 'User') }}
+                                        </p>
+                                        <p class="text-xs text-gray-500">{{ $b->customer_phone ?? '-' }}</p>
+                                    </td>
+
+                                    <td class="px-4 py-3 border-r border-gray-200">
+                                        @if($b->vehicle)
+                                            {{ $b->vehicle->brand }} ({{ $b->vehicle->plate_number }})
+                                        @else
+                                            <span class="text-gray-400 italic">-</span>
+                                        @endif
+                                    </td>
+
+                                    <td class="px-4 py-3 border-r border-gray-200">
+                                        <p class="font-semibold text-gray-800">{{ $b->service->name ?? '-' }}</p>
+                                        <p class="text-xs text-gray-500">
+                                            Mekanik: {{ $b->mechanic->name ?? 'Belum Ada' }}
+                                        </p>
+                                    </td>
+
+                                    <td class="px-4 py-3 border-r border-gray-200 text-right font-bold text-blue-700">
+                                        Rp {{ number_format($b->service->price ?? 0, 0, ',', '.') }}
+                                    </td>
+
+                                    <td class="px-4 py-3 text-center text-xs text-gray-500">
+                                        {{ $b->created_at->format('d-m-Y') }}
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="6" class="py-10 text-center text-gray-500 italic bg-gray-50">
+                                        Belum ada history booking
+                                    </td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            {{-- ================= HISTORY PRODUK ================= --}}
+            <div class="bg-white p-6 rounded-2xl shadow-lg fade-slide">
+
+                <div class="mb-6 flex items-center justify-between">
+                    <div>
+                        <h3 class="text-xl font-bold text-gray-800 flex items-center gap-2">
+                            <i data-lucide="shopping-cart" class="w-5 h-5 text-green-600"></i>
+                            History Penjualan Produk
+                        </h3>
+                        <p class="text-sm text-gray-500">Riwayat penjualan produk & sparepart</p>
+                    </div>
+                    <span class="px-3 py-1 bg-green-100 text-green-700 rounded-lg text-sm font-bold">
+                        {{ $orders->count() }} Pesanan
+                    </span>
+                </div>
+
+                <div class="overflow-x-auto rounded-lg border border-gray-200">
+                    <table class="w-full border-collapse text-sm">
+                        <thead>
+                            <tr class="bg-green-600 text-white uppercase text-xs">
+                                <th class="px-4 py-3 border-r border-green-500 text-center">ID</th>
+                                <th class="px-4 py-3 border-r border-green-500 text-left">User</th>
+                                <th class="px-4 py-3 border-r border-green-500 text-left">Produk</th>
+                                <th class="px-4 py-3 border-r border-green-500 text-center">Qty</th>
+                                <th class="px-4 py-3 border-r border-green-500 text-right">Total</th>
+                                <th class="px-4 py-3 text-center">Tanggal</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            @forelse($orders as $index => $o)
+                                <tr class="{{ $index % 2 === 0 ? 'bg-gray-50' : 'bg-white' }} hover:bg-green-50 transition fade-row"
+                                    style="animation-delay: {{ $index * 0.08 }}s">
+
+                                    <td class="px-4 py-3 border-r border-gray-200 text-center font-mono text-xs font-bold text-green-600">
+                                        #{{ $o->id }}
+                                    </td>
+
+                                    <td class="px-4 py-3 border-r border-gray-200 font-semibold">
+                                        {{ $o->user->name ?? 'User Terhapus' }}
+                                    </td>
+
+                                    <td class="px-4 py-3 border-r border-gray-200">
+                                        {{ $o->product->name ?? 'Produk Terhapus' }}
+                                    </td>
+
+                                    <td class="px-4 py-3 border-r border-gray-200 text-center">
+                                        <span class="px-2 py-1 bg-green-100 text-green-700 rounded text-xs font-bold">
+                                            {{ $o->quantity }}
+                                        </span>
+                                    </td>
+
+                                    <td class="px-4 py-3 border-r border-gray-200 text-right font-bold text-green-700">
+                                        Rp {{ number_format($o->total_price, 0, ',', '.') }}
+                                    </td>
+
+                                    <td class="px-4 py-3 text-center text-xs text-gray-500">
+                                        {{ $o->created_at->format('d-m-Y') }}
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="6" class="py-10 text-center text-gray-500 italic bg-gray-50">
+                                        Belum ada transaksi produk
+                                    </td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+
         </div>
     </div>
 
-    {{-- Lucide Icons --}}
     <script src="https://unpkg.com/lucide@latest"></script>
-    <script>
-        lucide.createIcons();
-    </script>
+    <script>lucide.createIcons();</script>
 </x-app-layout>

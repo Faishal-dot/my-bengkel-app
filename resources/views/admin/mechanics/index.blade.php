@@ -37,8 +37,10 @@
                 </div>
             @endif
 
-            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8"> @forelse($mechanics as $mechanic)
-                    <div class="bg-white shadow-lg hover:shadow-2xl rounded-2xl p-7 transition transform hover:-translate-y-1 animate-card border border-gray-100"> <div class="flex items-center gap-4 mb-5">
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8"> 
+                @forelse($mechanics as $mechanic)
+                    <div class="bg-white shadow-lg hover:shadow-2xl rounded-2xl p-5 transition transform hover:-translate-y-1 animate-card border border-gray-100"> 
+                        <div class="flex items-center gap-4 mb-4">
                             <div class="flex-shrink-0 w-12 h-12 bg-indigo-600 rounded-full flex items-center justify-center text-white shadow-md">
                                 <span class="text-lg font-bold">{{ strtoupper(substr($mechanic->name, 0, 1)) }}</span>
                             </div>
@@ -52,28 +54,30 @@
                             </div>
                         </div>
 
-                        <div class="space-y-2 border-t border-gray-50 pt-4">
+                        {{-- Jarak antar baris dirapatkan dengan space-y-1 dan padding pt-3 --}}
+                        <div class="space-y-1 border-t border-gray-50 pt-3">
                             <p class="text-sm text-gray-600 flex items-center gap-2">
                                 <i data-lucide="id-card" class="w-4 h-4 text-gray-400"></i>
-                                <strong>KTP:</strong> {{ $mechanic->ktp ?? '-' }}
+                                <span><strong>KTP:</strong> {{ $mechanic->ktp ?? '-' }}</span>
                             </p>
                             <p class="text-sm text-gray-600 flex items-center gap-2">
                                 <i data-lucide="mail" class="w-4 h-4 text-gray-400"></i>
-                                <strong>Email:</strong> {{ $mechanic->user->email ?? '-' }}
+                                <span class="truncate"><strong>Email:</strong> {{ $mechanic->user->email ?? '-' }}</span>
                             </p>
                             <p class="text-sm text-gray-600 flex items-center gap-2">
                                 <i data-lucide="phone" class="w-4 h-4 text-gray-400"></i>
-                                <strong>Telp:</strong> {{ $mechanic->phone ?? '-' }}
+                                <span><strong>Telp:</strong> {{ $mechanic->phone ?? '-' }}</span>
                             </p>
                             <p class="text-sm text-gray-600 flex items-start gap-2">
                                 <i data-lucide="map-pin" class="w-4 h-4 text-gray-400 mt-1"></i>
-                                <span><strong>Alamat:</strong> {{ $mechanic->address ?? '-' }}</span>
+                                <span class="line-clamp-1"><strong>Alamat:</strong> {{ $mechanic->address ?? '-' }}</span>
                             </p>
                         </div>
 
-                        <div class="flex justify-end gap-3 mt-6 pt-4 border-t border-gray-50">
+                        {{-- Margin atas tombol dikurangi (mt-4) agar lebih naik --}}
+                        <div class="flex justify-end gap-3 mt-4 pt-3 border-t border-gray-50">
                             <a href="{{ route('admin.mechanics.edit', $mechanic->id) }}"
-                               class="p-2.5 bg-yellow-500 text-white rounded-xl hover:bg-yellow-600 shadow-sm transition-all"
+                               class="p-2 bg-yellow-500 text-white rounded-xl hover:bg-yellow-600 shadow-sm transition-all"
                                title="Edit">
                                 <i data-lucide="pencil" class="w-4 h-4"></i>
                             </a>
@@ -83,7 +87,7 @@
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit"
-                                    class="p-2.5 bg-red-600 text-white rounded-xl hover:bg-red-700 shadow-sm transition-all"
+                                    class="p-2 bg-red-600 text-white rounded-xl hover:bg-red-700 shadow-sm transition-all"
                                     title="Hapus">
                                     <i data-lucide="trash-2" class="w-4 h-4"></i>
                                 </button>

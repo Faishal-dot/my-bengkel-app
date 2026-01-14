@@ -44,9 +44,13 @@ class ServiceController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'name'        => 'required|string|max:100',
-            'description' => 'nullable|string|max:255',
-            'price'       => 'required|numeric|min:0',
+            'name'           => 'required|string|max:100',
+            'description'    => 'nullable|string|max:255',
+            'price'          => 'required|numeric|min:0',
+            // validasi lt:price artinya harga diskon harus Less Than (lebih kecil dari) harga asli
+            'discount_price' => 'nullable|numeric|min:0|lt:price',
+        ], [
+            'discount_price.lt' => 'Harga diskon harus lebih murah dari harga asli.',
         ]);
 
         Service::create($validated);
@@ -69,9 +73,12 @@ class ServiceController extends Controller
     public function update(Request $request, Service $service)
     {
         $validated = $request->validate([
-            'name'        => 'required|string|max:100',
-            'description' => 'nullable|string|max:255',
-            'price'       => 'required|numeric|min:0',
+            'name'           => 'required|string|max:100',
+            'description'    => 'nullable|string|max:255',
+            'price'          => 'required|numeric|min:0',
+            'discount_price' => 'nullable|numeric|min:0|lt:price',
+        ], [
+            'discount_price.lt' => 'Harga diskon harus lebih murah dari harga asli.',
         ]);
 
         $service->update($validated);

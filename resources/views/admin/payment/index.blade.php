@@ -67,7 +67,35 @@
                                         </div>
                                     </td>
                                     <td class="px-4 py-4 border-r border-gray-200 text-gray-700">{{ $row->booking->service->name ?? '-' }}</td>
-                                    <td class="px-4 py-4 border-r border-gray-200 font-bold text-gray-800">Rp {{ number_format($row->amount, 0, ',', '.') }}</td>
+                                    
+                                    {{-- Kolom Total Dengan Logika Diskon Terperbaiki --}}
+                                    <td class="px-4 py-4 border-r border-gray-200 font-bold text-gray-800">
+                                        @php
+                                            // 1. Ambil Harga Asli dari Master Service
+                                            $originalPrice = $row->booking->service->price ?? 0;
+
+                                            // 2. Ambil Harga yang dibayar (Cek total_price di booking dulu, baru amount di payment)
+                                            $paidAmount = $row->booking->total_price ?? $row->amount;
+
+                                            // 3. Logika Diskon: Harga asli harus lebih besar dari yang dibayar
+                                            $hasDiscount = ($originalPrice > $paidAmount) && ($paidAmount > 0);
+                                        @endphp
+
+                                        @if($hasDiscount)
+                                            <div class="flex flex-col">
+                                                <span class="text-[10px] text-rose-500 line-through font-normal decoration-[1.5px]">
+                                                    Rp {{ number_format($originalPrice, 0, ',', '.') }}
+                                                </span>
+                                                <span class="text-blue-700">
+                                                    Rp {{ number_format($paidAmount, 0, ',', '.') }}
+                                                </span>
+                                            </div>
+                                        @else
+                                            <span class="text-gray-800">
+                                                Rp {{ number_format($paidAmount, 0, ',', '.') }}
+                                            </span>
+                                        @endif
+                                    </td>
                                     
                                     {{-- Kolom Detail --}}
                                     <td class="px-4 py-4 border-r border-gray-200 text-center">
@@ -119,7 +147,7 @@
                                     </td>
                                 </tr>
                             @empty
-                                <tr class="fade-row" style="animation-delay:.3s">
+                                <tr>
                                     <td colspan="7" class="text-center py-12 text-gray-500">
                                         <div class="flex flex-col items-center gap-3">
                                             <div class="bg-gray-100 p-4 rounded-full"><i data-lucide="inbox" class="w-8 h-8 text-gray-400"></i></div>

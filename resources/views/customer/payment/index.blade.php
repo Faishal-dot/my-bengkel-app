@@ -49,7 +49,6 @@
                         <thead>
                             <tr class="bg-blue-600 text-white uppercase text-xs">
                                 <th class="px-4 py-3 border-r border-blue-500 text-center w-12">No</th>
-                                <th class="px-4 py-3 border-r border-blue-500 text-center">Antrian</th>
                                 <th class="px-4 py-3 border-r border-blue-500 text-left">Service</th>
                                 <th class="px-4 py-3 border-r border-blue-500 text-left">Kendaraan</th>
                                 <th class="px-4 py-3 border-r border-blue-500 text-left">Total</th>
@@ -67,20 +66,16 @@
                                     {{-- NO --}}
                                     <td class="px-4 py-3 border-r border-gray-200 text-center font-medium">{{ $index + 1 }}</td>
 
-                                    {{-- ANTRIAN --}}
-                                    <td class="px-4 py-3 border-r border-gray-200 text-center">
-                                        @if($payment->booking->queue_number)
-                                            <span class="inline-block w-8 h-8 rounded-full bg-blue-600 text-white leading-8 shadow-sm font-semibold">
-                                                {{ $payment->booking->queue_number }}
-                                            </span>
-                                        @else
-                                            <span class="text-gray-400">—</span>
-                                        @endif
-                                    </td>
-
-                                    {{-- SERVICE --}}
+                                    {{-- SERVICE (Disesuaikan dengan style histori booking) --}}
                                     <td class="px-4 py-3 border-r border-gray-200">
                                         <span class="font-semibold text-gray-800">{{ $payment->booking->service->name ?? '-' }}</span>
+                                        <div class="text-xs">
+                                            @if($payment->booking->service && $payment->booking->service->discount_price)
+                                                <span class="text-gray-400 line-through">Rp {{ number_format($payment->booking->service->price, 0, ',', '.') }}</span>
+                                            @else
+                                                <span class="text-gray-500">Harga normal</span>
+                                            @endif
+                                        </div>
                                     </td>
 
                                     {{-- KENDARAAN --}}
@@ -95,9 +90,13 @@
                                         @endif
                                     </td>
 
-                                    {{-- TOTAL --}}
-                                    <td class="px-4 py-3 border-r border-gray-200 font-bold text-gray-700">
-                                        Rp {{ number_format($payment->booking->service->price ?? 0, 0, ',', '.') }}
+                                    {{-- TOTAL (Tampilkan harga diskon jika ada) --}}
+                                    <td class="px-4 py-3 border-r border-gray-200 font-bold {{ $payment->booking->service->discount_price ? 'text-rose-600' : 'text-gray-700' }}">
+                                        @if($payment->booking->service && $payment->booking->service->discount_price)
+                                            Rp {{ number_format($payment->booking->service->discount_price, 0, ',', '.') }}
+                                        @else
+                                            Rp {{ number_format($payment->booking->service->price ?? 0, 0, ',', '.') }}
+                                        @endif
                                     </td>
 
                                     {{-- TANGGAL --}}
@@ -105,7 +104,7 @@
                                         {{ \Carbon\Carbon::parse($payment->booking->booking_date)->format('d-m-Y') }}
                                     </td>
 
-                                    {{-- STATUS (Badge Style Konsisten) --}}
+                                    {{-- STATUS --}}
                                     <td class="px-4 py-3 border-r border-gray-200 text-center">
                                         @php
                                             $status = strtolower($payment->status);
@@ -156,7 +155,7 @@
                                 </tr>
                             @empty
                                 <tr class="fade-row" style="animation-delay:.3s">
-                                    <td colspan="8" class="text-center py-8 text-gray-500 italic bg-gray-50">
+                                    <td colspan="7" class="text-center py-8 text-gray-500 italic bg-gray-50">
                                         <div class="flex flex-col items-center justify-center">
                                             <i data-lucide="receipt" class="w-10 h-10 text-gray-300 mb-2"></i>
                                             <p>Belum ada tagihan pembayaran.</p>
@@ -168,7 +167,7 @@
                     </table>
                 </div>
 
-                {{-- Pagination (Jika ada) --}}
+                {{-- Pagination --}}
                 @if(method_exists($payments, 'links'))
                     <div class="mt-6">
                         {{ $payments->links() }}
@@ -179,7 +178,6 @@
         </div>
     </div>
     
-    {{-- Script Lucide --}}
     <script src="https://unpkg.com/lucide@latest"></script>
     <script> lucide.createIcons(); </script>
 </x-app-layout>

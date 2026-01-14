@@ -9,33 +9,29 @@ use App\Models\Booking;
 
 class ReportController extends Controller
 {
-    public function penghasilan()
-    {
-        // Ambil semua booking yang statusnya selesai
-        $bookings = Booking::where('status', 'selesai')
-            ->with(['service', 'user', 'mechanic'])
-            ->get();
+   // ReportController.php
 
-        // Hitung total harga layanan dari booking yang selesai
-        $totalBooking = $bookings->sum(fn($b) => $b->service->price ?? 0);
+public function penghasilan()
+{
+    // Hapus withTrashed()
+    $bookings = Booking::where('status', 'selesai')
+        ->with(['service', 'user', 'mechanic']) 
+        ->latest()
+        ->get();
 
-        // Ambil semua order produk yang disetujui
-        $orders = Order::where('status', 'disetujui')
-            ->with(['product', 'user'])
-            ->get();
+    $totalBooking = $bookings->sum(fn($b) => $b->service->price ?? 0);
 
-        // Hitung total harga order produk
-        $totalOrder = $orders->sum('total_price');
+    // Hapus withTrashed()
+    $orders = Order::where('status', 'disetujui')
+        ->with(['product', 'user'])
+        ->latest()
+        ->get();
 
-        // Total keseluruhan
-        $total = $totalBooking + $totalOrder;
+    $totalOrder = $orders->sum('total_price');
+    $total = $totalBooking + $totalOrder;
 
-        return view('admin.reports.penghasilan', compact(
-            'totalBooking',
-            'totalOrder',
-            'total',
-            'bookings',
-            'orders'
-        ));
-    }
+    return view('admin.reports.penghasilan', compact(
+        'totalBooking', 'totalOrder', 'total', 'bookings', 'orders'
+    ));
+}
 }

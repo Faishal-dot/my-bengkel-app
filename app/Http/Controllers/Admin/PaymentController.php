@@ -9,31 +9,32 @@ class PaymentController extends Controller
 {
     public function index()
     {
-        // Mengambil payment dengan relasi
-        $payments = Payment::with(['booking.user', 'booking.service', 'booking.vehicle'])
-            ->orderBy('status', 'asc') // Menampilkan pending di paling atas
+        // 1. Menambahkan filter where agar status 'unpaid' tidak muncul
+        $payments = Payment::has('booking') 
+            ->where('status', '!=', 'unpaid') // Tambahkan baris ini
+            ->with(['booking.user', 'booking.service', 'booking.vehicle'])
+            ->orderByRaw("CASE WHEN status = 'pending' THEN 1 ELSE 2 END") 
             ->latest()
             ->get();
 
-        // PASTIKAN FOLDERNYA 'admin.payment' (singular)
         return view('admin.payment.index', compact('payments'));
     }
 
     public function show(Payment $payment)
     {
-        $payment->load(['booking.user', 'booking.service', 'booking.vehicle']);
-        // PASTIKAN FOLDERNYA 'admin.payment' (singular)
+        $payment->load(['booking' => function($q){
+            $q->withTrashed();
+        }, 'booking.user', 'booking.service', 'booking.vehicle']);
+        
         return view('admin.payment.show', compact('payment'));
     }
 
     public function confirm(Payment $payment)
     {
-        // 1. Update Status di Tabel Payments menjadi LUNAS (PAID)
         $payment->update([
             'status' => 'paid', 
         ]);
 
-        // 2. Update Status di Tabel Bookings
         $booking = $payment->booking;
         
         if ($booking) {
@@ -41,7 +42,6 @@ class PaymentController extends Controller
                 'payment_status' => 'paid', 
             ];
 
-            // Cek status saat ini agar tidak menimpa jika sudah diproses mekanik
             if (!in_array($booking->status, ['proses', 'selesai'])) {
                 $updateData['status'] = 'disetujui';
             }
@@ -55,12 +55,10 @@ class PaymentController extends Controller
 
     public function reject(Payment $payment)
     {
-        // 1. Update Status Payment jadi rejected
         $payment->update([
             'status' => 'rejected',
         ]);
 
-        // 2. Update Booking: Kembalikan payment_status ke failed
         $booking = $payment->booking;
         
         if ($booking) {

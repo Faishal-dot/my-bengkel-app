@@ -6,7 +6,7 @@
         </h2>
     </x-slot>
 
-    {{-- STYLE ANIMASI (Sama seperti Admin) --}}
+    {{-- STYLE ANIMASI --}}
     <style>
         .fade-slide { opacity:0; transform:translateY(20px); animation: slideUp .6s ease-out forwards; }
         @keyframes slideUp { to { opacity:1; transform:translateY(0);} }
@@ -64,10 +64,8 @@
                                 <tr class="{{ $index % 2 === 0 ? 'bg-gray-50' : 'bg-white' }} hover:bg-blue-50 transition fade-row"
                                     style="animation-delay: {{ $index * 0.12 }}s">
 
-                                    {{-- No --}}
                                     <td class="px-4 py-3 border-r border-gray-200 text-center font-medium">{{ $index + 1 }}</td>
 
-                                    {{-- Antrian --}}
                                     <td class="px-4 py-3 border-r border-gray-200 text-center font-semibold">
                                         @if($booking->queue_number)
                                             <span class="inline-block w-8 h-8 rounded-full bg-blue-600 text-white leading-8 shadow-sm">
@@ -78,15 +76,19 @@
                                         @endif
                                     </td>
 
-                                    {{-- Layanan --}}
+                                    {{-- Layanan dengan Tampilan Diskon --}}
                                     <td class="px-4 py-3 border-r border-gray-200">
                                         <span class="font-semibold text-gray-800">{{ $booking->service->name ?? '-' }}</span>
-                                        <span class="text-xs text-gray-500 block">
-                                            Rp {{ number_format($booking->service->price ?? 0, 0, ',', '.') }}
-                                        </span>
+                                        <div class="text-xs">
+                                            @if($booking->service && $booking->service->discount_price)
+                                                <span class="text-gray-400 line-through">Rp {{ number_format($booking->service->price, 0, ',', '.') }}</span>
+                                                <span class="text-rose-600 font-bold ml-1">Rp {{ number_format($booking->service->discount_price, 0, ',', '.') }}</span>
+                                            @else
+                                                <span class="text-gray-500">Rp {{ number_format($booking->service->price ?? 0, 0, ',', '.') }}</span>
+                                            @endif
+                                        </div>
                                     </td>
 
-                                    {{-- Kendaraan --}}
                                     <td class="px-4 py-3 border-r border-gray-200">
                                         @if($booking->vehicle)
                                             <span class="font-semibold text-gray-800">{{ $booking->vehicle->plate_number }}</span>
@@ -98,7 +100,6 @@
                                         @endif
                                     </td>
 
-                                    {{-- Mekanik --}}
                                     <td class="px-4 py-3 border-r border-gray-200">
                                         @if($booking->mechanic)
                                             <div class="flex items-center gap-1.5">
@@ -110,12 +111,10 @@
                                         @endif
                                     </td>
 
-                                    {{-- Tanggal --}}
                                     <td class="px-4 py-3 border-r border-gray-200 text-center whitespace-nowrap">
                                         {{ \Carbon\Carbon::parse($booking->booking_date)->format('d-m-Y') }}
                                     </td>
 
-                                    {{-- STATUS (Menggunakan Style Badge Admin) --}}
                                     <td class="px-4 py-3 border-r border-gray-200 text-center">
                                         @if($booking->status == 'disetujui')
                                             <span class="px-2 py-1 bg-green-100 text-green-700 rounded text-xs font-bold border border-green-200 inline-flex items-center gap-1">
@@ -140,7 +139,6 @@
                                         @endif
                                     </td>
 
-                                    {{-- AKSI (Tombol Chat) --}}
                                     <td class="px-4 py-3 border-r border-gray-200 text-center">
                                         <a href="{{ route('chat.show', $booking->id) }}"
                                            class="inline-flex items-center gap-1 px-3 py-1.5 bg-blue-500 hover:bg-blue-600 text-white rounded-lg text-xs font-medium shadow transition">
@@ -148,9 +146,7 @@
                                             Chat
                                         </a>
                                     </td>
-
                                 </tr>
-
                             @empty
                                 <tr class="fade-row" style="animation-delay:.3s">
                                     <td colspan="8" class="text-center py-8 text-gray-500 italic bg-gray-50">
@@ -165,7 +161,6 @@
                     </table>
                 </div>
 
-                {{-- Pagination --}}
                 <div class="mt-6">
                     {{ $bookings->links() }}
                 </div>
@@ -174,7 +169,6 @@
         </div>
     </div>
 
-    {{-- Script Lucide --}}
     <script src="https://unpkg.com/lucide@latest"></script>
     <script> lucide.createIcons(); </script>
 

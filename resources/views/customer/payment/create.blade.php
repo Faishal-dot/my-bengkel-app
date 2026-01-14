@@ -19,7 +19,6 @@
     </x-slot>
 
     <div class="py-12 bg-gradient-to-b from-gray-100 to-gray-200 min-h-screen">
-        {{-- UBAH UKURAN DISINI: max-w-5xl agar lebih lebar --}}
         <div class="max-w-5xl mx-auto sm:px-6 lg:px-8 space-y-8">
 
             {{-- 1. Alert Notifications --}}
@@ -46,7 +45,7 @@
 
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 
-                {{-- KOLOM KIRI: INFO DETAIL & REKENING (2/3 Lebar) --}}
+                {{-- KOLOM KIRI: INFO DETAIL & REKENING --}}
                 <div class="lg:col-span-2 space-y-8 animate-enter" style="animation-delay: 0.1s;">
                     
                     {{-- Card 1: Detail Tagihan --}}
@@ -66,7 +65,15 @@
                                 </div>
                                 <div class="mt-2 sm:mt-0 text-right">
                                     <p class="text-gray-500 text-sm">Total Biaya</p>
-                                    <p class="text-2xl font-bold text-gray-800">Rp {{ number_format($booking->service->price, 0, ',', '.') }}</p>
+                                    <div class="flex flex-col items-end">
+                                        @if($booking->service->discount_price)
+                                            {{-- HARGA CORET DI KONFIRMASI --}}
+                                            <span class="text-sm text-gray-400 line-through">Rp {{ number_format($booking->service->price, 0, ',', '.') }}</span>
+                                            <p class="text-2xl font-bold text-rose-600">Rp {{ number_format($booking->service->discount_price, 0, ',', '.') }}</p>
+                                        @else
+                                            <p class="text-2xl font-bold text-gray-800">Rp {{ number_format($booking->service->price, 0, ',', '.') }}</p>
+                                        @endif
+                                    </div>
                                 </div>
                             </div>
 
@@ -96,14 +103,13 @@
                         </div>
                     </div>
 
-                    {{-- Card 2: Info Rekening (Desain Kartu Kredit) --}}
+                    {{-- Card 2: Info Rekening --}}
                     <div class="bg-white shadow-xl rounded-2xl p-8 border border-gray-100">
                         <h3 class="text-lg font-bold text-gray-800 mb-6 flex items-center gap-2">
                             <i data-lucide="landmark" class="w-5 h-5 text-yellow-600"></i> Transfer Pembayaran
                         </h3>
                         
                         <div class="relative w-full max-w-md mx-auto bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-6 text-white shadow-2xl overflow-hidden transform transition hover:scale-[1.02] duration-300">
-                            {{-- Background Pattern --}}
                             <div class="absolute top-0 right-0 -mt-10 -mr-10 w-40 h-40 bg-white opacity-5 rounded-full blur-2xl"></div>
                             <div class="absolute bottom-0 left-0 -mb-10 -ml-10 w-32 h-32 bg-blue-500 opacity-10 rounded-full blur-2xl"></div>
 
@@ -137,10 +143,9 @@
                             </div>
                         </div>
                     </div>
-
                 </div>
 
-                {{-- KOLOM KANAN: FORM UPLOAD (1/3 Lebar - Sticky) --}}
+                {{-- KOLOM KANAN: FORM UPLOAD --}}
                 <div class="lg:col-span-1 animate-enter" style="animation-delay: 0.2s;">
                     <div class="bg-white shadow-xl rounded-2xl p-8 h-fit border border-gray-100 sticky top-8">
                         <h3 class="text-lg font-bold text-gray-800 mb-6 flex items-center gap-2 pb-4 border-b border-gray-100">

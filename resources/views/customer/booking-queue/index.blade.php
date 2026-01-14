@@ -86,12 +86,17 @@
                                         </div>
                                     </td>
 
-                                    {{-- Layanan --}}
+                                    {{-- Layanan (Update Tampilan Diskon) --}}
                                     <td class="px-4 py-3 border-r border-gray-200">
                                         <span class="font-semibold text-gray-800">{{ $row->service->name ?? '-' }}</span>
-                                        <span class="text-xs text-gray-500 block">
-                                            Rp {{ number_format($row->service->price ?? 0, 0, ',', '.') }}
-                                        </span>
+                                        <div class="text-xs">
+                                            @if($row->service && $row->service->discount_price)
+                                                <span class="text-gray-400 line-through">Rp {{ number_format($row->service->price, 0, ',', '.') }}</span>
+                                                <span class="text-rose-600 font-bold ml-1">Rp {{ number_format($row->service->discount_price, 0, ',', '.') }}</span>
+                                            @else
+                                                <span class="text-gray-500">Rp {{ number_format($row->service->price ?? 0, 0, ',', '.') }}</span>
+                                            @endif
+                                        </div>
                                     </td>
 
                                     {{-- Kendaraan --}}
@@ -121,7 +126,6 @@
                                     {{-- Nomor Antrian (Lingkaran) --}}
                                     <td class="px-4 py-3 border-r border-gray-200 text-center">
                                         @if($row->queue_number)
-                                            {{-- PERUBAHAN: rounded-full + flex items-center justify-center --}}
                                             <span class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-blue-600 text-white text-lg font-bold shadow-md transform hover:scale-110 transition">
                                                 {{ $row->queue_number }}
                                             </span>
