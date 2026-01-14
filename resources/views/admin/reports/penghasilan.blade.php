@@ -7,11 +7,29 @@
     </x-slot>
 
     <style>
-        .fade-slide { opacity:0; transform:translateY(20px); animation: slideUp .6s ease-out forwards; }
-        @keyframes slideUp { to { opacity:1; transform:translateY(0);} }
+        .fade-slide {
+            opacity: 0;
+            transform: translateY(20px);
+            animation: slideUp .6s ease-out forwards;
+        }
 
-        .fade-row { opacity:0; animation: fadeRow .5s ease-out forwards; }
-        @keyframes fadeRow { to { opacity:1; } }
+        @keyframes slideUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-row {
+            opacity: 0;
+            animation: fadeRow .5s ease-out forwards;
+        }
+
+        @keyframes fadeRow {
+            to {
+                opacity: 1;
+            }
+        }
     </style>
 
     <div class="py-10 bg-gradient-to-b from-gray-100 to-gray-200 min-h-screen fade-slide">
@@ -58,19 +76,18 @@
             {{-- ================= HISTORY BOOKING ================= --}}
             <div class="bg-white p-6 rounded-2xl shadow-lg fade-slide">
 
-                <div class="mb-6 flex items-center justify-between">
-                    <div>
-                        <h3 class="text-xl font-bold text-gray-800 flex items-center gap-2">
-                            <i data-lucide="history" class="w-5 h-5 text-blue-600"></i>
-                            History Booking
-                        </h3>
-                        <p class="text-sm text-gray-500">Riwayat penyelesaian jasa servis</p>
-                    </div>
-                    <span class="px-3 py-1 bg-blue-100 text-blue-700 rounded-lg text-sm font-bold">
-                        {{ $bookings->count() }} Transaksi
-                    </span>
+                {{-- HEADER CARD (CENTER) --}}
+                <div class="mb-6 text-center">
+                    <h3 class="text-xl font-bold text-gray-800 flex items-left justify-left gap-2">
+                        <i data-lucide="history" class="w-5 h-5 text-blue-600"></i>
+                        History Booking
+                    </h3>
+                    <p class="text-left text-gray-500">
+                        Riwayat penyelesaian jasa servis
+                    </p>
                 </div>
 
+                {{-- TABLE (TIDAK CENTER) --}}
                 <div class="overflow-x-auto rounded-lg border border-gray-200">
                     <table class="w-full border-collapse text-sm">
                         <thead>
@@ -109,14 +126,27 @@
                                     </td>
 
                                     <td class="px-4 py-3 border-r border-gray-200">
-                                        <p class="font-semibold text-gray-800">{{ $b->service->name ?? '-' }}</p>
+                                        <p class="font-semibold text-gray-800">
+                                            {{ $b->service->name ?? '-' }}
+                                        </p>
                                         <p class="text-xs text-gray-500">
                                             Mekanik: {{ $b->mechanic->name ?? 'Belum Ada' }}
                                         </p>
                                     </td>
 
-                                    <td class="px-4 py-3 border-r border-gray-200 text-right font-bold text-blue-700">
-                                        Rp {{ number_format($b->service->price ?? 0, 0, ',', '.') }}
+                                    <td class="px-4 py-3 border-r border-gray-200 text-right">
+                                        @if($b->service && $b->service->discount_price)
+                                            <div class="text-xs text-gray-400 line-through">
+                                                Rp {{ number_format($b->service->price, 0, ',', '.') }}
+                                            </div>
+                                            <div class="font-bold text-rose-600">
+                                                Rp {{ number_format($b->service->discount_price, 0, ',', '.') }}
+                                            </div>
+                                        @else
+                                            <div class="font-bold text-blue-700">
+                                                Rp {{ number_format($b->service->price ?? 0, 0, ',', '.') }}
+                                            </div>
+                                        @endif
                                     </td>
 
                                     <td class="px-4 py-3 text-center text-xs text-gray-500">
@@ -125,7 +155,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="6" class="py-10 text-center text-gray-500 italic bg-gray-50">
+                                    <td colspan="6" class="py-12 text-center text-gray-500 italic bg-gray-50">
                                         Belum ada history booking
                                     </td>
                                 </tr>
@@ -136,81 +166,19 @@
             </div>
 
             {{-- ================= HISTORY PRODUK ================= --}}
-            <div class="bg-white p-6 rounded-2xl shadow-lg fade-slide">
-
-                <div class="mb-6 flex items-center justify-between">
-                    <div>
-                        <h3 class="text-xl font-bold text-gray-800 flex items-center gap-2">
-                            <i data-lucide="shopping-cart" class="w-5 h-5 text-green-600"></i>
-                            History Penjualan Produk
-                        </h3>
-                        <p class="text-sm text-gray-500">Riwayat penjualan produk & sparepart</p>
-                    </div>
-                    <span class="px-3 py-1 bg-green-100 text-green-700 rounded-lg text-sm font-bold">
-                        {{ $orders->count() }} Pesanan
-                    </span>
-                </div>
-
-                <div class="overflow-x-auto rounded-lg border border-gray-200">
-                    <table class="w-full border-collapse text-sm">
-                        <thead>
-                            <tr class="bg-green-600 text-white uppercase text-xs">
-                                <th class="px-4 py-3 border-r border-green-500 text-center">ID</th>
-                                <th class="px-4 py-3 border-r border-green-500 text-left">User</th>
-                                <th class="px-4 py-3 border-r border-green-500 text-left">Produk</th>
-                                <th class="px-4 py-3 border-r border-green-500 text-center">Qty</th>
-                                <th class="px-4 py-3 border-r border-green-500 text-right">Total</th>
-                                <th class="px-4 py-3 text-center">Tanggal</th>
-                            </tr>
-                        </thead>
-
-                        <tbody>
-                            @forelse($orders as $index => $o)
-                                <tr class="{{ $index % 2 === 0 ? 'bg-gray-50' : 'bg-white' }} hover:bg-green-50 transition fade-row"
-                                    style="animation-delay: {{ $index * 0.08 }}s">
-
-                                    <td class="px-4 py-3 border-r border-gray-200 text-center font-mono text-xs font-bold text-green-600">
-                                        #{{ $o->id }}
-                                    </td>
-
-                                    <td class="px-4 py-3 border-r border-gray-200 font-semibold">
-                                        {{ $o->user->name ?? 'User Terhapus' }}
-                                    </td>
-
-                                    <td class="px-4 py-3 border-r border-gray-200">
-                                        {{ $o->product->name ?? 'Produk Terhapus' }}
-                                    </td>
-
-                                    <td class="px-4 py-3 border-r border-gray-200 text-center">
-                                        <span class="px-2 py-1 bg-green-100 text-green-700 rounded text-xs font-bold">
-                                            {{ $o->quantity }}
-                                        </span>
-                                    </td>
-
-                                    <td class="px-4 py-3 border-r border-gray-200 text-right font-bold text-green-700">
-                                        Rp {{ number_format($o->total_price, 0, ',', '.') }}
-                                    </td>
-
-                                    <td class="px-4 py-3 text-center text-xs text-gray-500">
-                                        {{ $o->created_at->format('d-m-Y') }}
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="6" class="py-10 text-center text-gray-500 italic bg-gray-50">
-                                        Belum ada transaksi produk
-                                    </td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
-
+            <div class="bg-white p-10 rounded-2xl shadow-lg fade-slide text-center">
+                <i data-lucide="shopping-cart" class="w-10 h-10 mx-auto text-gray-400 mb-3"></i>
+                <h3 class="text-lg font-bold text-gray-700">History Produk</h3>
+                <p class="text-sm text-gray-500">
+                    Riwayat penjualan produk akan tampil di sini
+                </p>
             </div>
 
         </div>
     </div>
 
     <script src="https://unpkg.com/lucide@latest"></script>
-    <script>lucide.createIcons();</script>
+    <script>
+        lucide.createIcons();
+    </script>
 </x-app-layout>
