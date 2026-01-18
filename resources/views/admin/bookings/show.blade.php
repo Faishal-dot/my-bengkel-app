@@ -82,28 +82,35 @@
                             @endif
                         </p>
 
-                        <p class="flex items-start gap-1">
+                        {{-- Layanan & Harga (Sampingan) --}}
+                        <p class="flex items-center gap-2 flex-wrap">
                             <span class="font-semibold">Layanan:</span>
                             @if($booking->service)
-                                <span>
-                                    {{ $booking->service->name }}
-                                    <span class="block text-sm">
-                                        @if($booking->service->discount_price)
-                                            <span class="text-gray-400 line-through">Rp {{ number_format($booking->service->price, 0, ',', '.') }}</span>
-                                            <span class="text-rose-600 font-bold ml-1">Rp {{ number_format($booking->service->discount_price, 0, ',', '.') }}</span>
-                                        @else
-                                            <span class="text-gray-500">Rp {{ number_format($booking->service->price, 0, ',', '.') }}</span>
-                                        @endif
-                                    </span>
+                                <span class="font-medium text-gray-800">{{ $booking->service->name }}</span>
+                                <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 bg-gray-100 text-gray-700 rounded-md text-sm border border-gray-200">
+                                    @if($booking->service->discount_price)
+                                        <span class="text-gray-400 line-through text-xs">Rp {{ number_format($booking->service->price, 0, ',', '.') }}</span>
+                                        <span class="text-rose-600 font-bold">Rp {{ number_format($booking->service->discount_price, 0, ',', '.') }}</span>
+                                    @else
+                                        <span class="font-bold">Rp {{ number_format($booking->service->price, 0, ',', '.') }}</span>
+                                    @endif
                                 </span>
                             @else
                                 <span class="text-gray-400 italic">Tidak ada layanan</span>
                             @endif
                         </p>
 
-                        <p>
-                            <span class="font-semibold">Tanggal:</span>
-                            {{ \Carbon\Carbon::parse($booking->booking_date)->format('d/m/Y') }}
+                        {{-- Tanggal & Jam --}}
+                        <p class="flex items-center gap-2">
+                            <span class="font-semibold">Jadwal:</span>
+                            <span class="inline-flex items-center gap-1 px-2 py-0.5 bg-gray-100 rounded text-sm text-gray-700 border">
+                                <i data-lucide="calendar" class="w-3.5 h-3.5"></i>
+                                {{ \Carbon\Carbon::parse($booking->booking_date)->translatedFormat('d F Y') }}
+                            </span>
+                            <span class="inline-flex items-center gap-1 px-2 py-0.5 bg-blue-600 rounded text-sm text-white font-bold shadow-sm">
+                                <i data-lucide="clock" class="w-3.5 h-3.5"></i>
+                                {{ \Carbon\Carbon::parse($booking->booking_date)->format('H:i') }} WIB
+                            </span>
                         </p>
 
                         <p>
@@ -113,7 +120,7 @@
                     </div>
                 </div>
 
-                {{-- Penugasan Mekanik (Dropdown Diubah Sesuai Style Customer) --}}
+                {{-- Penugasan Mekanik --}}
                 <div class="animate-fade-up mt-8">
                     <h3 class="text-lg font-bold mb-4 flex items-center gap-2 text-blue-700 border-b pb-2">
                         <i data-lucide="wrench" class="w-5 h-5"></i>
@@ -176,27 +183,36 @@
                     </h3>
 
                     <div class="space-y-3 text-gray-700">
-                        <p>
+                        <p class="flex items-center gap-2">
                             <span class="font-semibold">Status:</span>
                             @php
+                                $status = strtolower($booking->status);
                                 $statusClasses = [
-                                    'pending' => 'bg-yellow-100 text-yellow-700',
-                                    'disetujui' => 'bg-green-100 text-green-700',
-                                    'proses' => 'bg-blue-100 text-blue-700',
-                                    'selesai' => 'bg-indigo-100 text-indigo-700',
-                                    'ditolak' => 'bg-red-100 text-red-700',
+                                    'disetujui' => 'bg-green-100 text-green-700 border-green-200',
+                                    'proses'    => 'bg-blue-100 text-blue-700 border-blue-200',
+                                    'selesai'   => 'bg-indigo-100 text-indigo-700 border-indigo-200',
+                                    'ditolak'   => 'bg-red-100 text-red-700 border-red-200',
+                                    'menunggu'  => 'bg-yellow-100 text-yellow-700 border-yellow-200',
+                                    'pending'   => 'bg-yellow-100 text-yellow-700 border-yellow-200',
                                 ];
-                                $currentStatus = $booking->status;
+                                $statusIcons = [
+                                    'disetujui' => 'check-circle',
+                                    'proses'    => 'loader',
+                                    'selesai'   => 'check-circle',
+                                    'ditolak'   => 'x-circle',
+                                    'menunggu'  => 'clock',
+                                    'pending'   => 'clock',
+                                ];
                             @endphp
-                            <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold shadow-sm {{ $statusClasses[$currentStatus] ?? 'bg-gray-100 text-gray-700' }}">
-                                <i data-lucide="{{ $currentStatus == 'proses' ? 'loader' : 'info' }}" class="w-4 h-4 {{ $currentStatus == 'proses' ? 'animate-spin' : '' }}"></i>
-                                {{ ucfirst($currentStatus) }}
+                            <span class="px-3 py-1 {{ $statusClasses[$status] ?? 'bg-gray-100 text-gray-700 border-gray-200' }} rounded text-xs font-bold border inline-flex items-center gap-1.5 capitalize shadow-sm">
+                                <i data-lucide="{{ $statusIcons[$status] ?? 'info' }}" class="w-3.5 h-3.5 {{ $status == 'proses' ? 'animate-spin' : '' }}"></i>
+                                {{ $status }}
                             </span>
                         </p>
 
                         <p>
                             <span class="font-semibold">Dibuat pada:</span>
-                            {{ $booking->created_at->format('d/m/Y H:i') }}
+                            {{ $booking->created_at->translatedFormat('d F Y H:i') }} WIB
                         </p>
                     </div>
                 </div>
@@ -204,9 +220,9 @@
                 {{-- Tombol Kembali --}}
                 <div class="mt-6 flex flex-wrap gap-3 animate-fade-up">
                     <a href="{{ route('admin.bookings.index') }}"
-                        class="px-5 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-transform duration-300 hover:scale-105 font-medium shadow">
-                        <i data-lucide="arrow-left" class="inline w-4 h-4 mr-1"></i>
-                        Kembali
+                        class="px-5 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-transform duration-300 hover:scale-105 font-medium shadow flex items-center gap-2">
+                        <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                        Kembali ke Daftar
                     </a>
                 </div>
 
@@ -242,11 +258,14 @@
             toggleDropdown(type);
         }
 
-        // Close dropdown when clicking outside
         window.onclick = function(event) {
             if (!event.target.closest('#dropdown-mechanic')) {
-                document.getElementById('mechanic-list').classList.add('hidden');
-                document.getElementById('mechanic-icon').classList.remove('rotate-180');
+                const list = document.getElementById('mechanic-list');
+                const icon = document.getElementById('mechanic-icon');
+                if (list && !list.classList.contains('hidden')) {
+                    list.classList.add('hidden');
+                    icon.classList.remove('rotate-180');
+                }
             }
         }
     </script>

@@ -9,12 +9,11 @@
 
             <div class="flex items-center gap-3">
 
-                <!-- Search -->
                 <form method="GET" action="{{ route('admin.products.index') }}" class="relative">
                     <input 
                         type="text" 
                         name="q" 
-                        placeholder="Cari produk..."
+                        placeholder="Cari nama atau SKU..."
                         value="{{ request('q') }}"
                         class="pl-10 pr-4 py-2 text-sm border rounded-xl shadow-sm 
                                focus:ring-2 focus:ring-blue-500 focus:outline-none 
@@ -23,7 +22,6 @@
                     <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
                 </form>
 
-                <!-- Tombol ke MODE LIST -->
                 <button 
                     onclick="showListView()"
                     id="btnListMode"
@@ -33,7 +31,6 @@
                     Detail List
                 </button>
 
-                <!-- Tombol ke MODE CARD -->
                 <button 
                     onclick="showCardView()"
                     id="btnCardMode"
@@ -43,7 +40,6 @@
                     Kembali
                 </button>
 
-                <!-- Tambah Produk -->
                 <a href="{{ route('admin.products.create') }}"
                     class="inline-flex items-center gap-2 bg-gradient-to-r from-indigo-600 to-purple-600 
                         text-white px-4 py-2 rounded-xl shadow 
@@ -60,7 +56,6 @@
     <div class="py-10 bg-gray-100 min-h-screen">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 animate-fadeIn">
 
-            <!-- Pesan sukses -->
             @if(session('success'))
                 <div class="mb-6 p-4 bg-green-100 text-green-700 border border-green-200 rounded-xl flex items-center gap-2 shadow-sm animate-fadeIn">
                     <i data-lucide="check-circle" class="w-5 h-5"></i> 
@@ -68,7 +63,6 @@
                 </div>
             @endif
 
-            <!-- ===================== MODE CARD ===================== -->
             <div id="cardView" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
 
                 @forelse($products as $product)
@@ -77,10 +71,15 @@
                 <div class="bg-white shadow-md hover:shadow-xl rounded-2xl p-5 
                             transition-all duration-300 animate-card hover:scale-[1.02]">
 
-                    <div class="flex justify-between items-start mb-4">
-                        <h3 class="font-semibold text-lg text-gray-800">
-                            {{ $product->name }}
-                        </h3>
+                    <div class="flex justify-between items-start mb-2">
+                        <div>
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-blue-500 bg-blue-50 px-2 py-0.5 rounded border border-blue-100">
+                                SKU: {{ $product->sku ?? '-' }}
+                            </span>
+                            <h3 class="font-semibold text-lg text-gray-800 mt-1">
+                                {{ $product->name }}
+                            </h3>
+                        </div>
 
                         <span class="px-3 py-1 rounded-full text-xs font-medium 
                             {{ $product->stock > 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-600' }}">
@@ -88,7 +87,7 @@
                         </span>
                     </div>
 
-                    <p class="text-sm text-gray-600 mb-3 line-clamp-3">
+                    <p class="text-sm text-gray-600 mb-3 line-clamp-2">
                         {{ $product->description ?? 'Tidak ada deskripsi.' }}
                     </p>
 
@@ -126,13 +125,11 @@
                 @endforelse
             </div>
 
-            <!-- Pagination -->
             <div id="paginationSection" class="mt-8">
                 {{ $products->withQueryString()->links() }}
             </div>
 
 
-            <!-- ===================== MODE LIST ===================== -->
             <div id="listView" 
                  class="hidden bg-white rounded-xl shadow p-6 mt-8 animate-slideRight">
 
@@ -145,6 +142,7 @@
                     <table class="w-full text-sm border">
                         <thead>
                             <tr class="bg-gray-100 border-b text-left text-gray-600">
+                                <th class="p-2">SKU</th>
                                 <th class="p-2">Produk</th>
                                 <th class="p-2">Modal</th>
                                 <th class="p-2">Harga</th>
@@ -155,6 +153,7 @@
                             @foreach($productsAll as $p)
                             @php $laba = $p->price - $p->purchase_price; @endphp
                             <tr class="border-b hover:bg-gray-50 transition">
+                                <td class="p-2 font-mono text-xs text-blue-600">{{ $p->sku ?? '-' }}</td>
                                 <td class="p-2 font-medium">{{ $p->name }}</td>
                                 <td class="p-2">Rp {{ number_format($p->purchase_price,0,',','.') }}</td>
                                 <td class="p-2">Rp {{ number_format($p->price,0,',','.') }}</td>
@@ -171,7 +170,6 @@
         </div>
     </div>
 
-    <!-- JS SWITCH VIEW -->
     <script>
         function showListView() {
             document.getElementById("cardView").classList.add("hidden");
@@ -199,7 +197,6 @@
         }
     </script>
 
-    <!-- ANIMASI -->
     <style>
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }

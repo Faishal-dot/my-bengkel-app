@@ -13,7 +13,7 @@ class BookingQueueController extends Controller
      */
     public function index(Request $request)
     {
-        // Ambil tanggal dari query (?date=xxxx)
+        // Ambil tanggal dari query (?date=xxxx), default ke hari ini jika kosong
         $date = $request->date ?? now()->toDateString();
 
         // Jika format tanggal tidak valid → pakai hari ini
@@ -21,14 +21,16 @@ class BookingQueueController extends Controller
             $date = now()->toDateString();
         }
 
-        // Jika tanggal sudah lewat → paksa kembali ke hari ini
-        if ($date < now()->toDateString()) {
-            $date = now()->toDateString();
-        }
+        /** * PERBAIKAN: 
+         * Bagian pengecekan "Jika tanggal sudah lewat paksa kembali ke hari ini" 
+         * telah dihapus agar user bisa melihat histori antrian tanggal sebelumnya.
+         */
 
-        // Ambil semua booking hari itu berdasarkan queue_number
-        $queues = Booking::with(['user', 'service', 'mechanic'])
+        // Ambil semua booking pada tanggal tersebut
+        // Ditambahkan relasi 'vehicle' jika di view Anda membutuhkannya
+        $queues = Booking::with(['user', 'service', 'mechanic', 'vehicle'])
             ->whereDate('booking_date', $date)
+            ->whereNotNull('queue_number') // Opsional: Hanya munculkan yang sudah punya nomor antrian
             ->orderBy('queue_number', 'asc')
             ->get();
 

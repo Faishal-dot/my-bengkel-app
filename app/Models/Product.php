@@ -15,6 +15,7 @@ class Product extends Model
         'purchase_price',
         'price',
         'stock',
+        'sku',
         'image'
     ];
 }

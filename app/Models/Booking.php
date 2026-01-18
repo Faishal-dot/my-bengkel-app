@@ -30,6 +30,11 @@ class Booking extends Model
         'total_price',
     ];
 
+    // Memastikan Laravel mengenali ini sebagai Tanggal & Jam
+    protected $casts = [
+        'booking_date' => 'datetime',
+    ];
+
     protected static function booted()
     {
         static::deleting(function ($booking) {
@@ -45,10 +50,6 @@ class Booking extends Model
         });
     }
 
-    /**
-     * Relasi ke ChatMessage
-     * Nama fungsi ini harus 'messages' agar sesuai dengan 'with(messages)' di Controller
-     */
     public function messages(): HasMany
     {
         return $this->hasMany(ChatMessage::class, 'booking_id');

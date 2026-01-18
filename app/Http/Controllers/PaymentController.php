@@ -16,13 +16,15 @@ class PaymentController extends Controller
     {
         $payments = Payment::with(['booking.service', 'booking.vehicle'])
             ->whereHas('booking', function ($q) {
-                $q->where('user_id', auth()->id());
+                $q->where('user_id', auth()->id())
+                  ->where('status', 'selesai'); // HANYA MUNCUL JIKA MEKANIK SUDAH KLIK SELESAI
             })
             ->orderBy('created_at', 'desc')
             ->get();
 
         foreach ($payments as $payment) {
-            if ($payment->booking->status === 'disetujui') {
+            // Ubah pengecekan dari 'disetujui' menjadi 'selesai'
+            if ($payment->booking->status === 'selesai') {
                 if (empty($payment->proof) && $payment->status !== 'unpaid') {
                     $payment->update(['status' => 'unpaid']);
                     $payment->status = 'unpaid'; 
@@ -44,9 +46,10 @@ class PaymentController extends Controller
             abort(403, 'Akses Ditolak.');
         }
 
-        if ($booking->status === 'pending') {
+        // Customer dilarang bayar jika mekanik belum menyelesaikan pekerjaan (selesai)
+        if ($booking->status !== 'selesai') {
             return redirect()->route('customer.payment.index')
-                ->with('error', 'Mohon tunggu Admin menyetujui booking Anda terlebih dahulu.');
+                ->with('error', 'Tagihan belum tersedia. Tunggu mekanik menyelesaikan pekerjaan.');
         }
         
         $payment = Payment::firstOrCreate(
@@ -60,10 +63,11 @@ class PaymentController extends Controller
             ]
         );
 
-        $bookingApproved = $booking->status === 'disetujui';
+        // Status pengecekan disesuaikan menjadi 'selesai'
+        $workFinished = $booking->status === 'selesai';
         $noProofYet = empty($payment->proof) || $payment->bank_name === '-' || $payment->bank_name === null;
 
-        if ($bookingApproved && $noProofYet) {
+        if ($workFinished && $noProofYet) {
             if ($payment->status !== 'unpaid') {
                 $payment->update(['status' => 'unpaid']);
                 $payment->refresh();
@@ -105,7 +109,6 @@ class PaymentController extends Controller
             $payment->proof = $path;
         }
 
-        // 1. Update Data Payment 
         $payment->update([
             'bank_name'      => $request->bank_name,
             'account_number' => $request->account_number,
@@ -113,15 +116,11 @@ class PaymentController extends Controller
             'status'         => 'pending', 
         ]);
 
-        // 2. Update Booking (DENGAN TRY-CATCH AGAR TIDAK LANGSUNG CRASH)
         try {
-            // Kita coba update ke 'pending'. 
-            // Jika error lagi, berarti di DB kamu namanya bukan 'pending'
             $payment->booking->update([
                 'payment_status' => 'pending' 
             ]);
         } catch (\Exception $e) {
-            // Jika 'pending' gagal, kita coba 'menunggu' (opsi umum di sistem bahasa Indonesia)
             $payment->booking->update([
                 'payment_status' => 'menunggu'
             ]);

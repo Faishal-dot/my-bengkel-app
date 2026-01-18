@@ -13,9 +13,11 @@ class BookingController extends Controller
 {
     public function index()
     {
+        // Mengurutkan berdasarkan booking_date ASC agar jam terawal di atas
         $bookings = Booking::with(['user', 'service', 'vehicle', 'mechanic'])
-            ->latest()
+            ->orderBy('booking_date', 'asc') 
             ->paginate(10);
+            
         return view('admin.bookings.index', compact('bookings'));
     }
 
@@ -31,7 +33,6 @@ class BookingController extends Controller
     {
         $booking = Booking::with('service')->findOrFail($id);
 
-        // Validasi disesuaikan dengan enum baru di database (Bahasa Indonesia)
         $request->validate([
             'status' => 'required|in:pending,disetujui,proses,selesai,ditolak',
             'mechanic_id' => 'nullable|exists:mechanics,id',
@@ -40,15 +41,15 @@ class BookingController extends Controller
         $booking->mechanic_id = $request->mechanic_id;
         $booking->status = $request->status;
 
-        // Jika status yang dikirim adalah 'disetujui'
         if ($request->status === 'disetujui') {
             
             // 1. Logika Antrian Otomatis
             if ($booking->mechanic_id && $booking->queue_number === null) {
-                $bookingDate = Carbon::parse($booking->booking_date)->format('Y-m-d');
+                // Mengambil tanggal saja tanpa jam untuk filter antrian hari itu
+                $dateOnly = Carbon::parse($booking->booking_date)->toDateString();
                 
                 $lastQueue = Booking::where('mechanic_id', $booking->mechanic_id)
-                    ->whereDate('booking_date', $bookingDate)
+                    ->whereDate('booking_date', $dateOnly)
                     ->whereNotIn('status', ['ditolak', 'batal'])
                     ->max('queue_number');
 
@@ -56,10 +57,16 @@ class BookingController extends Controller
             }
 
             // 2. Buat Record Pembayaran Otomatis
+            // Gunakan harga diskon jika ada, jika tidak pakai harga normal
+            $finalPrice = 0;
+            if ($booking->service) {
+                $finalPrice = $booking->service->discount_price ?? $booking->service->price;
+            }
+
             Payment::firstOrCreate(
                 ['booking_id' => $booking->id],
                 [
-                    'amount' => $booking->service->price ?? 0,
+                    'amount' => $finalPrice,
                     'method' => 'cash',
                     'status' => 'pending', 
                     'bank_name' => '-',
@@ -71,12 +78,11 @@ class BookingController extends Controller
 
         $booking->save();
 
-        return redirect()->back()->with('success', 'Berhasil memperbarui data dan menugaskan mekanik!');
+        return redirect()->back()->with('success', 'Berhasil memperbarui data!');
     }
 
     public function assignMechanic(Request $request, $id)
     {
-        // Langsung paksa status ke 'disetujui' saat admin pilih mekanik
         $request->merge(['status' => 'disetujui']); 
         return $this->update($request, $id);
     }

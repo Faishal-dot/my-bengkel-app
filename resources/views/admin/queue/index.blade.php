@@ -1,159 +1,197 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-            {{-- Judul --}}
-            <h2 class="font-bold text-2xl text-gray-800 flex items-center gap-2">
-                <i data-lucide="list-checks" class="w-6 h-6 text-blue-600"></i>
-                Antrian Booking
-            </h2>
-
-            {{-- Filter tanggal --}}
-            <form action="{{ route('customer.queue.index') }}" method="GET" class="flex items-center gap-2">
-                <input 
-                    type="date"
-                    name="date"
-                    value="{{ request('date', now()->toDateString()) }}"
-                    class="px-3 py-2 rounded-lg border border-gray-300 shadow-sm focus:ring focus:ring-blue-200 text-sm"
-                >
-
-                <button 
-                    type="submit"
-                    class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-xl shadow transition"
-                >
-                    Cari
-                </button>
-            </form>
-        </div>
+        <h2 class="font-semibold text-2xl text-gray-800 flex items-center gap-2 fade-slide">
+            <i data-lucide="list-checks" class="w-6 h-6 text-blue-600"></i>
+            Antrian Booking
+        </h2>
     </x-slot>
 
-    <div class="py-10 bg-gradient-to-b from-gray-100 to-gray-200 min-h-screen">
+    {{-- STYLE ANIMASI --}}
+    <style>
+        .fade-slide { opacity:0; transform:translateY(20px); animation: slideUp .6s ease-out forwards; }
+        @keyframes slideUp { to { opacity:1; transform:translateY(0);} }
+
+        .fade-row { opacity:0; animation: fadeRow .6s ease-out forwards; }
+        @keyframes fadeRow { to { opacity:1; } }
+    </style>
+
+    <div class="py-10 bg-gradient-to-b from-gray-100 to-gray-200 min-h-screen fade-slide" style="animation-delay:.15s">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
 
-            {{-- Table Booking --}}
-            <div class="overflow-x-auto rounded-lg border border-gray-200 bg-white shadow-lg transition-all duration-300 animate-fadeIn">
-                <table class="w-full border-collapse text-sm">
-                    <thead>
-                        <tr class="bg-blue-600 text-white uppercase text-xs">
-                            <th class="px-4 py-3 border text-center">No</th>
-                            <th class="px-4 py-3 border">Customer</th>
-                            <th class="px-4 py-3 border">Layanan</th>
-                            <th class="px-4 py-3 border">Kendaraan</th>
-                            <th class="px-4 py-3 border">Mekanik</th>
-                            <th class="px-4 py-3 border text-center">Antrian</th>
-                            <th class="px-4 py-3 border text-center">Status</th>
-                        </tr>
-                    </thead>
+            {{-- Container Putih (White Card) --}}
+            <div class="bg-white p-6 rounded-2xl shadow-lg fade-slide" style="animation-delay:.25s">
 
-                    <tbody>
-                        @forelse($queues as $index => $row)
+                {{-- Header Section (Judul & Filter) --}}
+                <div class="mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4 fade-slide" style="animation-delay:.45s">
+                    
+                    <div>
+                        <h3 class="text-xl font-bold text-gray-800">Manajemen Antrian Harian</h3>
+                        <p class="text-gray-600 text-sm">Monitoring dan filter antrian bengkel</p>
+                    </div>
 
-                            <tr class="{{ $index % 2 === 0 ? 'bg-gray-50' : 'bg-white' }} hover:bg-blue-50 transition">
-                                <td class="px-4 py-3 border text-center font-medium">{{ $index + 1 }}</td>
+                    <form action="{{ route('admin.queue.index') }}" method="GET" class="flex items-center gap-2 bg-gray-50 p-1.5 rounded-xl border border-gray-200">
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i data-lucide="calendar" class="w-4 h-4 text-gray-400"></i>
+                            </div>
+                            <input 
+                                type="date"
+                                name="date"
+                                value="{{ $date }}"
+                                class="pl-10 pr-3 py-2 rounded-lg border-gray-300 border-0 bg-white shadow-sm focus:ring-2 focus:ring-blue-500 text-sm font-medium text-gray-700"
+                            >
+                        </div>
 
-                                <td class="px-4 py-3 border">
-                                    <span class="font-semibold">{{ $row->user->name }}</span>
-                                </td>
+                        <button 
+                            type="submit"
+                            class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg shadow transition flex items-center gap-1"
+                        >
+                            <i data-lucide="search" class="w-4 h-4"></i> Cari
+                        </button>
+                    </form>
+                </div>
 
-                                <td class="px-4 py-3 border">
-                                    <span class="font-semibold">{{ $row->service->name ?? '-' }}</span>
-                                    <span class="text-xs text-gray-500 block">
-                                        Rp {{ number_format($row->service->price ?? 0, 0, ',', '.') }}
-                                    </span>
-                                </td>
-
-                                <td class="px-4 py-3 border">
-                                    @if($row->vehicle)
-                                        <span class="font-semibold">{{ $row->vehicle->plate_number }}</span><br>
-                                        <span class="text-xs text-gray-600">
-                                            {{ $row->vehicle->brand }} - {{ $row->vehicle->model }} ({{ $row->vehicle->year }})
-                                        </span>
-                                    @else
-                                        <span class="text-gray-400 italic">Tidak ada kendaraan</span>
-                                    @endif
-                                </td>
-
-                                <td class="px-4 py-3 border">
-                                    @if($row->mechanic)
-                                        <span class="font-semibold">{{ $row->mechanic->name }}</span><br>
-                                        <span class="text-xs text-gray-500">{{ $row->mechanic->specialization ?? '-' }}</span>
-                                    @else
-                                        <span class="text-gray-400 italic">Belum ditugaskan</span>
-                                    @endif
-                                </td>
-
-                                <td class="px-4 py-3 border text-center font-bold text-blue-700">
-                                    {{ $row->queue_number ?? '-' }}
-                                </td>
-
-                                {{-- ======================
-                                     STATUS SAMA PERSIS BOOKING
-                                   ====================== --}}
-                                <td class="px-4 py-3 border text-center">
-
-                                    @if($row->status == 'approved')
-                                        <span class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-semibold inline-flex items-center gap-1">
-                                            <i data-lucide="check-circle" class="w-4 h-4"></i>
-                                            Disetujui
-                                        </span>
-
-                                    @elseif($row->status == 'proses')
-                                        <span class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-semibold inline-flex items-center gap-1">
-                                            <i data-lucide="loader" class="w-4 h-4 animate-spin"></i>
-                                            Dikerjakan
-                                        </span>
-
-                                    @elseif($row->status == 'selesai')
-                                        <span class="px-3 py-1 bg-indigo-100 text-indigo-700 rounded-full text-xs font-semibold inline-flex items-center gap-1">
-                                            <i data-lucide="check-circle" class="w-4 h-4"></i>
-                                            Selesai
-                                        </span>
-
-                                    @elseif($row->status == 'rejected')
-                                        <span class="px-3 py-1 bg-red-100 text-red-700 rounded-full text-xs font-semibold inline-flex items-center gap-1">
-                                            <i data-lucide="x-circle" class="w-4 h-4"></i>
-                                            Ditolak
-                                        </span>
-
-                                    @else
-                                        <span class="px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full text-xs font-semibold inline-flex items-center gap-1">
-                                            <i data-lucide="clock" class="w-4 h-4"></i>
-                                            Menunggu
-                                        </span>
-                                    @endif
-
-                                </td>
+                {{-- Table Antrian --}}
+                <div class="overflow-x-auto rounded-lg border border-gray-200 fade-slide" style="animation-delay:.55s">
+                    <table class="w-full border-collapse text-sm">
+                        <thead>
+                            <tr class="bg-blue-600 text-white uppercase text-xs">
+                                <th class="px-4 py-3 border-r border-blue-500 text-center">No</th>
+                                <th class="px-4 py-3 border-r border-blue-500 text-left">Customer</th>
+                                <th class="px-4 py-3 border-r border-blue-500 text-left"> Tanggal / Waktu Booking</th>
+                                <th class="px-4 py-3 border-r border-blue-500 text-left">Layanan</th>
+                                <th class="px-4 py-3 border-r border-blue-500 text-left">Kendaraan</th>
+                                <th class="px-4 py-3 border-r border-blue-500 text-left">Mekanik</th>
+                                <th class="px-4 py-3 border-r border-blue-500 text-center">No. Antrian</th>
+                                <th class="px-4 py-3 border-r border-blue-500 text-center">Status</th>
                             </tr>
+                        </thead>
 
-                        @empty
-                            <tr>
-                                <td colspan="7" class="text-center py-6 text-gray-500 italic">
-                                    <i data-lucide="calendar-x" class="w-5 h-5 inline text-red-500"></i>
-                                    Tidak ada antrian ditemukan.
-                                </td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
+                        <tbody>
+                            @forelse($queues as $index => $row)
+                                <tr class="{{ $index % 2 === 0 ? 'bg-gray-50' : 'bg-white' }} hover:bg-blue-50 transition fade-row"
+                                    style="animation-delay: {{ $index * 0.12 }}s">
+                                    
+                                    <td class="px-4 py-3 border-r border-gray-200 text-center font-medium">{{ $index + 1 }}</td>
+
+                                    <td class="px-4 py-3 border-r border-gray-200">
+                                        <div class="flex items-center gap-3">
+                                            <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-xs shadow-sm">
+                                                {{ substr($row->user->name ?? 'U', 0, 1) }}
+                                            </div>
+                                            <span class="font-bold text-gray-800">{{ $row->user->name ?? '-' }}</span>
+                                        </div>
+                                    </td>
+
+                                    {{-- KOLOM BARU: WAKTU BOOKING --}}
+                                    <td class="px-4 py-3 border-r border-gray-200">
+                                        <div class="flex flex-col gap-1">
+                                            <span class="flex items-center gap-1.5 text-gray-700 font-medium">
+                                                <i data-lucide="calendar" class="w-3.5 h-3.5 text-blue-500"></i>
+                                                {{ \Carbon\Carbon::parse($row->booking_date)->translatedFormat('d M Y') }}
+                                            </span>
+                                            <span class="flex items-center gap-1.5 text-blue-600 font-bold text-xs">
+                                                <i data-lucide="clock" class="w-3.5 h-3.5"></i>
+                                                {{ \Carbon\Carbon::parse($row->booking_date)->format('H:i') }} WIB
+                                            </span>
+                                        </div>
+                                    </td>
+
+                                    <td class="px-4 py-3 border-r border-gray-200">
+                                        <span class="font-semibold text-gray-800">{{ $row->service->name ?? '-' }}</span>
+                                        <div class="text-xs text-gray-500">
+                                            Rp {{ number_format($row->service->price ?? 0, 0, ',', '.') }}
+                                        </div>
+                                    </td>
+
+                                    <td class="px-4 py-3 border-r border-gray-200">
+                                        @if($row->vehicle)
+                                            <span class="font-semibold text-gray-800">{{ $row->vehicle->plate_number }}</span>
+                                            <div class="text-xs text-gray-600">
+                                                {{ $row->vehicle->brand }} - {{ $row->vehicle->model }}
+                                            </div>
+                                        @else
+                                            <span class="text-gray-400 italic">Tidak ada kendaraan</span>
+                                        @endif
+                                    </td>
+
+                                    <td class="px-4 py-3 border-r border-gray-200">
+                                        @if($row->mechanic)
+                                            <div class="flex items-center gap-1.5">
+                                                <i data-lucide="wrench" class="w-3 h-3 text-gray-400"></i>
+                                                <span class="font-medium text-gray-700">{{ $row->mechanic->name }}</span>
+                                            </div>
+                                        @else
+                                            <span class="text-gray-400 italic text-xs">Belum ditugaskan</span>
+                                        @endif
+                                    </td>
+
+                                    <td class="px-4 py-3 border-r border-gray-200 text-center">
+                                        @if($row->queue_number)
+                                            <span class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-blue-600 text-white text-lg font-bold shadow-md transform hover:scale-110 transition">
+                                                {{ $row->queue_number }}
+                                            </span>
+                                        @else
+                                            <span class="text-gray-400">—</span>
+                                        @endif
+                                    </td>
+
+                                    <td class="px-4 py-3 border-r border-gray-200 text-center">
+                                        @php
+                                            $statusClasses = [
+                                                'approved' => 'bg-green-100 text-green-700 border-green-200',
+                                                'disetujui' => 'bg-green-100 text-green-700 border-green-200',
+                                                'proses' => 'bg-blue-100 text-blue-700 border-blue-200',
+                                                'selesai' => 'bg-indigo-100 text-indigo-700 border-indigo-200',
+                                                'rejected' => 'bg-red-100 text-red-700 border-red-200',
+                                                'ditolak' => 'bg-red-100 text-red-700 border-red-200',
+                                                'pending' => 'bg-yellow-100 text-yellow-700 border-yellow-200',
+                                            ];
+                                            $class = $statusClasses[$row->status] ?? 'bg-gray-100 text-gray-700 border-gray-200';
+                                            $labelText = ($row->status == 'proses') ? 'Dikerjakan' : ucfirst($row->status);
+                                        @endphp
+                                        
+                                        <span class="px-2 py-1 {{ $class }} rounded text-xs font-bold border inline-flex items-center gap-1">
+                                            @if($row->status == 'proses')
+                                                <i data-lucide="loader" class="w-3 h-3 animate-spin"></i>
+                                            @elseif($row->status == 'selesai' || $row->status == 'approved' || $row->status == 'disetujui')
+                                                <i data-lucide="check-circle" class="w-3 h-3"></i>
+                                            @elseif($row->status == 'pending')
+                                                <i data-lucide="clock" class="w-3 h-3"></i>
+                                            @else
+                                                <i data-lucide="info" class="w-3 h-3"></i>
+                                            @endif
+                                            
+                                            {{ $labelText }}
+                                        </span>
+                                    </td>
+
+                                </tr>
+                            @empty
+                                <tr class="fade-row" style="animation-delay:.3s">
+                                    <td colspan="8" class="text-center py-10 text-gray-500 italic bg-gray-50">
+                                        <div class="flex flex-col items-center justify-center">
+                                            <i data-lucide="list-x" class="w-12 h-12 text-gray-300 mb-2"></i>
+                                            <p class="text-lg font-medium">Tidak ada antrian ditemukan</p>
+                                            <p class="text-sm">Coba pilih tanggal lain atau pastikan data sudah benar.</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+
+                @if(method_exists($queues, 'links'))
+                    <div class="mt-6">
+                        {{ $queues->links() }}
+                    </div>
+                @endif
+
             </div>
-
         </div>
     </div>
 
-    {{-- Animasi FadeIn --}}
-    <style>
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .animate-fadeIn {
-            animation: fadeIn 0.5s ease-out;
-        }
-    </style>
-
-    {{-- Lucide Icons --}}
     <script src="https://unpkg.com/lucide@latest"></script>
-    <script>
-        lucide.createIcons();
-    </script>
-
+    <script> lucide.createIcons(); </script>
 </x-app-layout>

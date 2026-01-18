@@ -10,19 +10,17 @@ class ProductController extends Controller
 {
     /**
      * Tampilkan daftar produk
-     * - Dengan pagination (normal view)
-     * - Dengan pencarian
-     * - Dengan list lengkap (untuk slide detail)
      */
     public function index(Request $request)
     {
         $query = Product::query();
 
-        // Jika ada pencarian
-        if ($request->has('q') && $request->q != '') {
-            $search = $request->q;
+        // PENCARIAN: mendukung Nama, Deskripsi, dan SKU (Kode Produk)
+        if ($request->has('search') && $request->search != '') {
+            $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('sku', 'like', "%{$search}%") // Tambahan search by SKU
                   ->orWhere('description', 'like', "%{$search}%");
             });
         }
@@ -30,18 +28,15 @@ class ProductController extends Controller
         // Pagination normal
         $products = $query->latest()->paginate(10);
 
-        // Supaya kata kunci tetap terbawa ke pagination
-        $products->appends($request->only('q'));
+        // Agar keyword search tidak hilang saat pindah halaman pagination
+        $products->appends($request->only('search'));
 
-        // Semua produk (tanpa pagination) untuk DETAIL SLIDE
+        // Semua produk untuk DETAIL SLIDE
         $productsAll = Product::orderBy('name')->get();
 
         return view('admin.products.index', compact('products', 'productsAll'));
     }
 
-    /**
-     * Form tambah produk
-     */
     public function create()
     {
         return view('admin.products.create');
@@ -53,6 +48,7 @@ class ProductController extends Controller
     public function store(Request $request)
     {
         $request->validate([
+            'sku' => 'required|string|max:100|unique:products,sku', // Validasi Kode Produk Unik
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'purchase_price' => 'required|numeric',
@@ -62,11 +58,12 @@ class ProductController extends Controller
         ]);
 
         Product::create([
+            'sku' => $request->sku, // Simpan SKU
             'name' => $request->name,
             'description' => $request->description,
             'purchase_price' => $request->purchase_price,
             'price' => $request->price,
-            'stock' => $request->stock,
+            'stock' => $request->stock ?? 0,
             'image' => $request->image,
         ]);
 
@@ -74,9 +71,6 @@ class ProductController extends Controller
                          ->with('success', 'Produk berhasil ditambahkan.');
     }
 
-    /**
-     * Form edit produk
-     */
     public function edit(Product $product)
     {
         return view('admin.products.edit', compact('product'));
@@ -88,6 +82,7 @@ class ProductController extends Controller
     public function update(Request $request, Product $product)
     {
         $request->validate([
+            'sku' => 'required|string|max:100|unique:products,sku,' . $product->id, // Abaikan SKU milik sendiri saat update
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'purchase_price' => 'required|numeric',
@@ -97,6 +92,7 @@ class ProductController extends Controller
         ]);
 
         $product->update([
+            'sku' => $request->sku, // Update SKU
             'name' => $request->name,
             'description' => $request->description,
             'purchase_price' => $request->purchase_price,
@@ -109,9 +105,6 @@ class ProductController extends Controller
                          ->with('success', 'Produk berhasil diperbarui.');
     }
 
-    /**
-     * Update stok
-     */
     public function updateStock(Request $request, Product $product)
     {
         $request->validate([
@@ -125,9 +118,6 @@ class ProductController extends Controller
         return back()->with('success', 'Stok berhasil diperbarui!');
     }
 
-    /**
-     * Hapus produk
-     */
     public function destroy(Product $product)
     {
         $product->delete();

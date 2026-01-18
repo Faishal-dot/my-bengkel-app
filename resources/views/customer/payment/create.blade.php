@@ -9,6 +9,13 @@
             opacity: 0;
             animation: fadeInScale 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
+        /* Style tambahan untuk preview */
+        .preview-container img {
+            max-height: 200px;
+            margin: 0 auto;
+            border-radius: 0.75rem;
+            display: none;
+        }
     </style>
 
     <x-slot name="header">
@@ -67,7 +74,6 @@
                                     <p class="text-gray-500 text-sm">Total Biaya</p>
                                     <div class="flex flex-col items-end">
                                         @if($booking->service->discount_price)
-                                            {{-- HARGA CORET DI KONFIRMASI --}}
                                             <span class="text-sm text-gray-400 line-through">Rp {{ number_format($booking->service->price, 0, ',', '.') }}</span>
                                             <p class="text-2xl font-bold text-rose-600">Rp {{ number_format($booking->service->discount_price, 0, ',', '.') }}</p>
                                         @else
@@ -183,16 +189,25 @@
                                 </div>
                             </div>
 
+                            {{-- BAGIAN PERBAIKAN: UPLOAD DENGAN PREVIEW --}}
                             <div>
                                 <label class="block text-sm font-semibold text-gray-700 mb-2">Foto Bukti Transfer</label>
-                                <div class="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:bg-blue-50 hover:border-blue-300 transition cursor-pointer relative group">
-                                    <input type="file" name="proof" accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" required>
-                                    <div class="flex flex-col items-center justify-center transition group-hover:scale-105">
-                                        <div class="bg-blue-100 p-3 rounded-full mb-3 text-blue-600">
+                                <div id="drop-zone" class="border-2 border-dashed border-gray-300 rounded-xl p-4 text-center hover:bg-blue-50 hover:border-blue-300 transition cursor-pointer relative group">
+                                    <input type="file" name="proof" id="proof-input" accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" required onchange="handlePreview(this)">
+                                    
+                                    <div id="upload-placeholder" class="flex flex-col items-center justify-center py-4">
+                                        <div class="bg-blue-100 p-3 rounded-full mb-3 text-blue-600 group-hover:scale-110 transition">
                                             <i data-lucide="image-plus" class="w-6 h-6"></i>
                                         </div>
-                                        <p class="text-sm font-medium text-gray-700">Klik untuk upload</p>
+                                        <p class="text-sm font-medium text-gray-700">Klik untuk upload foto</p>
                                         <p class="text-xs text-gray-400 mt-1">Format: JPG, PNG (Max 2MB)</p>
+                                    </div>
+
+                                    <div id="preview-container" class="hidden">
+                                        <img id="image-preview" src="#" alt="Preview" class="w-full rounded-lg shadow-sm border border-gray-200 mb-2">
+                                        <div class="flex items-center justify-center gap-2 text-blue-600 text-xs font-bold">
+                                            <i data-lucide="refresh-cw" class="w-3 h-3"></i> Ganti Foto
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -212,5 +227,30 @@
     </div>
 
     <script src="https://unpkg.com/lucide@latest"></script>
-    <script> lucide.createIcons(); </script>
+    <script> 
+        lucide.createIcons(); 
+
+        // Fungsi Preview Gambar
+        function handlePreview(input) {
+            const preview = document.getElementById('image-preview');
+            const container = document.getElementById('preview-container');
+            const placeholder = document.getElementById('upload-placeholder');
+            const dropZone = document.getElementById('drop-zone');
+
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    preview.src = e.target.result;
+                    container.classList.remove('hidden');
+                    placeholder.classList.add('hidden');
+                    dropZone.classList.remove('p-4');
+                    dropZone.classList.add('p-2'); // Padatkan padding saat ada gambar
+                    lucide.createIcons(); // Re-render icon refresh
+                }
+                
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+    </script>
 </x-app-layout>

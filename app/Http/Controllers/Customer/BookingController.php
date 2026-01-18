@@ -13,20 +13,21 @@ use Illuminate\Support\Facades\Auth;
 class BookingController extends Controller
 {
     /**
-     * List booking milik customer (Status Aktif/Berjalan)
+     * List booking milik customer (Urutkan dari jadwal terdekat)
      */
     public function index()
     {
         $bookings = Booking::with(['service', 'vehicle', 'mechanic'])
             ->where('user_id', Auth::id())
-            ->latest() 
+            // Diubah dari latest() ke orderBy agar customer lihat jadwal terdekat mereka di paling atas
+            ->orderBy('booking_date', 'asc') 
             ->paginate(10);
 
         return view('customer.my-booking', compact('bookings'));
     }
 
     /**
-     * Form tambah booking + auto select service
+     * Form tambah booking
      */
     public function create(Request $request)
     {
@@ -47,7 +48,7 @@ class BookingController extends Controller
     }
 
     /**
-     * Simpan booking baru dengan Logika Diskon Terkunci
+     * Simpan booking baru (Mendukung Jam/Waktu)
      */
     public function store(Request $request)
     {
@@ -58,44 +59,36 @@ class BookingController extends Controller
             'customer_address' => 'required|string',
             'service_id'       => 'required|exists:services,id',
             'vehicle_id'       => 'required|exists:vehicles,id',
-            'booking_date'     => 'required|date|after_or_equal:today',
+            // booking_date sekarang harus menyertakan jam agar tidak 00:00
+            'booking_date'     => 'required|date|after_or_equal:now',
             'notes'            => 'nullable|string',
             'complaint'        => 'nullable|string', 
             'mechanic_id'      => 'nullable|exists:mechanics,id',
         ]);
 
-        // --- LOGIKA DISKON DIMULAI ---
-        // Cari data service di database agar harga tidak bisa dimanipulasi dari inspect element browser
         $service = Service::findOrFail($request->service_id);
 
-        // Cek: Jika discount_price diisi dan lebih besar dari 0, pakai harga diskon. 
-        // Jika tidak ada diskon, pakai harga normal (price).
         $finalPrice = ($service->discount_price && $service->discount_price > 0) 
                       ? $service->discount_price 
                       : $service->price;
-        // --- LOGIKA DISKON SELESAI ---
 
         // 2. SET VALUE TAMBAHAN
         $validated['user_id']        = Auth::id();
-        $validated['status'] = 'pending';
+        $validated['status']         = 'pending';
         $validated['payment_status'] = 'unpaid';
         $validated['queue_number']   = null; 
-        
-        // Simpan harga final yang sudah dihitung ke kolom total_price
-        // Ini memastikan Admin akan melihat nominal yang benar-benar dibayar customer
         $validated['total_price']    = $finalPrice; 
 
         // 3. SIMPAN KE DATABASE
         Booking::create($validated);
 
-        // 4. REDIRECT DENGAN PESAN SUKSES
         return redirect()
             ->route('customer.booking.index')
-            ->with('success', 'Booking berhasil dibuat. Total Biaya: Rp ' . number_format($finalPrice, 0, ',', '.'));
+            ->with('success', 'Booking berhasil dibuat untuk tanggal ' . date('d-m-Y H:i', strtotime($request->booking_date)));
     }
 
     /**
-     * History booking
+     * History booking (Tetap tampilkan yang terbaru selesai di atas)
      */
     public function history()
     {

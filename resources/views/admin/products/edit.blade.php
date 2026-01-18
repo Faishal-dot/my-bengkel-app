@@ -9,16 +9,13 @@
     <div class="py-12 bg-gradient-to-b from-blue-50 via-white to-gray-100 min-h-screen">
         <div class="max-w-3xl mx-auto animate-fadeIn">
 
-            <!-- Step Indicator -->
             <div class="flex items-center justify-center gap-2 mb-8">
                 <i data-lucide="edit-3" class="w-5 h-5 text-blue-600"></i>
                 <span class="text-blue-600 font-semibold">Form Edit</span>
             </div>
 
-            <!-- Card -->
             <div class="bg-white shadow-xl rounded-2xl border border-gray-100 p-8">
 
-                <!-- Error -->
                 @if ($errors->any())
                     <div class="mb-6 p-4 bg-red-50 border border-red-200 text-red-600 rounded-xl shadow-sm">
                         <ul class="list-disc pl-6 space-y-1">
@@ -29,12 +26,20 @@
                     </div>
                 @endif
 
-                <!-- Form -->
                 <form method="POST" action="{{ route('admin.products.update', $product) }}" enctype="multipart/form-data" class="space-y-6">
                     @csrf
                     @method('PUT')
 
-                    <!-- Nama Produk -->
+                    <div>
+                        <label class="flex items-center gap-2 mb-2 text-gray-600 font-medium">
+                            <i data-lucide="barcode" class="w-4 h-4 text-blue-500"></i>
+                            Kode Produk (SKU)
+                        </label>
+                        <input type="text" name="sku" value="{{ old('sku', $product->sku) }}"
+                            class="w-full border-gray-300 rounded-lg px-4 py-3 shadow-sm focus:ring-2 focus:ring-blue-400"
+                            placeholder="Contoh: BRG-001..." required>
+                    </div>
+
                     <div>
                         <label class="flex items-center gap-2 mb-2 text-gray-600 font-medium">
                             <i data-lucide="package" class="w-4 h-4 text-blue-500"></i>
@@ -45,7 +50,6 @@
                             placeholder="Masukkan nama produk..." required>
                     </div>
 
-                    <!-- Deskripsi -->
                     <div>
                         <label class="flex items-center gap-2 mb-2 text-gray-600 font-medium">
                             <i data-lucide="file-text" class="w-4 h-4 text-blue-500"></i>
@@ -56,7 +60,6 @@
                             placeholder="Masukkan deskripsi produk...">{{ old('description', $product->description) }}</textarea>
                     </div>
 
-                    <!-- Harga Beli -->
                     <div>
                         <label class="flex items-center gap-2 mb-2 text-gray-600 font-medium">
                             <i data-lucide="wallet" class="w-4 h-4 text-blue-500"></i>
@@ -68,7 +71,6 @@
                             placeholder="Harga beli..." required>
                     </div>
 
-                    <!-- Harga Jual -->
                     <div>
                         <label class="flex items-center gap-2 mb-2 text-gray-600 font-medium">
                             <i data-lucide="credit-card" class="w-4 h-4 text-blue-500"></i>
@@ -80,7 +82,6 @@
                             placeholder="Harga jual..." required>
                     </div>
 
-                    <!-- Laba -->
                     <div>
                         <label class="flex items-center gap-2 mb-2 text-gray-600 font-medium">
                             <i data-lucide="badge-dollar-sign" class="w-4 h-4 text-blue-500"></i>
@@ -90,14 +91,12 @@
                         <input type="number" id="laba_otomatis" disabled
                             class="w-full bg-gray-100 border-gray-300 rounded-lg px-4 py-3 shadow-sm">
 
-                        <!-- Warning rugi -->
                         <div id="warning_rugi" class="mt-2 flex items-center text-red-600 font-semibold gap-2 hidden animate-pulse">
                             <i data-lucide="alert-triangle" class="w-5 h-5"></i>
                             <span>Harga jual lebih kecil dari harga beli! Kamu rugi.</span>
                         </div>
                     </div>
 
-                    <!-- Stok -->
                     <div>
                         <label class="flex items-center gap-2 mb-2 text-gray-600 font-medium">
                             <i data-lucide="boxes" class="w-4 h-4 text-blue-500"></i>
@@ -108,7 +107,6 @@
                             placeholder="Jumlah stok..." required>
                     </div>
 
-                    <!-- Tombol -->
                     <div class="flex items-center gap-4 pt-6">
                         <button type="submit"
                                 class="flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-lg shadow-md hover:bg-blue-700">
@@ -128,7 +126,6 @@
         </div>
     </div>
 
-    <!-- Script Laba -->
     <script>
         function hitungLaba() {
             let beli = parseFloat(document.getElementById('harga_beli').value) || 0;
@@ -152,7 +149,6 @@
         hitungLaba();
     </script>
 
-    <!-- Animasi -->
     <style>
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(15px); }
@@ -163,7 +159,6 @@
         }
     </style>
 
-    <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <script> lucide.createIcons(); </script>
 

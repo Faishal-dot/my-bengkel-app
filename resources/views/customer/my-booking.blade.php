@@ -53,7 +53,7 @@
                                 <th class="px-4 py-3 border-r border-blue-500 text-left">Layanan</th>
                                 <th class="px-4 py-3 border-r border-blue-500 text-left">Kendaraan</th>
                                 <th class="px-4 py-3 border-r border-blue-500 text-left">Mekanik</th>
-                                <th class="px-4 py-3 border-r border-blue-500 text-center">Tanggal</th>
+                                <th class="px-4 py-3 border-r border-blue-500 text-center">Tanggal & Jam</th>
                                 <th class="px-4 py-3 border-r border-blue-500 text-center">Status</th>
                                 <th class="px-4 py-3 border-r border-blue-500 text-center">Aksi</th>
                             </tr>
@@ -111,12 +111,25 @@
                                         @endif
                                     </td>
 
+                                    {{-- BAGIAN TANGGAL & JAM SEPERTI ADMIN --}}
                                     <td class="px-4 py-3 border-r border-gray-200 text-center whitespace-nowrap">
-                                        {{ \Carbon\Carbon::parse($booking->booking_date)->format('d-m-Y') }}
+                                        <div class="flex flex-col items-center gap-1">
+                                            <span class="px-2 py-0.5 bg-gray-100 text-gray-700 rounded text-xs font-semibold border border-gray-200">
+                                                {{ \Carbon\Carbon::parse($booking->booking_date)->translatedFormat('d F Y') }}
+                                            </span>
+                                            <span class="px-2 py-0.5 bg-blue-600 text-white rounded text-xs font-bold flex items-center gap-1 shadow-sm">
+                                                <i data-lucide="clock" class="w-3 h-3"></i>
+                                                {{ \Carbon\Carbon::parse($booking->booking_date)->format('H:i') }} WIB
+                                            </span>
+                                        </div>
                                     </td>
 
                                     <td class="px-4 py-3 border-r border-gray-200 text-center">
-                                        @if($booking->status == 'disetujui') {{-- UBAH DARI 'approved' KE 'disetujui' --}}
+                                        @if($booking->status == 'selesai')
+                                            <span class="px-2 py-1 bg-indigo-100 text-indigo-700 rounded text-xs font-bold border border-indigo-200 inline-flex items-center gap-1">
+                                                <i data-lucide="check-circle" class="w-3 h-3"></i> Selesai
+                                            </span>
+                                        @elseif($booking->status == 'disetujui')
                                             <span class="px-2 py-1 bg-green-100 text-green-700 rounded text-xs font-bold border border-green-200 inline-flex items-center gap-1">
                                                 <i data-lucide="check-circle" class="w-3 h-3"></i> Disetujui
                                             </span>
@@ -126,14 +139,15 @@
                                             </span>
                                         @elseif($booking->status == 'proses')
                                             <span class="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs font-bold border border-blue-200 inline-flex items-center gap-1">
-                                                <i data-lucide="settings" class="w-3 h-3"></i> Sedang Diproses
+                                                <i data-lucide="loader" class="w-3 h-3 animate-spin"></i> Dikerjakan
                                             </span>
-                                        @else {{-- Status 'menunggu' --}}
+                                        @else
                                             <span class="px-2 py-1 bg-yellow-100 text-yellow-700 rounded text-xs font-bold border border-yellow-200 inline-flex items-center gap-1">
                                                 <i data-lucide="clock" class="w-3 h-3"></i> Menunggu
                                             </span>
                                         @endif
                                     </td>
+
                                     <td class="px-4 py-3 border-r border-gray-200 text-center">
                                         <a href="{{ route('chat.show', $booking->id) }}"
                                            class="inline-flex items-center gap-1 px-3 py-1.5 bg-blue-500 hover:bg-blue-600 text-white rounded-lg text-xs font-medium shadow transition">
@@ -166,5 +180,4 @@
 
     <script src="https://unpkg.com/lucide@latest"></script>
     <script> lucide.createIcons(); </script>
-
 </x-app-layout>

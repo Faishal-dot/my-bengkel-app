@@ -189,28 +189,32 @@
 
                         </div>
 
-                        {{-- TANGGAL & KELUHAN --}}
+                        {{-- TANGGAL BOOKING --}}
                         <div class="relative z-10 group animate-fadeInUp delay-500">
                             <label class="flex items-center gap-2 mb-2 text-gray-700 font-bold text-sm">
-                                <div class="p-1.5 bg-blue-50 rounded text-blue-500 group-hover:bg-blue-100 transition-colors"><i data-lucide="calendar-days" class="w-4 h-4"></i></div>
-                                Rencana Tanggal Booking
+                                <div class="p-1.5 bg-blue-50 rounded text-blue-500 group-hover:bg-blue-100 transition-colors">
+                                    <i data-lucide="calendar-days" class="w-4 h-4"></i>
+                                </div>
+                                Rencana Tanggal & Jam Booking
                             </label>
-                            <input type="date" name="booking_date" required min="{{ date('Y-m-d') }}"
+                            <input type="datetime-local" name="booking_date" required 
+                                min="{{ date('Y-m-d\TH:i') }}"
                                 value="{{ old('booking_date') }}"
                                 class="w-full border-gray-200 bg-gray-50/50 rounded-xl px-4 py-3.5 shadow-sm focus:ring-2 focus:ring-blue-400 focus:bg-white transition-all text-gray-700 font-medium">
+                            <p class="mt-1 text-xs text-gray-500 italic">*Silakan tentukan jam kedatangan Anda.</p>
                         </div>
 
-                        <div class="relative z-10 group animate-fadeInUp delay-500">
-                            <label class="flex items-center justify-between mb-2">
-                                <span class="flex items-center gap-2 text-gray-700 font-bold text-sm">
-                                    <div class="p-1.5 bg-orange-50 rounded text-orange-500 group-hover:bg-orange-100 transition-colors"><i data-lucide="message-square-warning" class="w-4 h-4"></i></div>
-                                    Keluhan / Catatan (Opsional)
-                                </span>
-                            </label>
-                            <textarea name="complaint" rows="3" placeholder="Contoh: Rem belakang bunyi mencicit..."
-                                class="w-full border-gray-200 bg-gray-50/50 rounded-xl px-4 py-3 shadow-sm focus:ring-2 focus:ring-blue-400 focus:bg-white transition-all text-gray-700 resize-none">{{ old('complaint') }}</textarea>
-                        </div>
-                    </div>
+                        {{-- KELUHAN --}}
+<div class="group animate-fadeInUp delay-500">
+    <label class="flex items-center gap-2 mb-2 text-gray-700 font-bold text-sm">
+        <div class="p-1.5 bg-amber-50 rounded text-amber-500 group-hover:bg-amber-100 transition-colors">
+            <i data-lucide="message-square" class="w-4 h-4"></i>
+        </div>
+        Keluhan / Catatan Tambahan
+    </label>
+    <textarea name="complaint" rows="3" placeholder="Ceritakan kendala pada kendaraan Anda..."
+        class="w-full border-gray-200 bg-gray-50/50 rounded-xl px-4 py-3 focus:ring-2 focus:ring-amber-400 focus:border-amber-400 focus:bg-white transition-all text-gray-700 resize-none shadow-sm">{{ old('complaint') }}</textarea>
+</div>
 
                     {{-- BUTTONS --}}
                     <div class="flex flex-col-reverse sm:flex-row items-center justify-end gap-4 pt-8 border-t border-dashed border-gray-200 animate-fadeInUp delay-500 relative z-0">

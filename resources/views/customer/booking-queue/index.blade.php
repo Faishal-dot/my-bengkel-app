@@ -60,6 +60,7 @@
                             <tr class="bg-blue-600 text-white uppercase text-xs">
                                 <th class="px-4 py-3 border-r border-blue-500 text-center">No</th>
                                 <th class="px-4 py-3 border-r border-blue-500 text-left">Customer</th>
+                                <th class="px-4 py-3 border-r border-blue-500 text-left">Tanggal / Waktu Booking</th>
                                 <th class="px-4 py-3 border-r border-blue-500 text-left">Layanan</th>
                                 <th class="px-4 py-3 border-r border-blue-500 text-left">Kendaraan</th>
                                 <th class="px-4 py-3 border-r border-blue-500 text-left">Mekanik</th>
@@ -86,7 +87,21 @@
                                         </div>
                                     </td>
 
-                                    {{-- Layanan (Update Tampilan Diskon) --}}
+                                    {{-- KOLOM BARU: Waktu Booking --}}
+                                    <td class="px-4 py-3 border-r border-gray-200">
+                                        <div class="flex flex-col gap-0.5">
+                                            <span class="flex items-center gap-1.5 text-gray-700 font-medium text-xs">
+                                                <i data-lucide="calendar" class="w-3.5 h-3.5 text-blue-400"></i>
+                                                {{ \Carbon\Carbon::parse($row->booking_date)->translatedFormat('d M Y') }}
+                                            </span>
+                                            <span class="flex items-center gap-1.5 text-blue-600 font-bold text-xs">
+                                                <i data-lucide="clock" class="w-3.5 h-3.5"></i>
+                                                {{ \Carbon\Carbon::parse($row->booking_date)->format('H:i') }} WIB
+                                            </span>
+                                        </div>
+                                    </td>
+
+                                    {{-- Layanan --}}
                                     <td class="px-4 py-3 border-r border-gray-200">
                                         <span class="font-semibold text-gray-800">{{ $row->service->name ?? '-' }}</span>
                                         <div class="text-xs">
@@ -123,7 +138,7 @@
                                         @endif
                                     </td>
 
-                                    {{-- Nomor Antrian (Lingkaran) --}}
+                                    {{-- Nomor Antrian --}}
                                     <td class="px-4 py-3 border-r border-gray-200 text-center">
                                         @if($row->queue_number)
                                             <span class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-blue-600 text-white text-lg font-bold shadow-md transform hover:scale-110 transition">
@@ -162,7 +177,7 @@
                                 </tr>
                             @empty
                                 <tr class="fade-row" style="animation-delay:.3s">
-                                    <td colspan="7" class="text-center py-8 text-gray-500 italic bg-gray-50">
+                                    <td colspan="8" class="text-center py-8 text-gray-500 italic bg-gray-50">
                                         <div class="flex flex-col items-center justify-center">
                                             <i data-lucide="list-x" class="w-10 h-10 text-gray-300 mb-2"></i>
                                             <p>Tidak ada antrian pada tanggal ini.</p>
