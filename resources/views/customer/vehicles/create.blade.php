@@ -62,7 +62,7 @@
                 <form id="vehicleForm" action="{{ route('customer.vehicles.store') }}" method="POST" class="space-y-6">
                     @csrf
 
-                    {{-- Plat Nomor --}}
+                    {{-- Plat Nomor Grid --}}
                     <div class="group animate-fadeInUp delay-200">
                         <label class="block text-sm font-bold text-gray-700 mb-2 flex items-center gap-2">
                             <div class="p-1.5 bg-yellow-50 rounded text-yellow-600 group-hover:bg-yellow-100 transition-colors">
@@ -70,9 +70,36 @@
                             </div>
                             Plat Nomor
                         </label>
-                        <input type="text" name="plate_number" value="{{ old('plate_number') }}"
-                               class="w-full border-gray-200 bg-gray-50/50 rounded-xl px-4 py-3.5 shadow-sm focus:ring-2 focus:ring-blue-400 focus:border-blue-400 focus:bg-white transition-all uppercase font-bold text-gray-800 tracking-wider placeholder:font-normal placeholder:capitalize"
-                               placeholder="Contoh: B 1234 XYZ" required>
+                        
+                        <div class="flex gap-3">
+                            {{-- Huruf Depan --}}
+                            <div class="w-20">
+                                <input type="text" id="plate_prefix" maxlength="2" placeholder="B"
+                                    class="w-full border-gray-200 bg-gray-50/50 rounded-xl px-3 py-3.5 shadow-sm focus:ring-2 focus:ring-blue-400 focus:border-blue-400 focus:bg-white transition-all uppercase font-bold text-center text-gray-800 tracking-widest"
+                                    required>
+                                <span class="text-[10px] text-gray-400 mt-1 block text-center uppercase font-medium">Wilayah</span>
+                            </div>
+
+                            {{-- Nomor Urut --}}
+                            <div class="flex-1">
+                                <input type="text" id="plate_number_part" maxlength="4" placeholder="1234"
+                                    oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+                                    class="w-full border-gray-200 bg-gray-50/50 rounded-xl px-4 py-3.5 shadow-sm focus:ring-2 focus:ring-blue-400 focus:border-blue-400 focus:bg-white transition-all font-bold text-center text-gray-800 tracking-[0.2em]"
+                                    required>
+                                <span class="text-[10px] text-gray-400 mt-1 block text-center uppercase font-medium">Nomor Urut</span>
+                            </div>
+
+                            {{-- Huruf Belakang --}}
+                            <div class="w-28">
+                                <input type="text" id="plate_suffix" maxlength="3" placeholder="XYZ"
+                                    class="w-full border-gray-200 bg-gray-50/50 rounded-xl px-3 py-3.5 shadow-sm focus:ring-2 focus:ring-blue-400 focus:border-blue-400 focus:bg-white transition-all uppercase font-bold text-center text-gray-800 tracking-widest"
+                                    required>
+                                <span class="text-[10px] text-gray-400 mt-1 block text-center uppercase font-medium">Seri</span>
+                            </div>
+                        </div>
+
+                        {{-- Hidden Input untuk dikirim ke Controller --}}
+                        <input type="hidden" name="plate_number" id="full_plate_number">
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -103,18 +130,33 @@
                         </div>
                     </div>
 
-                    {{-- Tahun --}}
-                    <div class="group animate-fadeInUp delay-400">
-                        <label class="block text-sm font-bold text-gray-700 mb-2 flex items-center gap-2">
-                            <div class="p-1.5 bg-green-50 rounded text-green-600 group-hover:bg-green-100 transition-colors">
-                                <i data-lucide="calendar-range" class="w-4 h-4"></i>
-                            </div>
-                            Tahun Pembuatan
-                        </label>
-                        <input type="number" name="year" value="{{ old('year') }}"
-                               min="1990" max="{{ date('Y') + 1 }}"
-                               class="w-full border-gray-200 bg-gray-50/50 rounded-xl px-4 py-3.5 shadow-sm focus:ring-2 focus:ring-blue-400 focus:border-blue-400 focus:bg-white transition-all font-medium text-gray-700"
-                               placeholder="Contoh: 2022" required>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {{-- Warna --}}
+                        <div class="group animate-fadeInUp delay-400">
+                            <label class="block text-sm font-bold text-gray-700 mb-2 flex items-center gap-2">
+                                <div class="p-1.5 bg-purple-50 rounded text-purple-600 group-hover:bg-purple-100 transition-colors">
+                                    <i data-lucide="palette" class="w-4 h-4"></i>
+                                </div>
+                                Warna
+                            </label>
+                            <input type="text" name="color" value="{{ old('color') }}"
+                                   class="w-full border-gray-200 bg-gray-50/50 rounded-xl px-4 py-3.5 shadow-sm focus:ring-2 focus:ring-blue-400 focus:border-blue-400 focus:bg-white transition-all font-medium text-gray-700"
+                                   placeholder="Contoh: Hitam Metalik" required>
+                        </div>
+
+                        {{-- Tahun --}}
+                        <div class="group animate-fadeInUp delay-400">
+                            <label class="block text-sm font-bold text-gray-700 mb-2 flex items-center gap-2">
+                                <div class="p-1.5 bg-green-50 rounded text-green-600 group-hover:bg-green-100 transition-colors">
+                                    <i data-lucide="calendar-range" class="w-4 h-4"></i>
+                                </div>
+                                Tahun Pembuatan
+                            </label>
+                            <input type="number" name="year" value="{{ old('year') }}"
+                                   min="1990" max="{{ date('Y') + 1 }}"
+                                   class="w-full border-gray-200 bg-gray-50/50 rounded-xl px-4 py-3.5 shadow-sm focus:ring-2 focus:ring-blue-400 focus:border-blue-400 focus:bg-white transition-all font-medium text-gray-700"
+                                   placeholder="Contoh: 2022" required>
+                        </div>
                     </div>
 
                     {{-- Tombol Aksi --}}
@@ -145,17 +187,25 @@
         document.getElementById('vehicleForm').addEventListener('submit', function (e) {
             e.preventDefault(); // Tahan submit asli
 
-            const plate = document.querySelector('input[name="plate_number"]').value.trim();
+            // Gabungkan Plat Nomor
+            const prefix = document.getElementById('plate_prefix').value.trim().toUpperCase();
+            const number = document.getElementById('plate_number_part').value.trim();
+            const suffix = document.getElementById('plate_suffix').value.trim().toUpperCase();
+            
+            const fullPlate = `${prefix} ${number} ${suffix}`;
+            document.getElementById('full_plate_number').value = fullPlate;
+
             const brand = document.querySelector('input[name="brand"]').value.trim();
             const model = document.querySelector('input[name="model"]').value.trim();
+            const color = document.querySelector('input[name="color"]').value.trim();
             const year  = document.querySelector('input[name="year"]').value.trim();
 
             // Validasi Client Side
-            if (!plate || !brand || !model || !year) {
+            if (!prefix || !number || !suffix || !brand || !model || !color || !year) {
                 return Swal.fire({
                     icon: 'error',
                     title: 'Data Belum Lengkap',
-                    text: 'Mohon isi semua kolom formulir.',
+                    text: 'Mohon isi semua kolom plat nomor dan data kendaraan.',
                     confirmButtonColor: '#3b82f6',
                     confirmButtonText: 'Oke, Saya Lengkapi',
                     customClass: { 
@@ -172,12 +222,16 @@
                     <div class="bg-blue-50 p-5 rounded-xl text-left border border-blue-100">
                         <div class="flex items-center justify-between mb-2 pb-2 border-b border-blue-200/50">
                             <span class="text-xs text-blue-500 font-bold uppercase tracking-wider">Plat Nomor</span>
-                            <span class="font-black text-gray-800 text-lg">${plate.toUpperCase()}</span>
+                            <span class="font-black text-gray-800 text-lg">${fullPlate}</span>
                         </div>
                         <div class="space-y-1 text-sm text-gray-600">
                             <div class="flex justify-between">
                                 <span>Kendaraan:</span>
                                 <span class="font-bold text-gray-800">${brand} ${model}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Warna:</span>
+                                <span class="font-bold text-gray-800">${color}</span>
                             </div>
                             <div class="flex justify-between">
                                 <span>Tahun:</span>

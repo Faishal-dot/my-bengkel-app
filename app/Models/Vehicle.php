@@ -10,12 +10,13 @@ class Vehicle extends Model
     use HasFactory;
 
     protected $fillable = [
-        'user_id',
-        'plate_number',
-        'brand',
-        'model',
-        'year',
-    ];
+    'user_id',
+    'plate_number',
+    'brand',
+    'model',
+    'color', // Tambahkan ini
+    'year',
+];
 
     // Relasi ke User
     public function user()

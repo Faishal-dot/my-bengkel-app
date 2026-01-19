@@ -35,74 +35,137 @@
                 // Memisahkan layanan menjadi Bundle (punya produk) dan Non-Bundle
                 $bundleServices = $services->filter(fn($s) => $s->products && $s->products->count() > 0);
                 $nonBundleServices = $services->filter(fn($s) => !($s->products && $s->products->count() > 0));
-                
-                // Menggabungkan kembali dengan urutan Bundle di atas
-                $sortedServices = $bundleServices->merge($nonBundleServices);
             @endphp
 
-            @if($sortedServices->count())
-                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    @foreach($sortedServices as $service)
-                        <div class="bg-white rounded-2xl border border-gray-100 shadow-md hover:shadow-xl transition-all duration-300 animate-cardFade group flex flex-col relative hover:scale-[1.02]">
-                            
-                            {{-- Badges Container --}}
-                            <div class="absolute -top-2 -right-2 z-10 flex items-center gap-2">
-                                {{-- Badge Paket Bundle --}}
-                                @if($service->products && $service->products->count() > 0)
+            @if($services->count())
+                
+                {{-- SECTION: PAKET BUNDLE --}}
+                @if($bundleServices->count() > 0)
+                    <div class="mb-6 flex items-center justify-between border-b border-gray-200 pb-2 animate-fadeSlide">
+                        <div class="flex items-center gap-2">
+                            <div class="p-2 bg-amber-100 rounded-lg text-amber-600">
+                                <i data-lucide="package-plus" class="w-5 h-5"></i>
+                            </div>
+                            <h3 class="text-xl font-bold text-gray-800">Paket Bundle Hemat</h3>
+                        </div>
+                        <span class="text-sm font-medium text-gray-500 bg-white px-3 py-1 rounded-full border border-gray-200 shadow-sm">
+                            {{ $bundleServices->count() }} Layanan
+                        </span>
+                    </div>
+
+                    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+                        @foreach($bundleServices as $service)
+                            <div class="bg-white rounded-2xl border border-gray-100 shadow-md hover:shadow-xl transition-all duration-300 animate-cardFade group flex flex-col relative hover:scale-[1.02]">
+                                <div class="absolute -top-2 -right-2 z-10 flex items-center gap-2">
                                     <span class="bg-amber-500 text-white text-[10px] font-bold px-2 py-1 rounded-lg shadow-md flex items-center gap-1">
                                         <i data-lucide="package" class="w-3 h-3"></i>
                                         Paket Bundle
                                     </span>
-                                @endif
+                                    @if($service->discount_price)
+                                        <span class="inline-flex items-center bg-rose-500 text-white text-[10px] font-bold px-2 py-1 rounded-lg shadow-md">
+                                            <i data-lucide="badge-percent" class="w-3 h-3 mr-1"></i>
+                                            DISKON -{{ round((($service->price - $service->discount_price) / $service->price) * 100) }}%
+                                        </span>
+                                    @endif
+                                </div>
 
-                                {{-- Badge Diskon --}}
-                                @if($service->discount_price)
-                                    <span class="inline-flex items-center bg-rose-500 text-white text-[10px] font-bold px-2 py-1 rounded-lg shadow-md">
-                                        <i data-lucide="badge-percent" class="w-3 h-3 mr-1"></i>
-                                        DISKON -{{ round((($service->price - $service->discount_price) / $service->price) * 100) }}%
-                                    </span>
-                                @endif
-                            </div>
-
-                            <div class="p-6 flex flex-col flex-grow">
-                                <div class="flex justify-between items-start mb-4">
-                                    <h3 class="font-bold text-lg text-gray-800 group-hover:text-indigo-600 transition-colors pr-4 leading-tight">
-                                        {{ $service->name }}
-                                    </h3>
-                                    
-                                    {{-- Bagian Harga --}}
-                                    <div class="flex flex-col items-end min-w-fit">
-                                        @if($service->discount_price)
-                                            <span class="px-3 py-1 rounded-full text-xs font-bold bg-rose-100 text-rose-700 whitespace-nowrap">
-                                                Rp {{ number_format($service->discount_price, 0, ',', '.') }}
-                                            </span>
-                                            <span class="text-[10px] text-gray-400 line-through mt-1 whitespace-nowrap">
-                                                Rp {{ number_format($service->price, 0, ',', '.') }}
-                                            </span>
-                                        @else
-                                            <span class="px-3 py-1 rounded-full text-xs font-bold bg-indigo-100 text-indigo-700 whitespace-nowrap">
-                                                Rp {{ number_format($service->price, 0, ',', '.') }}
-                                            </span>
-                                        @endif
+                                <div class="p-6 flex flex-col flex-grow">
+                                    <div class="flex justify-between items-start mb-4">
+                                        <h3 class="font-bold text-lg text-gray-800 group-hover:text-indigo-600 transition-colors pr-4 leading-tight">
+                                            {{ $service->name }}
+                                        </h3>
+                                        <div class="flex flex-col items-end min-w-fit">
+                                            @if($service->discount_price)
+                                                <span class="px-3 py-1 rounded-full text-xs font-bold bg-rose-100 text-rose-700 whitespace-nowrap">
+                                                    Rp {{ number_format($service->discount_price, 0, ',', '.') }}
+                                                </span>
+                                                <span class="text-[10px] text-gray-400 line-through mt-1 whitespace-nowrap">
+                                                    Rp {{ number_format($service->price, 0, ',', '.') }}
+                                                </span>
+                                            @else
+                                                <span class="px-3 py-1 rounded-full text-xs font-bold bg-indigo-100 text-indigo-700 whitespace-nowrap">
+                                                    Rp {{ number_format($service->price, 0, ',', '.') }}
+                                                </span>
+                                            @endif
+                                        </div>
+                                    </div>
+                                    <p class="text-sm text-gray-600 mb-6 flex-grow leading-relaxed">
+                                        {{ $service->description ?? 'Nikmati layanan perawatan kendaraan terbaik dari teknisi ahli kami.' }}
+                                    </p>
+                                    <div class="pt-5 border-t border-gray-50 mt-auto">
+                                        <a href="{{ route('customer.booking.create', ['service_id' => $service->id]) }}" 
+                                            class="w-full inline-flex items-center gap-2 px-4 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-bold transition-all transform active:scale-95 justify-center shadow-lg shadow-indigo-100">
+                                            <i data-lucide="calendar-check" class="w-4 h-4"></i>
+                                            Booking Layanan Sekarang
+                                        </a>
                                     </div>
                                 </div>
+                            </div>
+                        @endforeach
+                    </div>
+                @endif
 
-                                <p class="text-sm text-gray-600 mb-6 flex-grow leading-relaxed">
-                                    {{ $service->description ?? 'Nikmati layanan perawatan kendaraan terbaik dari teknisi ahli kami.' }}
-                                </p>
+                {{-- SECTION: LAYANAN STANDAR --}}
+                @if($nonBundleServices->count() > 0)
+                    <div class="mb-6 flex items-center justify-between border-b border-gray-200 pb-2 animate-fadeSlide">
+                        <div class="flex items-center gap-2">
+                            <div class="p-2 bg-indigo-100 rounded-lg text-indigo-600">
+                                <i data-lucide="cog" class="w-5 h-5"></i>
+                            </div>
+                            <h3 class="text-xl font-bold text-gray-800">Layanan Satuan</h3>
+                        </div>
+                        <span class="text-sm font-medium text-gray-500 bg-white px-3 py-1 rounded-full border border-gray-200 shadow-sm">
+                            {{ $nonBundleServices->count() }} Layanan
+                        </span>
+                    </div>
 
-                                {{-- Tombol Aksi --}}
-                                <div class="pt-5 border-t border-gray-50 mt-auto">
-                                    <a href="{{ route('customer.booking.create', ['service_id' => $service->id]) }}" 
-                                        class="w-full inline-flex items-center gap-2 px-4 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-bold transition-all transform active:scale-95 justify-center shadow-lg shadow-indigo-100">
-                                        <i data-lucide="calendar-check" class="w-4 h-4"></i>
-                                        Booking Layanan Sekarang
-                                    </a>
+                    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        @foreach($nonBundleServices as $service)
+                            <div class="bg-white rounded-2xl border border-gray-100 shadow-md hover:shadow-xl transition-all duration-300 animate-cardFade group flex flex-col relative hover:scale-[1.02]">
+                                <div class="absolute -top-2 -right-2 z-10 flex items-center gap-2">
+                                    @if($service->discount_price)
+                                        <span class="inline-flex items-center bg-rose-500 text-white text-[10px] font-bold px-2 py-1 rounded-lg shadow-md">
+                                            <i data-lucide="badge-percent" class="w-3 h-3 mr-1"></i>
+                                            DISKON -{{ round((($service->price - $service->discount_price) / $service->price) * 100) }}%
+                                        </span>
+                                    @endif
+                                </div>
+
+                                <div class="p-6 flex flex-col flex-grow">
+                                    <div class="flex justify-between items-start mb-4">
+                                        <h3 class="font-bold text-lg text-gray-800 group-hover:text-indigo-600 transition-colors pr-4 leading-tight">
+                                            {{ $service->name }}
+                                        </h3>
+                                        <div class="flex flex-col items-end min-w-fit">
+                                            @if($service->discount_price)
+                                                <span class="px-3 py-1 rounded-full text-xs font-bold bg-rose-100 text-rose-700 whitespace-nowrap">
+                                                    Rp {{ number_format($service->discount_price, 0, ',', '.') }}
+                                                </span>
+                                                <span class="text-[10px] text-gray-400 line-through mt-1 whitespace-nowrap">
+                                                    Rp {{ number_format($service->price, 0, ',', '.') }}
+                                                </span>
+                                            @else
+                                                <span class="px-3 py-1 rounded-full text-xs font-bold bg-indigo-100 text-indigo-700 whitespace-nowrap">
+                                                    Rp {{ number_format($service->price, 0, ',', '.') }}
+                                                </span>
+                                            @endif
+                                        </div>
+                                    </div>
+                                    <p class="text-sm text-gray-600 mb-6 flex-grow leading-relaxed">
+                                        {{ $service->description ?? 'Nikmati layanan perawatan kendaraan terbaik dari teknisi ahli kami.' }}
+                                    </p>
+                                    <div class="pt-5 border-t border-gray-50 mt-auto">
+                                        <a href="{{ route('customer.booking.create', ['service_id' => $service->id]) }}" 
+                                            class="w-full inline-flex items-center gap-2 px-4 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-bold transition-all transform active:scale-95 justify-center shadow-lg shadow-indigo-100">
+                                            <i data-lucide="calendar-check" class="w-4 h-4"></i>
+                                            Booking Layanan Sekarang
+                                        </a>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    @endforeach
-                </div>
+                        @endforeach
+                    </div>
+                @endif
 
                 {{-- Pagination --}}
                 <div class="mt-12 animate-fadeSlide">

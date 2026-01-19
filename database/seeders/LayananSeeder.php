@@ -3,12 +3,14 @@
 namespace Database\Seeders;
 
 use App\Models\Service;
+use App\Models\Product;
 use Illuminate\Database\Seeder;
 
 class LayananSeeder extends Seeder
 {
     public function run(): void
     {
+        // 1. Definisikan Data Layanan
         $services = [
             [
                 'name' => 'Paket Ganti Oli Silver',
@@ -24,7 +26,7 @@ class LayananSeeder extends Seeder
             ],
             [
                 'name' => 'Paket Refresh Performa (Tune Up)',
-                'description' => 'Kembalikan tarikan mesin yang berat menjadi ringan. Paket ini mengganti filter udara yang kotor dan busi lama dengan tipe Iridium untuk pembakaran yang jauh lebih sempurna dan responsif.',
+                'description' => 'Kembalikan tarikan mesin yang berat menjadi ringan. Paket ini mengganti filter udara yang kotor dan busi lama dengan tipe Iridium.',
                 'price' => 410000,
                 'discount_price' => 355000,
             ],
@@ -42,26 +44,51 @@ class LayananSeeder extends Seeder
             ],
             [
                 'name' => 'Jasa Tune Up Ringan',
-                'description' => 'Perawatan performa mesin meliputi pembersihan Throttle Body (TB), pengecekan kondisi busi, pembersihan filter udara, serta reset sistem sensor (jika diperlukan).',
+                'description' => 'Perawatan performa mesin meliputi pembersihan Throttle Body (TB), pengecekan kondisi busi, pembersihan filter udara, serta reset sistem sensor.',
                 'price' => 200000,
                 'discount_price' => null,
             ],
             [
                 'name' => 'Jasa Ganti Aki & Cek Alternator',
-                'description' => 'Jasa pemasangan aki baru disertai pengecekan sistem pengisian (alternator) untuk memastikan aki baru tidak cepat tekor/rusak.',
+                'description' => 'Jasa pemasangan aki baru disertai pengecekan sistem pengisian (alternator).',
                 'price' => 50000,
                 'discount_price' => 35000,
             ],
             [
                 'name' => 'Jasa Fogging Sterilisasi',
-                'description' => 'Proses sterilisasi kabin menggunakan mesin fogging untuk membunuh kuman, bakteri, dan jamur di saluran AC serta interior mobil agar udara kembali sehat.',
+                'description' => 'Proses sterilisasi kabin menggunakan mesin fogging untuk membunuh kuman, bakteri, dan jamur.',
                 'price' => 100000,
                 'discount_price' => 80000,
             ],
         ];
 
-        foreach ($services as $service) {
-            Service::create($service);
+        // 2. Loop dan Hubungkan ke Produk
+        foreach ($services as $data) {
+            $service = Service::create($data);
+
+            // Mapping Bundling berdasarkan Nama Layanan
+            switch ($service->name) {
+                case 'Paket Ganti Oli Silver':
+                    $oli = Product::where('sku', 'OL-SHL-01')->first();
+                    $filterOli = Product::where('sku', 'FO-MAG-11')->first();
+                    if ($oli) $service->products()->attach($oli->id, ['quantity' => 1]);
+                    if ($filterOli) $service->products()->attach($filterOli->id, ['quantity' => 1]);
+                    break;
+
+                case 'Paket Pengereman Pakem':
+                    $kampas = Product::where('sku', 'KM-REM-02')->first();
+                    $minyakRem = Product::where('sku', 'MR-DOT-08')->first();
+                    if ($kampas) $service->products()->attach($kampas->id, ['quantity' => 1]);
+                    if ($minyakRem) $service->products()->attach($minyakRem->id, ['quantity' => 1]);
+                    break;
+
+                case 'Paket Refresh Performa (Tune Up)':
+                    $filterUdara = Product::where('sku', 'FL-UDR-03')->first();
+                    $busi = Product::where('sku', 'BS-IRD-07')->first();
+                    if ($filterUdara) $service->products()->attach($filterUdara->id, ['quantity' => 1]);
+                    if ($busi) $service->products()->attach($busi->id, ['quantity' => 1]);
+                    break;
+            }
         }
     }
 }

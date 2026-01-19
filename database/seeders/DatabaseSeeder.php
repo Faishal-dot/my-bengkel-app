@@ -12,19 +12,20 @@ class DatabaseSeeder extends Seeder
      * Seed the application's database.
      */
     public function run(): void
-{
-    // Akun Admin
-    \App\Models\User::create([
-        'name' => 'Admin Bengkel',
-        'email' => 'admin@bengkel.com',
-        'password' => bcrypt('password'),
-        'role' => 'admin',
-    ]);
+    {
+        // Akun Admin
+        \App\Models\User::create([
+            'name' => 'Admin Bengkel',
+            'email' => 'admin@bengkel.com',
+            'password' => bcrypt('password'),
+            'role' => 'admin',
+        ]);
 
-    // Panggil Seeder Layanan dan Produk
-    $this->call([
-        LayananSeeder::class,
-        ProductSeeder::class,
-    ]);
-}
+        // Panggil Seeder
+        // PENTING: ProductSeeder harus di atas LayananSeeder agar relasi bundling bisa tersimpan
+        $this->call([
+            ProductSeeder::class,
+            LayananSeeder::class,
+        ]);
+    }
 }

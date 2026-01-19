@@ -77,6 +77,10 @@
                                     {{ $booking->vehicle->model ? '- ' . $booking->vehicle->model : '' }}
                                     {{ $booking->vehicle->year ? '(' . $booking->vehicle->year . ')' : '' }} )
                                 </span>
+                                {{-- Penambahan Informasi Warna --}}
+                                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-600 border border-gray-200 ml-1 capitalize">
+                                    Warna: {{ $booking->vehicle->color ?? '-' }}
+                                </span>
                             @else
                                 <span class="text-gray-400 italic">Tidak ada kendaraan</span>
                             @endif

@@ -89,11 +89,16 @@
                                         </div>
                                     </td>
 
+                                    {{-- Detail Kendaraan (Ditambahkan Warna) --}}
                                     <td class="px-4 py-3 border-r border-gray-200">
                                         @if($booking->vehicle)
                                             <span class="font-semibold text-gray-800">{{ $booking->vehicle->plate_number }}</span>
                                             <div class="text-xs text-gray-600">
-                                                {{ $booking->vehicle->brand }} - {{ $booking->vehicle->model }}
+                                                {{ $booking->vehicle->brand }} {{ $booking->vehicle->model }}
+                                            </div>
+                                            {{-- Warna Muncul Di Sini --}}
+                                            <div class="text-[10px] mt-1 inline-flex items-center px-1.5 py-0.5 bg-gray-100 text-gray-500 rounded border border-gray-200 capitalize font-medium">
+                                                Warna: {{ $booking->vehicle->color ?? '-' }}
                                             </div>
                                         @else
                                             <span class="text-gray-400 italic">Belum ada kendaraan</span>
@@ -111,7 +116,6 @@
                                         @endif
                                     </td>
 
-                                    {{-- BAGIAN TANGGAL & JAM SEPERTI ADMIN --}}
                                     <td class="px-4 py-3 border-r border-gray-200 text-center whitespace-nowrap">
                                         <div class="flex flex-col items-center gap-1">
                                             <span class="px-2 py-0.5 bg-gray-100 text-gray-700 rounded text-xs font-semibold border border-gray-200">

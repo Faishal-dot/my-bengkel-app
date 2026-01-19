@@ -6,7 +6,7 @@
         </h2>
     </x-slot>
 
-    {{-- STYLE ANIMASI (Sama seperti Booking/Admin) --}}
+    {{-- STYLE ANIMASI (Konsisten dengan Booking) --}}
     <style>
         .fade-slide { opacity:0; transform:translateY(20px); animation: slideUp .6s ease-out forwards; }
         @keyframes slideUp { to { opacity:1; transform:translateY(0);} }
@@ -33,13 +33,13 @@
                 <div class="mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-3 fade-slide" style="animation-delay:.45s">
                     <div>
                         <h3 class="text-xl font-bold text-gray-800">Kendaraan Saya</h3>
-                        <p class="text-gray-600 text-sm">Kelola data kendaraan Anda untuk memudahkan booking</p>
+                        <p class="text-gray-600 text-sm">Kelola data kendaraan Anda untuk memudahkan proses booking</p>
                     </div>
 
                     {{-- Tombol Tambah Kendaraan --}}
                     <a href="{{ route('customer.vehicles.create') }}"
                        class="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-md text-sm font-medium transition transform hover:scale-105">
-                        <i data-lucide="plus" class="w-4 h-4"></i> Tambah Kendaraan
+                        <i data-lucide="plus-circle" class="w-4 h-4"></i> Tambah Kendaraan
                     </a>
                 </div>
 
@@ -50,8 +50,8 @@
                             <tr class="bg-blue-600 text-white uppercase text-xs">
                                 <th class="px-4 py-3 border-r border-blue-500 text-center">No</th>
                                 <th class="px-4 py-3 border-r border-blue-500 text-center">Plat Nomor</th>
-                                <th class="px-4 py-3 border-r border-blue-500 text-left">Merk</th>
-                                <th class="px-4 py-3 border-r border-blue-500 text-left">Model</th>
+                                <th class="px-4 py-3 border-r border-blue-500 text-left">Merk & Model</th>
+                                <th class="px-4 py-3 border-r border-blue-500 text-center">Warna</th>
                                 <th class="px-4 py-3 border-r border-blue-500 text-center">Tahun</th>
                                 <th class="px-4 py-3 border-r border-blue-500 text-center">Aksi</th>
                             </tr>
@@ -63,55 +63,60 @@
                                     style="animation-delay: {{ $index * 0.12 }}s">
 
                                     {{-- No --}}
-                                    <td class="px-4 py-3 border-r border-gray-200 text-center font-medium">
+                                    <td class="px-4 py-3 border-r border-gray-200 text-center font-medium text-gray-600">
                                         {{ $vehicles->firstItem() + $index }}
                                     </td>
 
-                                    {{-- Plat Nomor --}}
+                                    {{-- Plat Nomor (Gaya Badge) --}}
                                     <td class="px-4 py-3 border-r border-gray-200 text-center">
-                                        <span class="font-bold text-gray-800 bg-gray-200 px-2 py-1 rounded border border-gray-300">
+                                        <span class="inline-block px-3 py-1 font-bold text-gray-800 bg-gray-200 rounded-md border border-gray-300 shadow-sm tracking-wider">
                                             {{ $vehicle->plate_number }}
                                         </span>
                                     </td>
 
-                                    {{-- Merk --}}
-                                    <td class="px-4 py-3 border-r border-gray-200 font-medium text-gray-700">
-                                        {{ $vehicle->brand }}
+                                    {{-- Merk & Model --}}
+                                    <td class="px-4 py-3 border-r border-gray-200">
+                                        <div class="font-bold text-gray-800">{{ $vehicle->brand }}</div>
+                                        <div class="text-xs text-gray-500">{{ $vehicle->model }}</div>
                                     </td>
 
-                                    {{-- Model --}}
-                                    <td class="px-4 py-3 border-r border-gray-200 text-gray-600">
-                                        {{ $vehicle->model }}
+                                    {{-- Warna --}}
+                                    <td class="px-4 py-3 border-r border-gray-200 text-center">
+                                        <span class="px-2 py-1 bg-gray-100 text-gray-700 rounded border border-gray-200 text-xs font-medium">
+                                            {{ $vehicle->color }}
+                                        </span>
                                     </td>
 
                                     {{-- Tahun --}}
                                     <td class="px-4 py-3 border-r border-gray-200 text-center">
-                                        <span class="inline-flex items-center gap-1 px-2 py-1 rounded bg-blue-50 text-blue-700 text-xs font-semibold">
+                                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-blue-100 text-blue-700 text-xs font-bold border border-blue-200">
                                             <i data-lucide="calendar" class="w-3 h-3"></i> {{ $vehicle->year }}
                                         </span>
                                     </td>
 
-                                    {{-- Aksi (Hapus) --}}
-                                    <td class="px-4 py-3 border-r border-gray-200 text-center">
-                                        <form action="{{ route('customer.vehicles.destroy', $vehicle->id) }}" method="POST" class="inline delete-form">
-                                            @csrf
-                                            @method('DELETE')
-                                            
-                                            <button type="button" 
-                                                class="delete-btn inline-flex items-center gap-1 px-3 py-1.5 bg-red-100 hover:bg-red-200 text-red-700 rounded-lg text-xs font-bold transition border border-red-200">
-                                                <i data-lucide="trash-2" class="w-3 h-3"></i> Hapus
-                                            </button>
-                                        </form>
+                                    {{-- Aksi --}}
+                                    <td class="px-4 py-3 text-center">
+                                        <div class="flex items-center justify-center gap-2">
+                                            <form action="{{ route('customer.vehicles.destroy', $vehicle->id) }}" method="POST" class="inline delete-form">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="button" 
+                                                    class="delete-btn inline-flex items-center gap-1 px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg text-xs font-bold transition border border-red-200 shadow-sm">
+                                                    <i data-lucide="trash-2" class="w-3.5 h-3.5"></i> Hapus
+                                                </button>
+                                            </form>
+                                        </div>
                                     </td>
-
                                 </tr>
-
                             @empty
                                 <tr class="fade-row" style="animation-delay:.3s">
-                                    <td colspan="6" class="text-center py-8 text-gray-500 italic bg-gray-50">
+                                    <td colspan="6" class="text-center py-12 text-gray-500 bg-gray-50">
                                         <div class="flex flex-col items-center justify-center">
-                                            <i data-lucide="car" class="w-10 h-10 text-gray-300 mb-2"></i>
-                                            <p>Belum ada kendaraan yang ditambahkan.</p>
+                                            <div class="p-4 bg-gray-100 rounded-full mb-3">
+                                                <i data-lucide="car" class="w-10 h-10 text-gray-300"></i>
+                                            </div>
+                                            <p class="font-medium">Belum ada kendaraan.</p>
+                                            <p class="text-xs text-gray-400">Silahkan tambah kendaraan Anda terlebih dahulu.</p>
                                         </div>
                                     </td>
                                 </tr>
@@ -121,9 +126,11 @@
                 </div>
 
                 {{-- Pagination --}}
-                <div class="mt-6">
-                    {{ $vehicles->links() }}
-                </div>
+                @if($vehicles->hasPages())
+                    <div class="mt-6 p-4 bg-gray-50 rounded-xl border border-gray-100">
+                        {{ $vehicles->links() }}
+                    </div>
+                @endif
 
             </div>
         </div>
@@ -143,17 +150,17 @@
 
                 Swal.fire({
                     title: 'Hapus Kendaraan?',
-                    text: "Data kendaraan ini tidak bisa dikembalikan!",
+                    text: "Data ini akan dihapus permanen dari sistem!",
                     icon: 'warning',
                     showCancelButton: true,
-                    confirmButtonColor: '#ef4444', // Red-500
-                    cancelButtonColor: '#6b7280', // Gray-500
+                    confirmButtonColor: '#ef4444', 
+                    cancelButtonColor: '#6b7280',
                     confirmButtonText: 'Ya, Hapus!',
                     cancelButtonText: 'Batal',
                     customClass: {
-                        popup: 'rounded-xl',
-                        confirmButton: 'rounded-lg px-4 py-2',
-                        cancelButton: 'rounded-lg px-4 py-2'
+                        popup: 'rounded-2xl',
+                        confirmButton: 'rounded-lg px-5 py-2.5',
+                        cancelButton: 'rounded-lg px-5 py-2.5'
                     }
                 }).then((result) => {
                     if (result.isConfirmed) {
@@ -163,5 +170,4 @@
             });
         });
     </script>
-
 </x-app-layout>

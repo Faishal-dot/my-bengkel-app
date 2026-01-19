@@ -10,10 +10,10 @@ class VehicleController extends Controller
 {
     // Daftar kendaraan user
     public function index()
-{
-    $vehicles = auth()->user()->vehicles()->latest()->paginate(10); // paginate
-    return view('customer.vehicles.index', compact('vehicles'));
-}
+    {
+        $vehicles = auth()->user()->vehicles()->latest()->paginate(10);
+        return view('customer.vehicles.index', compact('vehicles'));
+    }
 
     // Form tambah kendaraan
     public function create()
@@ -28,9 +28,11 @@ class VehicleController extends Controller
             'plate_number' => 'required|string|max:255|unique:vehicles,plate_number',
             'brand'        => 'required|string|max:255',
             'model'        => 'required|string|max:255',
-            'year'         => 'required|digits:4|integer|min:1900|max:' . date('Y'),
+            'color'        => 'required|string|max:100', // Validasi kolom warna
+            'year'         => 'required|digits:4|integer|min:1900|max:' . (date('Y') + 1),
         ]);
 
+        // Karena menggunakan $request->all(), pastikan 'color' ada di $fillable Model Vehicle
         auth()->user()->vehicles()->create($request->all());
 
         return redirect()->route('customer.vehicles.index')
@@ -40,6 +42,7 @@ class VehicleController extends Controller
     // Hapus kendaraan
     public function destroy(Vehicle $vehicle)
     {
+        // Pastikan hanya pemilik yang bisa menghapus
         if ($vehicle->user_id !== auth()->id()) {
             abort(403);
         }
