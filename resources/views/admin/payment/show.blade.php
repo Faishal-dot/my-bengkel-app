@@ -76,7 +76,9 @@
                 <div class="flex items-center gap-3">
                      <div class="px-5 py-3 bg-blue-50 rounded-2xl border border-blue-100 flex flex-col items-end shadow-sm">
                         <span class="text-[10px] text-blue-400 font-bold uppercase tracking-widest mb-1">Invoice ID</span>
-                        <span class="font-mono font-bold text-blue-800 text-lg">#INV-{{ $payment->booking->id }}</span>
+                        <span class="font-mono font-bold text-blue-800 text-lg">
+                            #INV-{{ $payment->booking_id ? $payment->booking->id : $payment->order_id }}
+                        </span>
                      </div>
                 </div>
             </div>
@@ -86,7 +88,7 @@
                 {{-- LEFT COLUMN --}}
                 <div class="lg:col-span-8 space-y-6">
                     
-                    {{-- FINTECH CARD (LOGIKA HARGA DISKON DI SINI) --}}
+                    {{-- FINTECH CARD --}}
                     <div class="fintech-card rounded-3xl shadow-2xl p-8 text-white animate-fade-up transition-transform hover:-translate-y-1 duration-500">
                         <div class="relative z-10">
                             <div class="flex justify-between items-start mb-8">
@@ -94,22 +96,15 @@
                                     <p class="text-slate-400 text-xs font-bold uppercase tracking-[0.2em] mb-2">TOTAL YANG DIBAYARKAN</p>
                                     <h2 class="text-4xl sm:text-5xl font-extrabold tracking-tight text-white">
                                         <span class="text-emerald-400 text-2xl align-top mr-1">Rp</span>
-                                        {{-- LOGIKA: Gunakan discount_price jika ada, jika tidak pakai price asli --}}
-                                        @if($payment->booking->service && $payment->booking->service->discount_price)
-                                            {{ number_format($payment->booking->service->discount_price, 0, ',', '.') }}
-                                        @else
-                                            {{ number_format($payment->amount, 0, ',', '.') }}
-                                        @endif
+                                        {{ number_format($payment->amount, 0, ',', '.') }}
                                     </h2>
-                                    @if($payment->booking->service && $payment->booking->service->discount_price)
-                                    @endif
                                 </div>
 
                                 {{-- STATUS BADGE --}}
                                 <div class="flex flex-col items-end animate-fade-in-down">
                                     <span class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-1">Status</span>
-                                    <div class="px-4 py-2 rounded-xl border {{ in_array(strtoupper($payment->status), ['PAID', 'CONFIRMED', 'SETUJU']) ? 'bg-emerald-500/20 border-emerald-500/50 text-emerald-400' : (strtolower($payment->status) == 'pending' ? 'bg-yellow-500/20 border-yellow-500/50 text-yellow-400' : 'bg-rose-500/20 border-rose-500/50 text-rose-400') }} flex items-center gap-2 backdrop-blur-md">
-                                        <i data-lucide="{{ in_array(strtoupper($payment->status), ['PAID', 'CONFIRMED', 'SETUJU']) ? 'check-circle' : 'alert-circle' }}" class="w-4 h-4"></i>
+                                    <div class="px-4 py-2 rounded-xl border {{ in_array(strtoupper($payment->status), ['PAID', 'CONFIRMED', 'LUNAS']) ? 'bg-emerald-500/20 border-emerald-500/50 text-emerald-400' : (strtolower($payment->status) == 'pending' ? 'bg-yellow-500/20 border-yellow-500/50 text-yellow-400' : 'bg-rose-500/20 border-rose-500/50 text-rose-400') }} flex items-center gap-2 backdrop-blur-md">
+                                        <i data-lucide="{{ in_array(strtoupper($payment->status), ['PAID', 'CONFIRMED', 'LUNAS']) ? 'check-circle' : 'alert-circle' }}" class="w-4 h-4"></i>
                                         <span class="text-xs font-black uppercase tracking-wider">{{ $payment->status }}</span>
                                     </div>
                                 </div>
@@ -132,46 +127,78 @@
                         </div>
                     </div>
 
-                    {{-- DATA PEMESAN & KENDARAAN --}}
+                    {{-- DATA PEMESAN --}}
                     <div class="bg-white/80 backdrop-blur rounded-3xl shadow-xl border border-gray-100 overflow-hidden animate-fade-up hover:shadow-2xl transition-all duration-500">
                         <div class="px-8 py-5 border-b border-gray-100 flex items-center justify-between bg-gray-50/30">
                             <h3 class="font-bold text-gray-800 flex items-center gap-2">
                                 <i data-lucide="user-circle" class="w-5 h-5 text-blue-600"></i>
-                                Data Pemesan & Kendaraan
+                                Data Pelanggan & Detail Pesanan
                             </h3>
                         </div>
-                        <div class="p-8 grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8">
-                            <div class="flex items-start gap-4">
-                                <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-lg">
-                                    {{ substr($payment->booking->user->name ?? 'U', 0, 1) }}
+                        <div class="p-8">
+                            @php
+                                $user = $payment->booking->user ?? $payment->order->user ?? null;
+                            @endphp
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8 mb-8">
+                                <div class="flex items-start gap-4">
+                                    <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-lg">
+                                        {{ substr($user->name ?? 'U', 0, 1) }}
+                                    </div>
+                                    <div>
+                                        <p class="text-xs text-gray-400 font-bold uppercase tracking-wider mb-1">Nama Lengkap</p>
+                                        <p class="text-gray-900 font-bold text-lg">{{ $user->name ?? 'Unknown' }}</p>
+                                        <p class="text-gray-500 text-sm">{{ $user->email ?? '-' }}</p>
+                                    </div>
                                 </div>
-                                <div>
-                                    <p class="text-xs text-gray-400 font-bold uppercase tracking-wider mb-1">Nama Lengkap</p>
-                                    <p class="text-gray-900 font-bold text-lg">{{ $payment->booking->user->name ?? 'Unknown' }}</p>
-                                    <p class="text-gray-500 text-sm">{{ $payment->booking->user->email ?? '-' }}</p>
-                                </div>
-                            </div>
-                            <div class="flex items-start gap-4">
-                                <div class="w-12 h-12 rounded-full bg-orange-100 flex items-center justify-center text-orange-600">
-                                    <i data-lucide="car" class="w-6 h-6"></i>
-                                </div>
-                                <div>
-                                    <p class="text-xs text-gray-400 font-bold uppercase tracking-wider mb-1">Kendaraan</p>
-                                    <p class="text-gray-900 font-bold text-lg">{{ $payment->booking->vehicle->brand ?? '-' }}</p>
-                                    <span class="text-xs font-mono font-bold text-gray-500 uppercase">{{ $payment->booking->vehicle->plate_number ?? '-' }}</span>
-                                </div>
-                            </div>
-                        </div>
 
-                        {{-- INFO LAYANAN --}}
-                        <div class="bg-blue-50/50 px-8 py-6 border-t border-blue-100/50 flex items-center justify-between">
-                            <div class="flex items-center gap-3">
-                                <span class="text-gray-600 text-sm font-medium">Layanan:</span>
-                                <span class="text-blue-700 font-bold text-base">{{ $payment->booking->service->name ?? 'Layanan Tidak Ditemukan' }}</span>
+                                {{-- Kondisional Tampilan: Kendaraan (Booking) atau Tipe Pesanan (Product) --}}
+                                @if($payment->booking_id)
+                                    <div class="flex items-start gap-4">
+                                        <div class="w-12 h-12 rounded-full bg-orange-100 flex items-center justify-center text-orange-600">
+                                            <i data-lucide="car" class="w-6 h-6"></i>
+                                        </div>
+                                        <div>
+                                            <p class="text-xs text-gray-400 font-bold uppercase tracking-wider mb-1">Kendaraan</p>
+                                            <p class="text-gray-900 font-bold text-lg">{{ $payment->booking->vehicle->brand ?? '-' }}</p>
+                                            <span class="text-xs font-mono font-bold text-gray-500 uppercase">{{ $payment->booking->vehicle->plate_number ?? '-' }}</span>
+                                        </div>
+                                    </div>
+                                @else
+                                    <div class="flex items-start gap-4">
+                                        <div class="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center text-purple-600">
+                                            <i data-lucide="shopping-bag" class="w-6 h-6"></i>
+                                        </div>
+                                        <div>
+                                            <p class="text-xs text-gray-400 font-bold uppercase tracking-wider mb-1">Tipe Transaksi</p>
+                                            <p class="text-gray-900 font-bold text-lg">Pembelian Produk</p>
+                                            <span class="text-xs font-bold text-purple-500 uppercase tracking-tighter">Marketplace Order</span>
+                                        </div>
+                                    </div>
+                                @endif
                             </div>
-                            <div class="flex items-center gap-2">
-                                <i data-lucide="info" class="w-4 h-4 text-blue-400"></i>
-                                <span class="text-xs text-blue-500 font-medium">Detail layanan telah diverifikasi</span>
+
+                            {{-- INFO LAYANAN / PRODUK --}}
+                            <div class="bg-blue-50/50 rounded-2xl px-6 py-5 border border-blue-100/50 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                                <div class="flex items-center gap-3">
+                                    <div class="p-2 bg-white rounded-lg shadow-sm">
+                                        <i data-lucide="{{ $payment->booking_id ? 'wrench' : 'package' }}" class="w-5 h-5 text-blue-600"></i>
+                                    </div>
+                                    <div>
+                                        <span class="text-gray-500 text-[10px] font-bold uppercase block">Item yang dibayar:</span>
+                                        <span class="text-blue-900 font-bold text-lg">
+                                            @if($payment->booking_id)
+                                                {{ $payment->booking->service->name ?? 'Layanan Tidak Ditemukan' }}
+                                            @else
+                                                {{ $payment->order->product->name ?? 'Produk Tidak Ditemukan' }} 
+                                                <span class="text-sm font-normal text-blue-600">(x{{ $payment->order->quantity }})</span>
+                                            @endif
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-2 bg-white px-4 py-2 rounded-xl shadow-sm border border-blue-50">
+                                    <i data-lucide="info" class="w-4 h-4 text-blue-400"></i>
+                                    <span class="text-xs text-blue-600 font-bold">Data Terverifikasi Sistem</span>
+                                </div>
                             </div>
                         </div>
                     </div>

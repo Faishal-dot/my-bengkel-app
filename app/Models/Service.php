@@ -26,4 +26,10 @@ class Service extends Model
         if (!$this->is_discount) return 0;
         return round((($this->price - $this->discount_price) / $this->price) * 100);
     }
+
+    public function products()
+{
+    // Tambahkan 'service_product' agar Laravel tidak mencari 'product_service'
+    return $this->belongsToMany(Product::class, 'service_product')->withPivot('quantity');
+}
 }

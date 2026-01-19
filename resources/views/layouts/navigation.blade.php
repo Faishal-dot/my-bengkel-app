@@ -62,7 +62,6 @@
                         ['route'=>'admin.products.index','icon'=>'package','label'=>'Produk'],
                         ['route'=>'admin.bookings.index','icon'=>'calendar','label'=>'Booking'],
                         ['route'=>'admin.queue.index','icon'=>'list-checks','label'=>'Antrian'],
-                        ['route'=>'admin.orders.index','icon'=>'shopping-cart','label'=>'Pesanan'],
                         ['route' => 'admin.payments.index', 'icon' => 'credit-card', 'label' => 'Pembayaran'],
                         ['route'=>'admin.penghasilan','icon'=>'wallet','label'=>'Penghasilan'],
                     ];
@@ -83,7 +82,6 @@
                         ['route'=>'customer.booking.index','icon'=>'calendar','label'=>'Booking Saya'],
                         ['route'=>'customer.queue.index','icon'=>'list-checks','label'=>'Lihat Antrian'],
                         ['route'=>'customer.payment.index','icon'=>'wallet','label'=>'Pembayaran'],
-                        ['route'=>'customer.orders.index','icon'=>'shopping-cart','label'=>'Pesanan Saya'],
                         ['route'=>'customer.testimoni.create','icon'=>'message-circle','label'=>'Buat Testimoni'],
 
                     ];

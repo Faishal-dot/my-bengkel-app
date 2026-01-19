@@ -11,6 +11,7 @@ class Payment extends Model
 
     protected $fillable = [
         'booking_id',
+        'order_id',      // <--- TAMBAHKAN INI
         'bank_name',
         'account_number',
         'account_holder',
@@ -43,6 +44,15 @@ class Payment extends Model
     }
 
     /**
+     * Relasi ke Order (Pembelian Produk)
+     * Tambahkan ini agar model mengenali tabel Order
+     */
+    public function order()
+    {
+        return $this->belongsTo(Order::class); // Pastikan Anda punya model Order
+    }
+
+    /**
      * Status helper
      */
     public function isPending()
@@ -50,13 +60,14 @@ class Payment extends Model
         return $this->status === 'pending';
     }
 
-    public function isApproved()
+    // Saran: Sesuaikan dengan status di Controller Admin Anda (tadi di Admin pakai 'paid')
+    public function isPaid()
     {
-        return $this->status === 'approved';
+        return $this->status === 'paid' || $this->status === 'approved';
     }
 
     public function isRejected()
     {
-        return $this->status === 'rejected';
+        return $this->status === 'rejected' || $this->status === 'failed';
     }
 }

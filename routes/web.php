@@ -132,9 +132,11 @@ Route::middleware(['auth', 'verified'])
 
         Route::get('/products', [CustomerProduct::class, 'index'])->name('products');
         Route::get('/products/{product}', [CustomerProduct::class, 'show'])->name('products.show');
+        
+        // --- ROUTE ORDERS ---
+        Route::get('/orders', [CustomerOrder::class, 'index'])->name('orders.index'); // Penambahan Baris Ini
         Route::get('/products/{product}/beli', [CustomerOrder::class, 'create'])->name('orders.create');
         Route::post('/products/{product}/beli', [CustomerOrder::class, 'store'])->name('orders.store');
-        Route::get('/orders', [CustomerOrder::class, 'index'])->name('orders.index');
 
         Route::get('/booking', [CustomerBooking::class, 'index'])->name('booking.index');
         Route::get('/booking/create', [CustomerBooking::class, 'create'])->name('booking.create');
@@ -144,9 +146,14 @@ Route::middleware(['auth', 'verified'])
         Route::get('/services', [\App\Http\Controllers\ServiceController::class, 'index'])->name('services');
 
         // CUSTOMER PAYMENT
-        Route::get('/payment/{booking_id}', [CustomerPaymentController::class, 'create'])->name('payment.create');
-        Route::post('/payment/store', [CustomerPaymentController::class, 'store'])->name('payment.store');
         Route::get('/payment', [CustomerPaymentController::class, 'index'])->name('payment.index');
+        Route::post('/payment/store', [CustomerPaymentController::class, 'store'])->name('payment.store');
+
+        // TAMBAHKAN BARIS INI untuk menghilangkan error "Route not defined"
+        Route::delete('/payment/{payment}', [CustomerPaymentController::class, 'destroy'])->name('payment.destroy');
+
+        Route::get('/payment/booking/{booking_id}', [CustomerPaymentController::class, 'create'])->name('payment.create');
+        Route::get('/payment/product/{order_id}', [CustomerPaymentController::class, 'createProduct'])->name('payment.product');
     });
 
 // ============================================================

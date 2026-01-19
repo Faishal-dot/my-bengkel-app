@@ -56,34 +56,51 @@
                 </div>
             @endif
 
+            @php
+                // Logika pengurutan: Bundle di atas, Sisanya di bawah
+                $bundleServices = $services->filter(fn($s) => $s->products && $s->products->count() > 0);
+                $regularServices = $services->filter(fn($s) => !($s->products && $s->products->count() > 0));
+                $sortedServices = $bundleServices->merge($regularServices);
+            @endphp
+
             <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                @forelse($services as $service)
+                @forelse($sortedServices as $service)
                     <div class="bg-white shadow-md hover:shadow-xl rounded-2xl p-5 
                                  transition-all duration-300 animate-card hover:scale-[1.02] relative">
 
-                        @if($service->discount_price)
-                            <div class="absolute -top-2 -right-2 z-10">
-                                <span class="bg-rose-500 text-white text-[10px] font-bold px-2 py-1 rounded-lg shadow-md">
-                                    -{{ round((($service->price - $service->discount_price) / $service->price) * 100) }}%
+                        <div class="absolute -top-2 -right-2 z-10 flex items-center gap-2">
+                            {{-- Paket Bundle ditaruh di sebelah kiri diskon --}}
+                            @if($service->products && $service->products->count() > 0)
+                                <span class="bg-amber-500 text-white text-[10px] font-bold px-2 py-1 rounded-lg shadow-md flex items-center gap-1">
+                                    <i data-lucide="package" class="w-3 h-3"></i>
+                                    Paket Bundle
                                 </span>
-                            </div>
-                        @endif
+                            @endif
 
+                            {{-- Diskon ditaruh paling kanan dengan teks 'Diskon' --}}
+                            @if($service->discount_price)
+                            <span class="inline-flex items-center bg-rose-500 text-white text-[10px] font-bold px-2 py-1 rounded-lg shadow-md">
+                                <i data-lucide="badge-percent" class="w-3 h-3 mr-1"></i>
+                                DISKON -{{ round((($service->price - $service->discount_price) / $service->price) * 100) }}%
+                            </span>
+                        @endif
+                        </div>
                         <div class="flex justify-between items-start mb-4">
                             <h3 class="font-semibold text-lg text-gray-800 pr-4">
                                 {{ $service->name }}
                             </h3>
 
-                            <div class="flex flex-col items-end">
+                            {{-- Bagian Harga --}}
+                            <div class="flex flex-col items-end min-w-fit"> {{-- Tambahkan min-w-fit --}}
                                 @if($service->discount_price)
-                                    <span class="px-3 py-1 rounded-full text-xs font-bold bg-rose-100 text-rose-700">
+                                    <span class="px-3 py-1 rounded-full text-xs font-bold bg-rose-100 text-rose-700 whitespace-nowrap"> {{-- Tambahkan whitespace-nowrap --}}
                                         Rp {{ number_format($service->discount_price, 0, ',', '.') }}
                                     </span>
-                                    <span class="text-[10px] text-gray-400 line-through mt-1">
+                                    <span class="text-[10px] text-gray-400 line-through mt-1 whitespace-nowrap">
                                         Rp {{ number_format($service->price, 0, ',', '.') }}
                                     </span>
                                 @else
-                                    <span class="px-3 py-1 rounded-full text-xs font-medium bg-indigo-100 text-indigo-700">
+                                    <span class="px-3 py-1 rounded-full text-xs font-medium bg-indigo-100 text-indigo-700 whitespace-nowrap"> {{-- Tambahkan whitespace-nowrap --}}
                                         Rp {{ number_format($service->price, 0, ',', '.') }}
                                     </span>
                                 @endif

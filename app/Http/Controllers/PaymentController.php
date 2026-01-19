@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Booking;
+use App\Models\Order; 
 use App\Models\Payment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -14,17 +15,21 @@ class PaymentController extends Controller
     // ==========================================
     public function index()
     {
-        $payments = Payment::with(['booking.service', 'booking.vehicle'])
-            ->whereHas('booking', function ($q) {
-                $q->where('user_id', auth()->id())
-                  ->where('status', 'selesai'); // HANYA MUNCUL JIKA MEKANIK SUDAH KLIK SELESAI
+        // Mencari payment yang booking-nya milik user login ATAU order-nya milik user login
+        $payments = Payment::with(['booking.service', 'booking.vehicle', 'order.product'])
+            ->where(function($query) {
+                $query->whereHas('booking', function ($q) {
+                    $q->where('user_id', auth()->id());
+                })->orWhereHas('order', function ($q) {
+                    $q->where('user_id', auth()->id());
+                });
             })
             ->orderBy('created_at', 'desc')
             ->get();
 
+        // Update status otomatis jika belum bayar
         foreach ($payments as $payment) {
-            // Ubah pengecekan dari 'disetujui' menjadi 'selesai'
-            if ($payment->booking->status === 'selesai') {
+            if ($payment->booking && $payment->booking->status === 'selesai') {
                 if (empty($payment->proof) && $payment->status !== 'unpaid') {
                     $payment->update(['status' => 'unpaid']);
                     $payment->status = 'unpaid'; 
@@ -36,7 +41,7 @@ class PaymentController extends Controller
     }
 
     // ==========================================
-    // 2. HALAMAN BAYAR (CREATE)
+    // 2. HALAMAN BAYAR BOOKING (CREATE)
     // ==========================================
     public function create($booking_id)
     {
@@ -46,7 +51,6 @@ class PaymentController extends Controller
             abort(403, 'Akses Ditolak.');
         }
 
-        // Customer dilarang bayar jika mekanik belum menyelesaikan pekerjaan (selesai)
         if ($booking->status !== 'selesai') {
             return redirect()->route('customer.payment.index')
                 ->with('error', 'Tagihan belum tersedia. Tunggu mekanik menyelesaikan pekerjaan.');
@@ -63,23 +67,42 @@ class PaymentController extends Controller
             ]
         );
 
-        // Status pengecekan disesuaikan menjadi 'selesai'
-        $workFinished = $booking->status === 'selesai';
-        $noProofYet = empty($payment->proof) || $payment->bank_name === '-' || $payment->bank_name === null;
-
-        if ($workFinished && $noProofYet) {
-            if ($payment->status !== 'unpaid') {
-                $payment->update(['status' => 'unpaid']);
-                $payment->refresh();
-            }
-        }
-
         if (in_array($payment->status, ['pending', 'paid', 'approved', 'success']) && !empty($payment->proof)) {
              return redirect()->route('customer.payment.index')
                 ->with('info', 'Pembayaran sedang diverifikasi atau sudah lunas.');
         }
 
         return view('customer.payment.create', compact('booking', 'payment'));
+    }
+
+    // ==========================================
+    // 2b. HALAMAN BAYAR PRODUK (CREATE)
+    // ==========================================
+    public function createProduct($order_id)
+    {
+        $order = Order::with('product')->findOrFail($order_id);
+
+        if ($order->user_id !== auth()->id()) {
+            abort(403, 'Akses Ditolak.');
+        }
+
+        $payment = Payment::firstOrCreate(
+            ['order_id' => $order->id],
+            [
+                'amount' => $order->total_price,
+                'status' => 'unpaid',
+                'bank_name' => '-',      
+                'account_number' => '-', 
+                'account_holder' => '-', 
+            ]
+        );
+
+        if ($payment->status !== 'unpaid' && !empty($payment->proof)) {
+             return redirect()->route('customer.payment.index')
+                ->with('info', 'Pembayaran sudah dikirim.');
+        }
+
+        return view('customer.payment.create_product', compact('order', 'payment'));
     }
 
     // ==========================================
@@ -95,9 +118,11 @@ class PaymentController extends Controller
             'proof'          => 'required|image|mimes:jpg,jpeg,png|max:2048',
         ]);
 
-        $payment = Payment::findOrFail($request->payment_id);
+        $payment = Payment::with(['booking', 'order'])->findOrFail($request->payment_id);
 
-        if ($payment->booking->user_id !== auth()->id()) {
+        // Validasi kepemilikan
+        $owner_id = $payment->booking ? $payment->booking->user_id : ($payment->order ? $payment->order->user_id : null);
+        if ($owner_id !== auth()->id()) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -116,17 +141,55 @@ class PaymentController extends Controller
             'status'         => 'pending', 
         ]);
 
-        try {
-            $payment->booking->update([
-                'payment_status' => 'pending' 
-            ]);
-        } catch (\Exception $e) {
-            $payment->booking->update([
-                'payment_status' => 'menunggu'
-            ]);
+        if ($payment->booking_id) {
+            $payment->booking->update(['payment_status' => 'pending']);
+        } 
+        
+        if ($payment->order_id) {
+            $payment->order->update(['status' => 'pending']);
         }
 
         return redirect()->route('customer.payment.index')
             ->with('success', 'Pembayaran dikirim! Menunggu konfirmasi Admin.');
+    }
+
+    // ==========================================
+    // 4. BATALKAN TRANSAKSI (DESTROY)
+    // ==========================================
+    public function destroy($id)
+    {
+        try {
+            $payment = Payment::with(['booking', 'order'])->findOrFail($id);
+
+            // Cek kepemilikan melalui relasi booking atau order
+            $owner_id = $payment->booking ? $payment->booking->user_id : ($payment->order ? $payment->order->user_id : null);
+
+            if ($owner_id !== auth()->id()) {
+                return back()->with('error', 'Anda tidak memiliki akses untuk membatalkan transaksi ini.');
+            }
+
+            // Hapus file bukti jika ada
+            if ($payment->proof) {
+                Storage::disk('public')->delete($payment->proof);
+            }
+
+            // Kembalikan status booking jika diperlukan
+            if ($payment->booking) {
+                $payment->booking->update(['payment_status' => 'unpaid']);
+            }
+            
+            // Kembalikan status order jika diperlukan
+            if ($payment->order) {
+                $payment->order->update(['status' => 'menunggu']);
+            }
+
+            $payment->delete();
+
+            return redirect()->route('customer.payment.index')
+                             ->with('success', 'Transaksi berhasil dibatalkan.');
+                             
+        } catch (\Exception $e) {
+            return back()->with('error', 'Gagal membatalkan transaksi: ' . $e->getMessage());
+        }
     }
 }

@@ -1,144 +1,190 @@
 <x-app-layout>
-    <x-slot name="header">
-        <div class="flex items-center gap-3">
-            <i data-lucide="shopping-bag" class="w-7 h-7 text-indigo-600 icon-move"></i>
-            <h2 class="font-bold text-2xl text-gray-800">Beli Produk</h2>
-        </div>
-    </x-slot>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <script src="https://unpkg.com/lucide@latest"></script>
 
-    <div class="py-12 bg-gradient-to-br from-indigo-50 via-white to-blue-50 min-h-screen">
-        <div class="max-w-5xl mx-auto px-6 lg:px-8">
-            <div class="relative bg-white/95 border border-indigo-100 shadow-2xl rounded-3xl p-10 
-                        backdrop-blur-xl transition hover:shadow-indigo-200 hover:scale-[1.005] duration-300">
+    <style>
+        /* Animasi kustom untuk angka yang berubah */
+        .value-pop {
+            animation: pulse-blue 0.4s ease-out;
+        }
+        @keyframes pulse-blue {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); color: #2563eb; }
+            100% { transform: scale(1); }
+        }
+    </style>
 
-                {{-- Header Produk --}}
-                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 border-b pb-5">
+    <div class="min-h-screen bg-slate-50 py-10 px-4">
+        <div class="max-w-6xl mx-auto">
 
-                    {{-- Icon + Nama --}}
-                    <div class="flex items-center gap-4">
-                        <div class="p-4 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-2xl 
-                                    text-white shadow-lg shadow-indigo-200">
-                            <i data-lucide="package" class="w-9 h-9"></i>
-                        </div>
+            {{-- Back - Animasi Slide In Left --}}
+            <div class="animate__animated animate__fadeInLeft animate__faster">
+                <a href="{{ route('customer.products') }}"
+                   class="inline-flex items-center gap-2 text-sm text-slate-500 hover:text-blue-600 mb-6 transition-colors group">
+                    <i data-lucide="arrow-left" class="w-4 h-4 group-hover:-translate-x-1 transition-transform"></i>
+                    Kembali ke Katalog
+                </a>
+            </div>
 
-                        <div>
-                            <h3 class="text-3xl font-extrabold text-gray-900 tracking-tight">
-                                {{ $product->name }}
-                            </h3>
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
 
-                            {{-- ⭐ Rating --}}
-                            <div class="flex items-center gap-1 mt-1">
-                                @for ($i = 1; $i <= 5; $i++)
-                                    <i data-lucide="star" 
-                                       class="w-5 h-5 {{ $i <= ($product->rating ?? 4) ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300' }}">
-                                    </i>
-                                @endfor
-                                <span class="text-sm text-gray-500 ml-1">
-                                    ({{ $product->rating ?? 4 }}/5)
-                                </span>
+                {{-- LEFT - Animasi Fade In Up --}}
+                <div class="lg:col-span-8 space-y-6 animate__animated animate__fadeInUp">
+
+                    {{-- Product --}}
+                    <div class="bg-white rounded-2xl border border-slate-200 p-7 shadow-sm hover:shadow-md transition-shadow">
+                        <span class="inline-block mb-3 px-3 py-1 text-xs font-semibold rounded-full bg-blue-50 text-blue-600 animate__animated animate__bounceIn animate__delay-1s">
+                            Detail Produk
+                        </span>
+
+                        <h1 class="text-3xl font-extrabold text-slate-900 mb-3">
+                            {{ $product->name }}
+                        </h1>
+
+                        <p class="text-slate-600 leading-relaxed mb-6">
+                            {{ $product->description ?? 'Produk berkualitas tinggi untuk performa kendaraan Anda.' }}
+                        </p>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="flex items-center gap-3 p-4 rounded-xl bg-slate-50 group hover:bg-blue-50 transition-colors">
+                                <i data-lucide="boxes" class="w-5 h-5 text-slate-500 group-hover:text-blue-600 transition-colors"></i>
+                                <div>
+                                    <p class="text-xs text-slate-400">Stok</p>
+                                    <p class="font-bold text-slate-800">{{ $product->stock }} pcs</p>
+                                </div>
+                            </div>
+
+                            <div class="flex items-center gap-3 p-4 rounded-xl bg-slate-50 group hover:bg-amber-50 transition-colors">
+                                <i data-lucide="star" class="w-5 h-5 text-amber-400 fill-amber-400 group-hover:scale-110 transition-transform"></i>
+                                <div>
+                                    <p class="text-xs text-slate-400">Rating</p>
+                                    <p class="font-bold text-slate-800">4.9 / 5</p>
+                                </div>
                             </div>
                         </div>
                     </div>
 
-                    {{-- Harga --}}
-                    <div class="mt-4 sm:mt-0 flex items-center gap-2">
-                        <i data-lucide="wallet" class="w-7 h-7 text-green-600"></i>
-                        <p class="text-4xl font-extrabold text-green-600 drop-shadow-sm">
-                            Rp {{ number_format($product->price, 0, ',', '.') }}
-                        </p>
-                    </div>
-                </div>
-
-                {{-- Deskripsi --}}
-                <div class="bg-gradient-to-r from-indigo-50 to-blue-50 border border-indigo-100 rounded-2xl p-5 mb-8 shadow-sm">
-                    <p class="text-gray-700 leading-relaxed text-base">
-                        {{ $product->description ?? 'Tidak ada deskripsi untuk produk ini.' }}
-                    </p>
-                </div>
-
-                {{-- FORM PEMESANAN --}}
-                <form 
-                    method="POST" 
-                    action="{{ route('customer.orders.store', $product->id) }}" 
-                    class="space-y-6" 
-                    id="orderForm">
-                    
-                    @csrf
-
-                    {{-- Jumlah --}}
-                    <div>
-                        <label class="block font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                            <i data-lucide="shopping-cart" class="w-5 h-5 text-indigo-600"></i>
-                            <span>Jumlah</span>
+                    {{-- Quantity --}}
+                    <div class="bg-white rounded-2xl border border-slate-200 p-7 shadow-sm">
+                        <label class="block text-sm font-semibold text-slate-700 mb-3 tracking-wide">
+                            JUMLAH PEMBELIAN
                         </label>
-                        <input 
-                            type="number" 
-                            name="quantity" 
-                            value="1" 
-                            min="1"
-                            class="w-28 px-4 py-2 border border-gray-300 rounded-lg shadow-sm 
-                                   focus:ring-2 focus:ring-indigo-300 focus:border-indigo-500 transition duration-200"
-                        >
+
+                        <div class="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
+                            <input
+                                type="number"
+                                name="quantity"
+                                form="orderForm"
+                                id="quantityInput"
+                                value="1"
+                                min="1"
+                                max="{{ $product->stock }}"
+                                class="w-32 text-center text-xl font-bold rounded-xl border-slate-300 focus:ring-blue-500 focus:border-blue-500 transition-all focus:scale-105"
+                            >
+
+                            <div class="flex items-start gap-2 text-xs text-blue-700 bg-blue-50 border border-blue-100 rounded-xl p-3 animate__animated animate__headShake animate__delay-2s">
+                                <i data-lucide="info" class="w-4 h-4 mt-0.5"></i>
+                                Stok saat ini tersedia: {{ $product->stock }} unit.
+                            </div>
+                        </div>
                     </div>
+                </div>
 
-                    {{-- Tombol Aksi --}}
-                    <div class="flex flex-wrap items-center gap-4 pt-4">
-                        
-                        {{-- Pesan --}}
-                        <button type="submit"
-                                id="btnPesan"
-                                class="group flex items-center gap-2 px-6 py-3 bg-gradient-to-r 
-                                       from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 
-                                       text-white rounded-xl shadow-md hover:shadow-xl 
-                                       transition-all duration-300 font-semibold text-base">
+                {{-- RIGHT - Animasi Fade In Right --}}
+                <div class="lg:col-span-4 animate__animated animate__fadeInRight">
+                    <div class="sticky top-10 bg-white border border-slate-200 rounded-2xl p-6 shadow-lg shadow-blue-900/5">
 
-                            <span id="btnText" class="flex items-center gap-2">
-                                <i data-lucide="check-circle" class="w-5 h-5"></i>
-                                Pesan Sekarang
-                            </span>
+                        <h2 class="text-lg font-bold text-slate-800 mb-6 flex items-center gap-2">
+                            <i data-lucide="shopping-cart" class="w-5 h-5 text-blue-600"></i>
+                            Ringkasan Pesanan
+                        </h2>
 
-                            {{-- Loading Animasi --}}
-                            <span id="btnLoading" class="hidden flex items-center gap-2">
-                                <svg class="animate-spin h-5 w-5" viewBox="0 0 24 24">
-                                    <circle class="opacity-25" cx="12" cy="12" r="10" 
-                                            stroke="white" stroke-width="4" fill="none" />
-                                    <path class="opacity-75" fill="white" 
-                                          d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"/>
-                                </svg>
-                                Memproses...
-                            </span>
-                        </button>
+                        <div class="space-y-4 text-sm">
+                            <div class="flex justify-between border-b border-slate-50 pb-2">
+                                <span class="text-slate-500">Harga Satuan</span>
+                                <span class="font-semibold text-slate-800">
+                                    Rp {{ number_format($product->price,0,',','.') }}
+                                </span>
+                            </div>
 
-                        {{-- Kembali --}}
-                        <a href="{{ route('customer.products') }}" 
-                           class="flex items-center gap-2 px-6 py-3 bg-gray-500 hover:bg-gray-600 
-                                  text-white rounded-xl shadow-md hover:shadow-lg 
-                                  transition-all duration-300 font-medium">
-                            <i data-lucide="arrow-left" class="w-5 h-5"></i>
-                            Kembali
-                        </a>
+                            <div class="flex justify-between items-center">
+                                <span class="text-slate-500">Jumlah</span>
+                                <span class="font-bold text-blue-600 px-2 py-1 bg-blue-50 rounded-lg transition-all" id="summaryQty">1x</span>
+                            </div>
+
+                            <div class="pt-4 border-t border-slate-100">
+                                <p class="text-xs text-slate-400 mb-1 tracking-wider uppercase">Total Pembayaran</p>
+                                <p class="text-2xl font-black text-slate-900 transition-all" id="totalDisplay">
+                                    Rp {{ number_format($product->price,0,',','.') }}
+                                </p>
+                            </div>
+                        </div>
+
+                        <form method="POST"
+                              action="{{ route('customer.orders.store', $product->id) }}"
+                              id="orderForm"
+                              class="mt-6">
+                            @csrf
+                            <button id="btnPesan"
+                                    class="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-xl font-bold flex justify-center items-center gap-2 transition-all active:scale-95 shadow-md hover:shadow-blue-200">
+                                <span id="btnText">Pesan Sekarang</span>
+                                <i data-lucide="arrow-right" id="btnIcon" class="w-5 h-5 transition-transform group-hover:translate-x-1"></i>
+                                <span id="btnLoading" class="hidden animate-spin">
+                                    <i data-lucide="loader-2" class="w-5 h-5"></i>
+                                </span>
+                            </button>
+                        </form>
+
+                        <div class="flex items-center gap-2 justify-center mt-4">
+                            <i data-lucide="shield-check" class="w-3.5 h-3.5 text-emerald-500"></i>
+                            <p class="text-[10px] text-slate-400 uppercase tracking-tighter font-semibold">
+                                Transaksi Aman & Terenkripsi
+                            </p>
+                        </div>
                     </div>
-                </form>
+                </div>
 
             </div>
         </div>
     </div>
 
-    {{-- SCRIPT ICON + LOADING --}}
     <script>
         document.addEventListener("DOMContentLoaded", () => {
             lucide.createIcons();
+
+            const quantityInput = document.getElementById('quantityInput');
+            const summaryQty = document.getElementById('summaryQty');
+            const totalDisplay = document.getElementById('totalDisplay');
+            const price = {{ $product->price }};
+
+            quantityInput.addEventListener('input', function () {
+                let qty = parseInt(this.value) || 0;
+                if (qty < 1) qty = 1;
+                if (qty > {{ $product->stock }}) qty = {{ $product->stock }};
+                
+                // Efek animasi saat angka berubah
+                summaryQty.classList.remove('value-pop');
+                totalDisplay.classList.remove('value-pop');
+                void summaryQty.offsetWidth; // Trigger reflow
+                summaryQty.classList.add('value-pop');
+                totalDisplay.classList.add('value-pop');
+
+                summaryQty.innerText = qty + 'x';
+                totalDisplay.innerText = 'Rp ' + new Intl.NumberFormat('id-ID').format(qty * price);
+            });
         });
 
-        // Loading animasi
-        document.getElementById("orderForm").addEventListener("submit", function() {
-            const btnPesan = document.getElementById("btnPesan");
+        document.getElementById("orderForm").addEventListener("submit", function (e) {
+            const btnPesan = document.getElementById('btnPesan');
+            const btnText = document.getElementById('btnText');
+            const btnIcon = document.getElementById('btnIcon');
+            const btnLoading = document.getElementById('btnLoading');
+
             btnPesan.disabled = true;
-
-            document.getElementById("btnText").classList.add("hidden");
-            document.getElementById("btnLoading").classList.remove("hidden");
-
-            btnPesan.classList.add("opacity-80", "cursor-not-allowed");
+            btnPesan.classList.add('opacity-80', 'cursor-not-allowed');
+            btnText.innerText = "Memproses...";
+            btnIcon.classList.add("hidden");
+            btnLoading.classList.remove("hidden");
         });
     </script>
 </x-app-layout>

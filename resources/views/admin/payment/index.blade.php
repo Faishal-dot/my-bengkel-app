@@ -44,7 +44,7 @@
                             <tr class="bg-blue-600 text-white uppercase text-xs tracking-wider">
                                 <th class="px-4 py-3 border-r border-blue-500 text-center w-12">No</th>
                                 <th class="px-4 py-3 border-r border-blue-500 text-left">Customer</th>
-                                <th class="px-4 py-3 border-r border-blue-500 text-left">Layanan</th>
+                                <th class="px-4 py-3 border-r border-blue-500 text-left">Item / Layanan</th>
                                 <th class="px-4 py-3 border-r border-blue-500 text-left">Total</th>
                                 <th class="px-4 py-3 border-r border-blue-500 text-center">Bukti</th>
                                 <th class="px-4 py-3 border-r border-blue-500 text-center">Status</th>
@@ -55,25 +55,44 @@
                             @forelse ($payments as $index => $row)
                                 <tr class="hover:bg-blue-50 transition fade-row" style="animation-delay: {{ $index * 0.1 }}s">
                                     <td class="px-4 py-4 text-center text-gray-500 border-r border-gray-200">{{ $loop->iteration }}</td>
+                                    
+                                    {{-- Customer Info (Servis vs Produk) --}}
                                     <td class="px-4 py-4 border-r border-gray-200">
                                         <div class="flex items-center gap-3">
+                                            @php
+                                                $user = $row->booking->user ?? $row->order->user ?? null;
+                                                $name = $user->name ?? 'Unknown';
+                                            @endphp
                                             <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-xs">
-                                                {{ substr($row->booking->user->name ?? 'U', 0, 1) }}
+                                                {{ substr($name, 0, 1) }}
                                             </div>
                                             <div>
-                                                <p class="font-bold text-gray-800">{{ $row->booking->user->name ?? 'Unknown' }}</p>
-                                                <p class="text-xs text-gray-500">{{ $row->booking->vehicle->brand ?? '-' }} ({{ $row->booking->vehicle->plate_number ?? '-' }})</p>
+                                                <p class="font-bold text-gray-800">{{ $name }}</p>
+                                                @if($row->booking_id)
+                                                    <p class="text-xs text-gray-500">{{ $row->booking->vehicle->brand ?? '-' }} ({{ $row->booking->vehicle->plate_number ?? '-' }})</p>
+                                                @else
+                                                    <p class="text-[10px] px-1.5 py-0.5 bg-purple-100 text-purple-700 rounded w-fit font-semibold uppercase tracking-tighter">Pembelian Produk</p>
+                                                @endif
                                             </div>
                                         </div>
                                     </td>
-                                    <td class="px-4 py-4 border-r border-gray-200 text-gray-700">{{ $row->booking->service->name ?? '-' }}</td>
+
+                                    {{-- Item / Layanan Info --}}
+                                    <td class="px-4 py-4 border-r border-gray-200 text-gray-700">
+                                        @if($row->booking_id)
+                                            <span class="font-medium">{{ $row->booking->service->name ?? '-' }}</span>
+                                        @else
+                                            <span class="font-medium">{{ $row->order->product->name ?? '-' }}</span>
+                                            <p class="text-[10px] text-gray-500">Qty: {{ $row->order->quantity ?? 0 }}</p>
+                                        @endif
+                                    </td>
                                     
                                     {{-- Kolom Total --}}
                                     <td class="px-4 py-4 border-r border-gray-200 font-bold text-gray-800">
                                         @php
                                             $originalPrice = $row->booking->service->price ?? 0;
-                                            $paidAmount = $row->booking->total_price ?? $row->amount;
-                                            $hasDiscount = ($originalPrice > $paidAmount) && ($paidAmount > 0);
+                                            $paidAmount = $row->amount;
+                                            $hasDiscount = ($originalPrice > $paidAmount) && ($paidAmount > 0) && $row->booking_id;
                                         @endphp
 
                                         @if($hasDiscount)
@@ -109,7 +128,6 @@
                                                 <i data-lucide="check-circle-2" class="w-3 h-3"></i> Lunas
                                             </span>
                                         @elseif(in_array($status, ['rejected', 'ditolak', 'failed']))
-                                            {{-- BAGIAN INI SUDAH DITAMBAHKAN 'failed' DENGAN WARNA MERAH ROSE --}}
                                             <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-rose-100 text-rose-700 border border-rose-200">
                                                 <i data-lucide="x-circle" class="w-3 h-3"></i> Ditolak
                                             </span>

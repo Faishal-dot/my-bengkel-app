@@ -6,112 +6,136 @@
                 Daftar Layanan Bengkel
             </h2>
 
-            <form method="GET" action="{{ route('customer.services') }}" class="relative">
+            <form method="GET" action="{{ route('customer.services') }}" class="relative group">
                 <input type="text" name="q" placeholder="Cari layanan..."
-                       class="pl-10 pr-4 py-2 text-sm border rounded-xl shadow-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                       class="pl-10 pr-4 py-2 text-sm border border-gray-200 rounded-xl shadow-sm 
+                              focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-all duration-300 w-48 focus:w-64"
                        value="{{ request('q') }}">
-                <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-indigo-500 transition-colors"></i>
             </form>
         </div>
     </x-slot>
 
-    <div class="py-10 bg-gradient-to-b from-gray-100 to-gray-200 min-h-screen">
+    <div class="py-10 bg-gray-100 min-h-screen">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
 
+            {{-- Notifikasi Hasil Pencarian --}}
             @if(request('q'))
-                <div class="mb-6 p-4 bg-blue-100 text-blue-700 border border-blue-200 rounded-xl flex items-center gap-2 shadow-sm animate-fadeSlide">
+                <div class="mb-6 p-4 bg-indigo-50 text-indigo-700 border border-indigo-100 rounded-xl flex items-center gap-2 shadow-sm animate-fadeSlide">
                     <i data-lucide="search" class="w-5 h-5"></i>
-                    Menampilkan hasil untuk: 
-                    <span class="font-semibold">"{{ request('q') }}"</span>
+                    <span>Menampilkan hasil untuk: <span class="font-bold">"{{ request('q') }}"</span></span>
                     <a href="{{ route('customer.services') }}" 
-                       class="ml-auto text-sm text-blue-600 hover:underline">
+                       class="ml-auto text-sm bg-white px-3 py-1 rounded-lg border border-indigo-200 hover:bg-indigo-100 transition shadow-sm">
                         Reset
                     </a>
                 </div>
             @endif
 
-            @if($services->count())
-                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    @foreach($services as $service)
-                        <div class="bg-white shadow-md rounded-2xl p-5 transition transform 
-                                    hover:-translate-y-2 hover:shadow-2xl animate-cardFade flex flex-col relative">
-                            
-                            @if($service->discount_price)
-                                <div class="absolute -top-2 -right-2 z-10">
-                                    <span class="bg-rose-500 text-white text-[10px] font-bold px-2 py-1 rounded-lg shadow-md">
-                                        -{{ round((($service->price - $service->discount_price) / $service->price) * 100) }}%
-                                    </span>
-                                </div>
-                            @endif
+            @php
+                // Memisahkan layanan menjadi Bundle (punya produk) dan Non-Bundle
+                $bundleServices = $services->filter(fn($s) => $s->products && $s->products->count() > 0);
+                $nonBundleServices = $services->filter(fn($s) => !($s->products && $s->products->count() > 0));
+                
+                // Menggabungkan kembali dengan urutan Bundle di atas
+                $sortedServices = $bundleServices->merge($nonBundleServices);
+            @endphp
 
-                            <div class="flex justify-between items-start mb-4">
-                                <h3 class="font-semibold text-lg text-gray-800 pr-4">{{ $service->name }}</h3>
-                                
-                                <div class="flex flex-col items-end">
-                                    @if($service->discount_price)
-                                        <span class="px-3 py-1 rounded-full text-xs font-bold bg-rose-100 text-rose-700">
-                                            Rp {{ number_format($service->discount_price, 0, ',', '.') }}
-                                        </span>
-                                        <span class="text-[10px] text-gray-400 line-through mt-1">
-                                            Rp {{ number_format($service->price, 0, ',', '.') }}
-                                        </span>
-                                    @else
-                                        <span class="px-3 py-1 rounded-full text-xs font-medium bg-indigo-100 text-indigo-700">
-                                            Rp {{ number_format($service->price, 0, ',', '.') }}
-                                        </span>
-                                    @endif
-                                </div>
+            @if($sortedServices->count())
+                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    @foreach($sortedServices as $service)
+                        <div class="bg-white rounded-2xl border border-gray-100 shadow-md hover:shadow-xl transition-all duration-300 animate-cardFade group flex flex-col relative hover:scale-[1.02]">
+                            
+                            {{-- Badges Container --}}
+                            <div class="absolute -top-2 -right-2 z-10 flex items-center gap-2">
+                                {{-- Badge Paket Bundle --}}
+                                @if($service->products && $service->products->count() > 0)
+                                    <span class="bg-amber-500 text-white text-[10px] font-bold px-2 py-1 rounded-lg shadow-md flex items-center gap-1">
+                                        <i data-lucide="package" class="w-3 h-3"></i>
+                                        Paket Bundle
+                                    </span>
+                                @endif
+
+                                {{-- Badge Diskon --}}
+                                @if($service->discount_price)
+                                    <span class="inline-flex items-center bg-rose-500 text-white text-[10px] font-bold px-2 py-1 rounded-lg shadow-md">
+                                        <i data-lucide="badge-percent" class="w-3 h-3 mr-1"></i>
+                                        DISKON -{{ round((($service->price - $service->discount_price) / $service->price) * 100) }}%
+                                    </span>
+                                @endif
                             </div>
 
-                            <p class="text-sm text-gray-600 mb-4 flex-grow">
-                                {{ $service->description ?? 'Tidak ada deskripsi.' }}
-                            </p>
+                            <div class="p-6 flex flex-col flex-grow">
+                                <div class="flex justify-between items-start mb-4">
+                                    <h3 class="font-bold text-lg text-gray-800 group-hover:text-indigo-600 transition-colors pr-4 leading-tight">
+                                        {{ $service->name }}
+                                    </h3>
+                                    
+                                    {{-- Bagian Harga --}}
+                                    <div class="flex flex-col items-end min-w-fit">
+                                        @if($service->discount_price)
+                                            <span class="px-3 py-1 rounded-full text-xs font-bold bg-rose-100 text-rose-700 whitespace-nowrap">
+                                                Rp {{ number_format($service->discount_price, 0, ',', '.') }}
+                                            </span>
+                                            <span class="text-[10px] text-gray-400 line-through mt-1 whitespace-nowrap">
+                                                Rp {{ number_format($service->price, 0, ',', '.') }}
+                                            </span>
+                                        @else
+                                            <span class="px-3 py-1 rounded-full text-xs font-bold bg-indigo-100 text-indigo-700 whitespace-nowrap">
+                                                Rp {{ number_format($service->price, 0, ',', '.') }}
+                                            </span>
+                                        @endif
+                                    </div>
+                                </div>
 
-                            <a href="{{ route('customer.booking.create', ['service_id' => $service->id]) }}" 
-                                class="mt-auto inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-medium text-center transition justify-center">
-                                    <i data-lucide="car" class="w-4 h-4"></i>
-                                    Booking Layanan
-                            </a>
+                                <p class="text-sm text-gray-600 mb-6 flex-grow leading-relaxed">
+                                    {{ $service->description ?? 'Nikmati layanan perawatan kendaraan terbaik dari teknisi ahli kami.' }}
+                                </p>
+
+                                {{-- Tombol Aksi --}}
+                                <div class="pt-5 border-t border-gray-50 mt-auto">
+                                    <a href="{{ route('customer.booking.create', ['service_id' => $service->id]) }}" 
+                                        class="w-full inline-flex items-center gap-2 px-4 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-bold transition-all transform active:scale-95 justify-center shadow-lg shadow-indigo-100">
+                                        <i data-lucide="calendar-check" class="w-4 h-4"></i>
+                                        Booking Layanan Sekarang
+                                    </a>
+                                </div>
+                            </div>
                         </div>
                     @endforeach
                 </div>
 
-                <div class="mt-8 animate-fadeSlide">
+                {{-- Pagination --}}
+                <div class="mt-12 animate-fadeSlide">
                     {{ $services->withQueryString()->links() }}
                 </div>
             @else
-                <div class="text-center py-10 text-gray-500 flex flex-col items-center animate-fadeSlide">
-                    <i data-lucide="frown" class="w-12 h-12 text-gray-400 mb-3"></i>
-                    <p>Belum ada layanan yang tersedia.</p>
+                {{-- State Kosong --}}
+                <div class="text-center py-20 bg-white rounded-3xl border border-dashed border-gray-300 flex flex-col items-center animate-fadeSlide shadow-sm">
+                    <div class="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mb-4">
+                        <i data-lucide="wrench" class="w-10 h-10 text-gray-300"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-800">Tidak ada layanan ditemukan</h3>
+                    <p class="text-gray-500 max-w-xs mx-auto">Coba cari dengan kata kunci lain atau reset pencarian Anda.</p>
                 </div>
             @endif
         </div>
     </div>
 
-    {{-- Lucide --}}
     <script src="https://unpkg.com/lucide@latest"></script>
     <script>
         lucide.createIcons();
     </script>
 
-    {{-- ANIMASI TAILWIND CUSTOM --}}
     <style>
         @keyframes fadeSlide {
-            from { opacity: 0; transform: translateY(-10px); }
+            from { opacity: 0; transform: translateY(10px); }
             to   { opacity: 1; transform: translateY(0); }
         }
-
         @keyframes cardFade {
-            from { opacity: 0; transform: scale(0.95); }
+            from { opacity: 0; transform: scale(0.97); }
             to   { opacity: 1; transform: scale(1); }
         }
-
-        .animate-fadeSlide {
-            animation: fadeSlide 0.6s ease forwards;
-        }
-
-        .animate-cardFade {
-            animation: cardFade 0.5s ease forwards;
-        }
+        .animate-fadeSlide { animation: fadeSlide 0.6s ease-out forwards; }
+        .animate-cardFade { animation: cardFade 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
     </style>
 </x-app-layout>
