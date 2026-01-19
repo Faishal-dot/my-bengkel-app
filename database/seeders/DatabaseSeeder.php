@@ -13,7 +13,7 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
 {
-    // Admin default
+    // Akun Admin
     \App\Models\User::create([
         'name' => 'Admin Bengkel',
         'email' => 'admin@bengkel.com',
@@ -21,7 +21,10 @@ class DatabaseSeeder extends Seeder
         'role' => 'admin',
     ]);
 
-    // Customer dummy
-    \App\Models\User::factory(5)->create();
+    // Panggil Seeder Layanan dan Produk
+    $this->call([
+        LayananSeeder::class,
+        ProductSeeder::class,
+    ]);
 }
 }
