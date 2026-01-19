@@ -110,28 +110,37 @@
                             
                             {{-- CUSTOM DROPDOWN LAYANAN --}}
                             <div class="relative z-30 animate-fadeInUp delay-300" id="dropdown-service">
-                                <label class="flex items-center gap-2 mb-2 text-gray-700 font-bold text-sm">
-                                    <div class="p-1.5 bg-blue-100 rounded text-blue-600 shadow-sm"><i data-lucide="wrench" class="w-4 h-4"></i></div>
-                                    Pilih Layanan
+                                <label class="flex items-center justify-between mb-2 text-gray-700 font-bold text-sm">
+                                    <div class="flex items-center gap-2">
+                                        <div class="p-1.5 bg-blue-100 rounded text-blue-600 shadow-sm"><i data-lucide="wrench" class="w-4 h-4"></i></div>
+                                        Pilih Layanan
+                                    </div>
                                 </label>
                                 <input type="hidden" name="service_id" id="service_id_input" required value="{{ old('service_id', request('service_id')) }}">
                                 
-                                <button type="button" onclick="toggleDropdown('service')" id="service-button"
-                                    class="w-full flex items-center justify-between bg-white border-2 border-blue-100 rounded-2xl px-5 py-4 text-left font-semibold text-gray-700 hover:border-blue-400 focus:ring-4 focus:ring-blue-500/10 transition-all shadow-sm">
-                                    <span id="service-label" class="truncate pr-2 text-sm">
+                                <button type="button" 
+                                    @if(!request('service_id')) onclick="toggleDropdown('service')" @endif 
+                                    id="service-button"
+                                    class="w-full flex items-center justify-between bg-white border-2 {{ request('service_id') ? 'border-gray-200 bg-gray-50/50 cursor-not-allowed' : 'border-blue-100 hover:border-blue-400' }} rounded-2xl px-5 py-4 text-left font-semibold text-gray-700 focus:ring-4 focus:ring-blue-500/10 transition-all shadow-sm">
+                                    <span id="service-label" class="truncate pr-2 text-sm flex items-center gap-2">
                                         @if(old('service_id') || request('service_id'))
                                             @php 
                                                 $s = $services->firstWhere('id', old('service_id', request('service_id')));
                                                 $displayPrice = $s->discount_price ?? $s->price;
                                             @endphp
+                                            @if(request('service_id')) <i data-lucide="lock" class="w-3 h-3 text-gray-400"></i> @endif
                                             {{ $s->name }} — Rp{{ number_format($displayPrice, 0, ',', '.') }}
                                         @else
                                             -- Pilih Layanan --
                                         @endif
                                     </span>
-                                    <i data-lucide="chevron-down" class="w-5 h-5 text-blue-500 transition-transform duration-300 flex-shrink-0" id="service-icon"></i>
+                                    {{-- PANAH HANYA MUNCUL JIKA TIDAK ADA REQUEST SERVICE_ID (MANUAL) --}}
+                                    @if(!request('service_id'))
+                                        <i data-lucide="chevron-down" class="w-5 h-5 text-blue-500 transition-transform duration-300 flex-shrink-0" id="service-icon"></i>
+                                    @endif
                                 </button>
                                 
+                                @if(!request('service_id'))
                                 <div id="service-list" class="hidden absolute z-50 mt-2 w-full bg-white border border-gray-100 rounded-2xl shadow-2xl max-h-64 overflow-y-auto custom-scrollbar p-2 space-y-1 animate-fadeInUp ring-1 ring-black ring-opacity-5">
                                     @foreach($services as $service)
                                         @php 
@@ -153,6 +162,7 @@
                                         </div>
                                     @endforeach
                                 </div>
+                                @endif
                             </div>
 
                             {{-- CUSTOM DROPDOWN KENDARAAN --}}
@@ -205,16 +215,16 @@
                         </div>
 
                         {{-- KELUHAN --}}
-<div class="group animate-fadeInUp delay-500">
-    <label class="flex items-center gap-2 mb-2 text-gray-700 font-bold text-sm">
-        <div class="p-1.5 bg-amber-50 rounded text-amber-500 group-hover:bg-amber-100 transition-colors">
-            <i data-lucide="message-square" class="w-4 h-4"></i>
-        </div>
-        Keluhan / Catatan Tambahan
-    </label>
-    <textarea name="complaint" rows="3" placeholder="Ceritakan kendala pada kendaraan Anda..."
-        class="w-full border-gray-200 bg-gray-50/50 rounded-xl px-4 py-3 focus:ring-2 focus:ring-amber-400 focus:border-amber-400 focus:bg-white transition-all text-gray-700 resize-none shadow-sm">{{ old('complaint') }}</textarea>
-</div>
+                        <div class="group animate-fadeInUp delay-500">
+                            <label class="flex items-center gap-2 mb-2 text-gray-700 font-bold text-sm">
+                                <div class="p-1.5 bg-amber-50 rounded text-amber-500 group-hover:bg-amber-100 transition-colors">
+                                    <i data-lucide="message-square" class="w-4 h-4"></i>
+                                </div>
+                                Keluhan / Catatan Tambahan
+                            </label>
+                            <textarea name="complaint" rows="3" placeholder="Ceritakan kendala pada kendaraan Anda..."
+                                class="w-full border-gray-200 bg-gray-50/50 rounded-xl px-4 py-3 focus:ring-2 focus:ring-amber-400 focus:border-amber-400 focus:bg-white transition-all text-gray-700 resize-none shadow-sm">{{ old('complaint') }}</textarea>
+                        </div>
 
                     {{-- BUTTONS --}}
                     <div class="flex flex-col-reverse sm:flex-row items-center justify-end gap-4 pt-8 border-t border-dashed border-gray-200 animate-fadeInUp delay-500 relative z-0">
@@ -238,21 +248,25 @@
 
         function toggleDropdown(type) {
             const list = document.getElementById(type + '-list');
+            if(!list) return;
+
             const icon = document.getElementById(type + '-icon');
             
             const otherType = type === 'service' ? 'vehicle' : 'service';
-            document.getElementById(otherType + '-list').classList.add('hidden');
-            document.getElementById(otherType + '-icon').classList.remove('rotate-180');
+            const otherList = document.getElementById(otherType + '-list');
+            const otherIcon = document.getElementById(otherType + '-icon');
+
+            if(otherList) otherList.classList.add('hidden');
+            if(otherIcon) otherIcon.classList.remove('rotate-180');
 
             list.classList.toggle('hidden');
-            icon.classList.toggle('rotate-180');
+            if(icon) icon.classList.toggle('rotate-180');
         }
 
         function selectOption(type, id, label) {
             document.getElementById(type + '_id_input').value = id;
             document.getElementById(type + '-label').innerText = label;
             
-            // Highlight handling
             const items = document.querySelectorAll('.' + type + '-item');
             items.forEach(item => {
                 if (item.getAttribute('data-id') == id) {
@@ -278,10 +292,15 @@
 
         window.onclick = function(event) {
             if (!event.target.closest('#dropdown-service') && !event.target.closest('#dropdown-vehicle')) {
-                document.getElementById('service-list').classList.add('hidden');
-                document.getElementById('vehicle-list').classList.add('hidden');
-                document.getElementById('service-icon').classList.remove('rotate-180');
-                document.getElementById('vehicle-icon').classList.remove('rotate-180');
+                const sList = document.getElementById('service-list');
+                const vList = document.getElementById('vehicle-list');
+                const sIcon = document.getElementById('service-icon');
+                const vIcon = document.getElementById('vehicle-icon');
+
+                if(sList) sList.classList.add('hidden');
+                if(vList) vList.classList.add('hidden');
+                if(sIcon) sIcon.classList.remove('rotate-180');
+                if(vIcon) vIcon.classList.remove('rotate-180');
             }
         }
     </script>

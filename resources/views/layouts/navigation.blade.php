@@ -25,7 +25,7 @@
         border-top-left-radius: 0px !important;
         border-bottom-left-radius: 0px !important;
         background: rgba(255, 255, 255, 0.15) !important;
-        box-shadow: inset 0 0 15px rgba(255, 230, 0, 0.1), 
+        box-shadow: inset 0 0 15px rgba(255, 230, 0, 0.1),
                     0 4px 6px -1px rgba(0, 0, 0, 0.1);
         transition: all 0.3s ease;
     }
@@ -41,26 +41,24 @@
         box-shadow: inset 0 0 20px rgba(255, 230, 0, 0.2);
     }
 
+    /* -------------------- HIDE SCROLLBAR -------------------- */
+    .custom-scrollbar {
+        -ms-overflow-style: none;  /* IE and Edge */
+        scrollbar-width: none;     /* Firefox */
+    }
     .custom-scrollbar::-webkit-scrollbar {
-        width: 4px;
-    }
-    .custom-scrollbar::-webkit-scrollbar-track {
-        background: transparent;
-    }
-    .custom-scrollbar::-webkit-scrollbar-thumb {
-        background: rgba(255, 255, 255, 0.1);
-        border-radius: 10px;
+        display: none;             /* Chrome, Safari and Opera */
     }
 </style>
 
-<nav 
+<nav
     x-data="{ open: false }"
     class="fixed inset-y-0 left-0 z-50 flex flex-col w-64 bg-gradient-to-b from-blue-600 to-indigo-700 text-white shadow-xl transform transition-transform duration-300 lg:translate-x-0"
     :class="open ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'"
     x-cloak
 >
     <div class="h-16 flex items-center justify-between px-6 border-b border-indigo-500/40 flex-shrink-0">
-        <a href="{{ route('dashboard') }}" 
+        <a href="{{ route('dashboard') }}"
            class="font-extrabold text-xl tracking-wide flex items-center gap-2 hover:opacity-90 transition logo-animate">
             <i data-lucide="wrench" class="w-6 h-6"></i>
             <span>Bengkel Oto.</span>
@@ -101,10 +99,10 @@
                     $menuGroups = [
                         'Workplace' => [
                             ['route'=>'mechanic.dashboard','icon'=>'home','label'=>'Dashboard'],
-                            ['route'=>'mechanic.jobs.index','icon'=>'wrench','label'=>'Pekerjaan Saya'], 
+                            ['route'=>'mechanic.jobs.index','icon'=>'wrench','label'=>'Pekerjaan Saya'],
                         ],
                         'Updates' => [
-                            ['route'=>'mechanic.dashboard','icon'=>'shopping-cart','label'=>'Pesanan Masuk', 'ignoreActive' => true], 
+                            ['route'=>'mechanic.dashboard','icon'=>'shopping-cart','label'=>'Pesanan Masuk', 'ignoreActive' => true],
                         ]
                     ];
                 } else {
@@ -135,22 +133,22 @@
                         {{ $category }}
                     </span>
                 </div>
-                
+               
                 <ul class="space-y-1">
                     @foreach($menus as $menu)
                         @php
-                            $isActive = (request()->routeIs($menu['route']) || request()->routeIs(str_replace('.index','.*',$menu['route']))) 
+                            $isActive = (request()->routeIs($menu['route']) || request()->routeIs(str_replace('.index','.*',$menu['route'])))
                                         && !($menu['ignoreActive'] ?? false);
                         @endphp
 
-                        <li 
+                        <li
                             x-show="open || window.innerWidth >= 1024"
                             x-transition:enter="transition ease-out duration-500"
                             x-transition:enter-start="opacity-0 -translate-x-6"
                             x-transition:enter-end="opacity-100 translate-x-0"
                             x-cloak
                         >
-                            <a href="{{ route($menu['route']) }}" 
+                            <a href="{{ route($menu['route']) }}"
                                class="group flex items-center px-4 py-3 rounded-lg transition-all duration-300 ease-out relative gap-3.5 overflow-hidden
                                {{ $isActive ? 'bg-white/20 backdrop-blur-md shadow-md font-semibold active-menu scale-[1.02]' : 'hover:bg-white/10 hover:pl-5' }}">
 
@@ -174,7 +172,7 @@
             <div class="w-12 h-12 rounded-full bg-gradient-to-br from-white to-blue-50 text-blue-700 font-bold flex items-center justify-center shadow-lg border border-white/20 text-xl transform group-hover:scale-105 transition duration-300 flex-shrink-0">
                 {{ strtoupper(substr(Auth::user()->name,0,1)) }}
             </div>
-            
+           
             <div class="min-w-0 flex-1">
                 <p class="font-bold text-base leading-tight truncate text-white drop-shadow-sm">
                     {{ Auth::user()->name }}
@@ -192,7 +190,7 @@
     @endauth
 </nav>
 
-<div 
+<div
     class="fixed inset-0 bg-black/50 z-40 lg:hidden"
     x-show="open"
     x-transition.opacity
