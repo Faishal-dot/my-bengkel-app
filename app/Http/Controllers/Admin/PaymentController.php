@@ -9,20 +9,19 @@ use Illuminate\Http\Request;
 class PaymentController extends Controller
 {
     public function index()
-    {
-        // 1. Hapus filter has('booking') agar Order (Produk) juga masuk.
-        // 2. Tambahkan eager load untuk order.user dan order.product.
-        $payments = Payment::where('status', '!=', 'unpaid')
-            ->with([
-                'booking.user', 'booking.service', 'booking.vehicle',
-                'order.user', 'order.product' // Tambahan untuk produk
-            ])
-            ->orderByRaw("CASE WHEN status = 'pending' THEN 1 ELSE 2 END") 
-            ->latest()
-            ->get();
+{
+    // Simpan waktu sekarang ke session saat admin buka halaman ini
+    session(['last_checked_payments' => now()]);
 
-        return view('admin.payment.index', compact('payments'));
-    }
+    $payments = Payment::where('status', '!=', 'unpaid')
+        ->whereNotNull('proof')
+        ->with(['booking.user', 'order.user'])
+        ->orderByRaw("CASE WHEN status = 'pending' THEN 1 ELSE 2 END") 
+        ->latest()
+        ->get();
+
+    return view('admin.payment.index', compact('payments'));
+}
 
     public function show(Payment $payment)
     {
@@ -104,4 +103,25 @@ class PaymentController extends Controller
         return redirect()->route('admin.payments.index')
             ->with('success', 'Pembayaran telah ditolak.');
     }
+
+    public function print($id)
+{
+    // Cari data pembayaran dengan relasi lengkap
+    $payment = Payment::with([
+        'booking.service', 
+        'booking.vehicle', 
+        'order.product',
+        'booking.user', 
+        'order.user'
+    ])->findOrFail($id);
+
+    // Cek apakah status sudah lunas
+    $status = strtolower($payment->status);
+    if (!in_array($status, ['paid', 'approved', 'lunas', 'success'])) {
+        return back()->with('error', 'Nota hanya bisa dicetak untuk transaksi yang sudah lunas.');
+    }
+
+    // Arahkan ke view nota yang sudah ada
+    return view('admin.payment.print', compact('payment'));
+}
 }

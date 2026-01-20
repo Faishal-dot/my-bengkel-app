@@ -56,7 +56,6 @@
                                 <tr class="hover:bg-blue-50 transition fade-row" style="animation-delay: {{ $index * 0.1 }}s">
                                     <td class="px-4 py-4 text-center text-gray-500 border-r border-gray-200">{{ $loop->iteration }}</td>
                                     
-                                    {{-- Customer Info (Servis vs Produk) --}}
                                     <td class="px-4 py-4 border-r border-gray-200">
                                         <div class="flex items-center gap-3">
                                             @php
@@ -77,7 +76,6 @@
                                         </div>
                                     </td>
 
-                                    {{-- Item / Layanan Info --}}
                                     <td class="px-4 py-4 border-r border-gray-200 text-gray-700">
                                         @if($row->booking_id)
                                             <span class="font-medium">{{ $row->booking->service->name ?? '-' }}</span>
@@ -87,7 +85,6 @@
                                         @endif
                                     </td>
                                     
-                                    {{-- Kolom Total --}}
                                     <td class="px-4 py-4 border-r border-gray-200 font-bold text-gray-800">
                                         @php
                                             $originalPrice = $row->booking->service->price ?? 0;
@@ -152,8 +149,17 @@
                                                     </button>
                                                 </form>
                                             </div>
-                                        @elseif(in_array(strtolower($row->status), ['paid', 'approved', 'lunas']))
-                                            <span class="text-emerald-600 text-xs font-bold flex items-center justify-center gap-1 opacity-70"><i data-lucide="check-check" class="w-4 h-4"></i> Terverifikasi</span>
+                                        @elseif(in_array(strtolower($row->status), ['paid', 'approved', 'lunas', 'success']))
+                                            {{-- BAGIAN BARU: Muncul setelah diverif --}}
+                                            <div class="flex flex-col items-center gap-2">
+                                                <span class="text-emerald-600 text-[10px] font-bold flex items-center justify-center gap-1 uppercase tracking-tighter">
+                                                    <i data-lucide="check-check" class="w-3 h-3"></i> Terverifikasi
+                                                </span>
+                                                <a href="{{ route('admin.payments.print', $row->id) }}" target="_blank"
+                                                   class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-[10px] font-bold shadow-md transition transform hover:scale-105">
+                                                    <i data-lucide="printer" class="w-3.5 h-3.5"></i> Cetak Nota
+                                                </a>
+                                            </div>
                                         @elseif(in_array(strtolower($row->status), ['failed', 'rejected', 'ditolak']))
                                              <span class="text-rose-600 text-xs font-bold flex items-center justify-center gap-1 opacity-70"><i data-lucide="alert-circle" class="w-4 h-4"></i> Gagal</span>
                                         @else

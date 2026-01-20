@@ -13,6 +13,10 @@
 
         .fade-row { opacity:0; animation: fadeRow .6s ease-out forwards; }
         @keyframes fadeRow { to { opacity:1; } }
+        
+        @media print {
+            .no-print { display: none !important; }
+        }
     </style>
 
     <div class="py-10 bg-gradient-to-b from-gray-100 to-gray-200 min-h-screen fade-slide" style="animation-delay:.15s">
@@ -34,12 +38,6 @@
                         {{ session('error') }}
                     </div>
                 @endif
-                @if(session('info'))
-                    <div class="mb-6 p-4 bg-blue-100 text-blue-700 border border-blue-200 rounded-lg flex items-center gap-2">
-                        <i data-lucide="info" class="w-5 h-5"></i>
-                        {{ session('info') }}
-                    </div>
-                @endif
 
                 {{-- Header Section dalam Card --}}
                 <div class="mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
@@ -55,10 +53,10 @@
                         <thead>
                             <tr class="bg-blue-600 text-white uppercase text-xs">
                                 <th class="px-4 py-3 border-r border-blue-500 text-center w-12">No</th>
-                                <th class="px-4 py-3 border-r border-blue-500 text-left">Tipe</th>
-                                <th class="px-4 py-3 border-r border-blue-500 text-left">Item / Layanan</th>
-                                <th class="px-4 py-3 border-r border-blue-500 text-left">Info Tambahan</th>
-                                <th class="px-4 py-3 border-r border-blue-500 text-left">Total</th>
+                                <th class="px-4 py-3 border-r border-blue-500 text-center">Tipe</th>
+                                <th class="px-4 py-3 border-r border-blue-500 text-center">Item / Layanan</th>
+                                <th class="px-4 py-3 border-r border-blue-500 text-center">Info Tambahan</th>
+                                <th class="px-4 py-3 border-r border-blue-500 text-center">Total</th>
                                 <th class="px-4 py-3 border-r border-blue-500 text-center">Status</th>
                                 <th class="px-4 py-3 border-r border-blue-500 text-center">Aksi</th>
                             </tr>
@@ -77,7 +75,7 @@
                                         @if($payment->booking_id)
                                             <span class="px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full text-[10px] font-bold uppercase tracking-wider">Servis</span>
                                         @else
-                                            <span class="px-2 py-0.5 bg-green-100 text-green-700 rounded-full text-[10px] font-bold uppercase tracking-wider">Produk</span>
+                                            <span class="px-2 py-0.5 bg-green-100 text-green-700 rounded-full text-[10px] font-bold uppercase tracking-wider">Sparepart</span>
                                         @endif
                                     </td>
 
@@ -150,7 +148,6 @@
                                                     <i data-lucide="credit-card" class="w-3 h-3"></i> Bayar
                                                 </a>
 
-                                                {{-- Tombol Batal Hanya Muncul Jika Bukan Booking (Hanya Produk) --}}
                                                 @if(!$payment->booking_id)
                                                 <form action="{{ route('customer.payment.destroy', $payment->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin membatalkan transaksi ini?')">
                                                     @csrf
@@ -162,8 +159,8 @@
                                                 @endif
 
                                             @elseif($status == 'pending')
-                                                <span class="text-amber-600 text-xs font-bold inline-flex items-center gap-1 bg-amber-50 px-3 py-1.5 rounded-lg border border-amber-100">
-                                                Tunggu Admin Verifikasi
+                                                <span class="text-amber-600 text-[10px] font-bold inline-flex items-center gap-1 bg-amber-50 px-2 py-1 rounded border border-amber-100">
+                                                    Verifikasi Admin
                                                 </span>
 
                                             @elseif(in_array($status, ['rejected', 'ditolak', 'failed', 'gagal']))
@@ -177,18 +174,9 @@
                                                     <i data-lucide="refresh-cw" class="w-3 h-3"></i> Re-Upload
                                                 </a>
 
-                                                {{-- Tombol Batal Hanya Muncul Jika Bukan Booking (Hanya Produk) --}}
-                                                @if(!$payment->booking_id)
-                                                <form action="{{ route('customer.payment.destroy', $payment->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin membatalkan transaksi ini?')">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="inline-flex items-center gap-1 px-3 py-1.5 bg-red-600 hover:bg-black text-white rounded-lg text-xs font-bold shadow transition-all duration-300 transform hover:scale-105">
-                                                        <i data-lucide="trash-2" class="w-3 h-3"></i> Batal
-                                                    </button>
-                                                </form>
-                                                @endif
-                                            @else
-                                                <span class="text-green-600 text-xs font-bold inline-flex items-center gap-1">
+                                            {{-- BAGIAN YANG DIUBAH: HANYA TULISAN SELESAI WARNA HIJAU --}}
+                                            @elseif(in_array($status, ['paid', 'approved', 'lunas', 'success', 'selesai']))
+                                                <span class="text-green-600 font-bold text-xs flex items-center gap-1">
                                                     <i data-lucide="check-check" class="w-4 h-4"></i> Selesai
                                                 </span>
                                             @endif

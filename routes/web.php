@@ -37,13 +37,28 @@ use App\Http\Controllers\Mechanic\JobController as MechanicJobController;
 // =======================
 use App\Http\Controllers\TestimonialController;
 use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\ChatController; // Ensure this controller exists
+use App\Http\Controllers\ChatController; 
 use App\Http\Middleware\IsAdmin;
 
 // ============================================================
 // LANDING PAGE
 // ============================================================
 Route::get('/', function () {
+    if (auth()->check()) {
+        // 1. Cek apakah ada halaman terakhir yang dikunjungi
+        if (session()->has('last_visited_url')) {
+            return redirect(session('last_visited_url'));
+        }
+
+        // 2. Jika tidak ada (baru pertama login), lempar ke Dashboard sesuai Role
+        $user = auth()->user();
+        return match ($user->role) {
+            'admin'    => redirect()->route('admin.dashboard'),
+            'mechanic' => redirect()->route('mechanic.dashboard'),
+            default    => redirect()->route('customer.dashboard'),
+        };
+    }
+    
     $testimonials = \App\Models\Testimonial::with('user')->latest()->get();
     return view('welcome', compact('testimonials'));
 })->name('home');
@@ -73,7 +88,6 @@ Route::middleware(['auth'])->group(function () {
 // ============================================================
 // CHAT SYSTEM ROUTES (SHARED)
 // ============================================================
-// Ditempatkan di sini agar bisa diakses Customer, Admin & Mekanik
 Route::middleware(['auth'])->group(function () {
     Route::get('/booking/{id}/chat', [ChatController::class, 'show'])->name('chat.show');
     Route::post('/booking/{id}/chat/send', [ChatController::class, 'send'])->name('chat.send');
@@ -112,6 +126,7 @@ Route::middleware(['auth', 'verified', IsAdmin::class])
         Route::get('/payments/{payment}', [AdminPaymentController::class, 'show'])->name('payments.show'); 
         Route::post('/payments/{payment}/confirm', [AdminPaymentController::class, 'confirm'])->name('payments.confirm');
         Route::post('/payments/{payment}/reject', [AdminPaymentController::class, 'reject'])->name('payments.reject');
+        Route::get('/payments/print/{id}', [AdminPaymentController::class, 'print'])->name('payments.print');
     });
 
 // ============================================================
@@ -133,8 +148,7 @@ Route::middleware(['auth', 'verified'])
         Route::get('/products', [CustomerProduct::class, 'index'])->name('products');
         Route::get('/products/{product}', [CustomerProduct::class, 'show'])->name('products.show');
         
-        // --- ROUTE ORDERS ---
-        Route::get('/orders', [CustomerOrder::class, 'index'])->name('orders.index'); // Penambahan Baris Ini
+        Route::get('/orders', [CustomerOrder::class, 'index'])->name('orders.index'); 
         Route::get('/products/{product}/beli', [CustomerOrder::class, 'create'])->name('orders.create');
         Route::post('/products/{product}/beli', [CustomerOrder::class, 'store'])->name('orders.store');
 
@@ -148,12 +162,14 @@ Route::middleware(['auth', 'verified'])
         // CUSTOMER PAYMENT
         Route::get('/payment', [CustomerPaymentController::class, 'index'])->name('payment.index');
         Route::post('/payment/store', [CustomerPaymentController::class, 'store'])->name('payment.store');
-
-        // TAMBAHKAN BARIS INI untuk menghilangkan error "Route not defined"
         Route::delete('/payment/{payment}', [CustomerPaymentController::class, 'destroy'])->name('payment.destroy');
 
         Route::get('/payment/booking/{booking_id}', [CustomerPaymentController::class, 'create'])->name('payment.create');
         Route::get('/payment/product/{order_id}', [CustomerPaymentController::class, 'createProduct'])->name('payment.product');
+        
+        // --- ROUTE CETAK NOTA (TAMBAHKAN INI) ---
+        Route::get('/payment/print/{payment}', [CustomerPaymentController::class, 'print'])->name('payment.print');
+        
     });
 
 // ============================================================

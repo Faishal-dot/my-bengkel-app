@@ -14,31 +14,34 @@ class PaymentController extends Controller
     // 1. HALAMAN LIST (INDEX)
     // ==========================================
     public function index()
-    {
-        // Mencari payment yang booking-nya milik user login ATAU order-nya milik user login
-        $payments = Payment::with(['booking.service', 'booking.vehicle', 'order.product'])
-            ->where(function($query) {
-                $query->whereHas('booking', function ($q) {
-                    $q->where('user_id', auth()->id());
-                })->orWhereHas('order', function ($q) {
-                    $q->where('user_id', auth()->id());
-                });
+{
+    $payments = Payment::with(['booking.service', 'booking.vehicle', 'order.product'])
+        ->where(function($query) {
+            // Syarat 1: Jika ini Booking, statusnya WAJIB 'selesai' baru boleh muncul
+            $query->whereHas('booking', function ($q) {
+                $q->where('user_id', auth()->id())
+                  ->where('status', 'selesai'); // <--- Kuncinya di sini
             })
-            ->orderBy('created_at', 'desc')
-            ->get();
+            // Syarat 2: Jika ini Order (beli produk), bisa langsung muncul
+            ->orWhereHas('order', function ($q) {
+                $q->where('user_id', auth()->id());
+            });
+        })
+        ->orderBy('created_at', 'desc')
+        ->get();
 
-        // Update status otomatis jika belum bayar
-        foreach ($payments as $payment) {
-            if ($payment->booking && $payment->booking->status === 'selesai') {
-                if (empty($payment->proof) && $payment->status !== 'unpaid') {
-                    $payment->update(['status' => 'unpaid']);
-                    $payment->status = 'unpaid'; 
-                }
+    // Logika update status otomatis tetap sama
+    foreach ($payments as $payment) {
+        if ($payment->booking && $payment->booking->status === 'selesai') {
+            if (empty($payment->proof) && $payment->status !== 'unpaid') {
+                $payment->update(['status' => 'unpaid']);
+                $payment->status = 'unpaid'; 
             }
         }
-
-        return view('customer.payment.index', compact('payments'));
     }
+
+    return view('customer.payment.index', compact('payments'));
+}
 
     // ==========================================
     // 2. HALAMAN BAYAR BOOKING (CREATE)
@@ -191,5 +194,36 @@ class PaymentController extends Controller
         } catch (\Exception $e) {
             return back()->with('error', 'Gagal membatalkan transaksi: ' . $e->getMessage());
         }
+    }
+
+    // ==========================================
+    // 5. CETAK NOTA (PRINT) - LOGIKA BARU
+    // ==========================================
+    public function print($id)
+    {
+        // Load relasi lengkap untuk ditampilkan di nota
+        $payment = Payment::with([
+            'booking.service', 
+            'booking.vehicle', 
+            'order.product',
+            'booking.user', // Mengambil data user dari booking
+            'order.user'    // Mengambil data user dari order
+        ])->findOrFail($id);
+
+        // Keamanan: Cek apakah ini milik user login
+        $owner_id = $payment->booking ? $payment->booking->user_id : ($payment->order ? $payment->order->user_id : null);
+        
+        if ($owner_id !== auth()->id()) {
+            abort(403, 'Akses nota ditolak.');
+        }
+
+        // Opsional: Hanya izinkan cetak jika sudah lunas
+        $status = strtolower($payment->status);
+        if (!in_array($status, ['paid', 'approved', 'lunas', 'success', 'selesai'])) {
+            return back()->with('error', 'Nota hanya bisa dicetak untuk transaksi yang sudah lunas.');
+        }
+
+        // Mengirim data ke view khusus nota
+        return view('customer.payment.print', compact('payment'));
     }
 }

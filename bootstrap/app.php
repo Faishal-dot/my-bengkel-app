@@ -11,11 +11,16 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        // Alias middleware kustom
+        // 1. Daftarkan Middleware secara Global agar mengecek setiap klik halaman
+        $middleware->web(append: [
+            \App\Http\Middleware\SaveLastVisitedUrl::class,
+        ]);
+
+        // 2. Alias middleware kustom (untuk digunakan di web.php)
         $middleware->alias([
             'role' => \App\Http\Middleware\RoleMiddleware::class,
-            'mechanic' => \App\Http\Middleware\IsMechanic::class, // ✅ Tambahkan ini
-            'admin' => \App\Http\Middleware\IsAdmin::class,       // ✅ Tambahkan juga jika belum
+            'mechanic' => \App\Http\Middleware\IsMechanic::class, 
+            'admin' => \App\Http\Middleware\IsAdmin::class,      
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

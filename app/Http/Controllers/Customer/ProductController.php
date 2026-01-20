@@ -8,24 +8,30 @@ use App\Models\Product;
 
 class ProductController extends Controller
 {
-    // Tampilkan semua produk untuk customer
     public function index(Request $request)
     {
         $query = Product::query();
 
-        // Fitur pencarian
-        if ($request->has('q') && $request->q != '') {
-            $query->where('name', 'like', "%{$request->q}%")
-                  ->orWhere('description', 'like', "%{$request->q}%");
+        // 1. FITUR FILTER KATEGORI (DIPERBAIKI)
+        if ($request->filled('category')) {
+            // Gunakan whereRaw LOWER agar tidak peduli huruf besar atau kecil
+            $query->whereRaw('LOWER(category) = ?', [strtolower($request->category)]);
         }
 
-        // Pagination, 9 per halaman
-        $products = $query->paginate(9)->withQueryString();
+        // 2. FITUR PENCARIAN
+        if ($request->filled('q')) {
+            $query->where(function($q) use ($request) {
+                $q->where('name', 'like', "%{$request->q}%")
+                  ->orWhere('description', 'like', "%{$request->q}%");
+            });
+        }
+
+        // Ambil data terbaru
+        $products = $query->latest()->paginate(9)->withQueryString();
 
         return view('customer.product', compact('products'));
     }
 
-    // Optional: halaman detail produk
     public function show(Product $product)
     {
         return view('customer.product-show', compact('product'));

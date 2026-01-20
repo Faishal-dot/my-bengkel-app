@@ -11,7 +11,17 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
     <style>
-        html { scroll-behavior: smooth; }
+        html {
+    /* Smooth scroll bawaan browser yang paling stabil */
+    scroll-behavior: smooth;
+    /* Sesuaikan angka 90px dengan tinggi navbar kamu */
+    scroll-padding-top: 90px; 
+}
+
+/* Pastikan section punya layout yang jelas */
+section {
+    position: relative;
+}
 
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: #0f172a; } 
@@ -140,7 +150,7 @@
         Solusi Perawatan & Perbaikan <span class="text-blue-400">Kendaraan</span> Anda
     </h1>
     <p class="mt-4 text-base sm:text-lg text-gray-300 max-w-2xl">
-        Bengkel Oto siap melayani servis mobil & motor dengan profesional, cepat, dan terpercaya.
+        Bengkel Oto siap melayani servis mobil dengan profesional, cepat, dan terpercaya.
     </p>
     <div class="mt-6 flex flex-col sm:flex-row gap-4">
         <a href="{{ route('customer.booking.index') }}" class="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 font-semibold transition shadow-lg hover:shadow-blue-500/50">

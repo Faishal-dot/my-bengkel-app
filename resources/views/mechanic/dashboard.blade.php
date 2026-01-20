@@ -64,6 +64,7 @@
                     <i data-lucide="clipboard-list" class="w-10 h-10 opacity-90"></i>
                     <div>
                         <h4 class="text-lg font-semibold">Total Pekerjaan</h4>
+                        {{-- Pastikan di Controller query ini mencakup status 'pending' atau 'confirmed' --}}
                         <p class="text-3xl font-bold mt-1">{{ $total_jobs ?? 0 }}</p>
                     </div>
                 </div>
@@ -71,7 +72,10 @@
                 <div class="bg-gradient-to-r from-yellow-500 to-yellow-600 text-white p-6 rounded-2xl shadow-md flex items-center gap-4 
                     transition-all transform hover:scale-[1.05] hover:shadow-xl hover:brightness-110 duration-300 fade-slide"
                     style="animation-delay: .3s">
-                    <i data-lucide="loader" class="w-10 h-10 opacity-90 animate-spin"></i>
+                    
+                    {{-- Logika Animasi: Berputar hanya jika ada pekerjaan yang sedang diproses --}}
+                    <i data-lucide="loader" class="w-10 h-10 opacity-90 {{ ($jobs_processing ?? 0) > 0 ? 'animate-spin' : '' }}"></i>
+                    
                     <div>
                         <h4 class="text-lg font-semibold">Sedang Proses</h4>
                         <p class="text-3xl font-bold mt-1">{{ $jobs_processing ?? 0 }}</p>

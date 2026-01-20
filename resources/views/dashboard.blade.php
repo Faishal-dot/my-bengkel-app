@@ -7,7 +7,6 @@
         </h2>
     </x-slot>
 
-    <!-- ANIMASI GLOBAL -->
     <style>
         .fade-slide {
             opacity: 0;
@@ -32,9 +31,6 @@
     <div class="py-10 bg-gradient-to-b from-gray-100 to-gray-200 min-h-screen fade">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-8">
 
-            <!-- ===========================
-                    CARD WELCOME
-            ============================ -->
             <div class="bg-white shadow-lg rounded-2xl p-8 fade-slide" style="animation-delay: .1s">
                 <h3 class="text-2xl font-bold text-blue-600 mb-2">
                     Selamat Datang 🎉
@@ -49,12 +45,8 @@
             </div>
 
 
-            <!-- ===========================
-                    STATISTIK CUSTOMER
-            ============================ -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch">
 
-                <!-- Total Booking -->
                 <a href="{{ route('customer.booking.index') }}"
                     class="bg-gradient-to-r from-blue-500 to-blue-600 text-white p-6 rounded-2xl shadow-md flex items-center gap-4 
                     transition-all transform hover:scale-[1.05] hover:shadow-xl hover:brightness-110 duration-300 fade-slide"
@@ -66,19 +58,17 @@
                     </div>
                 </a>
 
-                <!-- Total Orders -->
-                <a href="{{ route('customer.orders.index') }}"
+                <a href="{{ route('customer.products') }}"
                     class="bg-gradient-to-r from-green-500 to-green-600 text-white p-6 rounded-2xl shadow-md flex items-center gap-4 
                     transition-all transform hover:scale-[1.05] hover:shadow-xl hover:brightness-110 duration-300 fade-slide"
                     style="animation-delay: .3s">
-                    <i data-lucide="shopping-cart" class="w-10 h-10 opacity-90"></i>
+                    <i data-lucide="package" class="w-10 h-10 opacity-90"></i>
                     <div>
-                        <h4 class="text-lg font-semibold">Total Orders</h4>
-                        <p class="text-3xl font-bold mt-1">{{ $totalOrders ?? 0 }}</p>
+                        <h4 class="text-lg font-semibold">Total Sparepart</h4>
+                        <p class="text-3xl font-bold mt-1">{{ $totalProducts ?? 0 }}</p>
                     </div>
                 </a>
 
-                <!-- Total Layanan -->
                 <a href="{{ route('customer.services') }}"
                     class="bg-gradient-to-r from-purple-500 to-purple-600 text-white p-6 rounded-2xl shadow-md flex items-center gap-4 
                     transition-all transform hover:scale-[1.05] hover:shadow-xl hover:brightness-110 duration-300 fade-slide"
@@ -92,12 +82,8 @@
             </div>
 
 
-            <!-- ===========================
-                    AKTIVITAS TERBARU
-            ============================ -->
             <div class="bg-white p-6 rounded-2xl shadow fade-slide" style="animation-delay: .5s">
 
-                <!-- JUDUL DICENTER -->
                 <h4 class="text-lg font-semibold mb-4 flex items-start justify-start gap-2 text-start">
                     <i data-lucide="activity" class="w-5 h-5 text-blue-600"></i> 
                     Aktivitas Terbaru

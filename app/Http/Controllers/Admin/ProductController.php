@@ -9,29 +9,26 @@ use Illuminate\Http\Request;
 class ProductController extends Controller
 {
     /**
-     * Tampilkan daftar produk
+     * Tampilkan daftar produk di dashboard Admin
      */
     public function index(Request $request)
     {
         $query = Product::query();
 
-        // PENCARIAN: mendukung Nama, Deskripsi, dan SKU (Kode Produk)
+        // PENCARIAN: Nama, Deskripsi, dan SKU
         if ($request->has('search') && $request->search != '') {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('sku', 'like', "%{$search}%") // Tambahan search by SKU
+                  ->orWhere('sku', 'like', "%{$search}%")
                   ->orWhere('description', 'like', "%{$search}%");
             });
         }
 
-        // Pagination normal
         $products = $query->latest()->paginate(10);
-
-        // Agar keyword search tidak hilang saat pindah halaman pagination
         $products->appends($request->only('search'));
 
-        // Semua produk untuk DETAIL SLIDE
+        // Digunakan untuk komponen lain jika diperlukan (misal: modal/slide)
         $productsAll = Product::orderBy('name')->get();
 
         return view('admin.products.index', compact('products', 'productsAll'));
@@ -43,13 +40,14 @@ class ProductController extends Controller
     }
 
     /**
-     * Simpan produk baru
+     * Simpan produk baru ke database
      */
     public function store(Request $request)
     {
         $request->validate([
-            'sku' => 'required|string|max:100|unique:products,sku', // Validasi Kode Produk Unik
+            'sku' => 'required|string|max:100|unique:products,sku',
             'name' => 'required|string|max:255',
+            'category' => 'required|in:Sparepart,Cairan', // Memastikan kategori valid
             'description' => 'nullable|string',
             'purchase_price' => 'required|numeric',
             'price' => 'required|numeric',
@@ -58,13 +56,14 @@ class ProductController extends Controller
         ]);
 
         Product::create([
-            'sku' => $request->sku, // Simpan SKU
+            'sku' => $request->sku,
             'name' => $request->name,
+            'category' => $request->category,
             'description' => $request->description,
             'purchase_price' => $request->purchase_price,
             'price' => $request->price,
             'stock' => $request->stock ?? 0,
-            'image' => $request->image,
+            'image' => $request->image, // Jika Anda punya sistem upload, proses filenya di sini
         ]);
 
         return redirect()->route('admin.products.index')
@@ -77,13 +76,14 @@ class ProductController extends Controller
     }
 
     /**
-     * Update produk
+     * Update produk (PERBAIKAN: Menambahkan kategori)
      */
     public function update(Request $request, Product $product)
     {
         $request->validate([
-            'sku' => 'required|string|max:100|unique:products,sku,' . $product->id, // Abaikan SKU milik sendiri saat update
+            'sku' => 'required|string|max:100|unique:products,sku,' . $product->id,
             'name' => 'required|string|max:255',
+            'category' => 'required|in:Sparepart,Cairan', // Validasi kategori ditambahkan
             'description' => 'nullable|string',
             'purchase_price' => 'required|numeric',
             'price' => 'required|numeric',
@@ -91,9 +91,11 @@ class ProductController extends Controller
             'image' => 'nullable|image|max:2048',
         ]);
 
+        // Perbaikan: Pastikan 'category' masuk ke dalam array update
         $product->update([
-            'sku' => $request->sku, // Update SKU
+            'sku' => $request->sku,
             'name' => $request->name,
+            'category' => $request->category, // Baris ini yang sebelumnya hilang
             'description' => $request->description,
             'purchase_price' => $request->purchase_price,
             'price' => $request->price,

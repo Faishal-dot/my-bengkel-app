@@ -50,6 +50,19 @@
                             placeholder="Masukkan nama produk..." required>
                     </div>
 
+                    {{-- TAMBAHAN: FIELD KATEGORI UNTUK EDIT --}}
+                    <div>
+                        <label class="flex items-center gap-2 mb-2 text-gray-600 font-medium">
+                            <i data-lucide="layers" class="w-4 h-4 text-blue-500"></i>
+                            Kategori Produk
+                        </label>
+                        <select name="category" required
+                            class="w-full border-gray-300 rounded-lg px-4 py-3 shadow-sm focus:ring-2 focus:ring-blue-400">
+                            <option value="Sparepart" {{ old('category', $product->category) == 'Sparepart' ? 'selected' : '' }}>Sparepart</option>
+                            <option value="Cairan" {{ old('category', $product->category) == 'Cairan' ? 'selected' : '' }}>Oli & Cairan</option>
+                        </select>
+                    </div>
+
                     <div>
                         <label class="flex items-center gap-2 mb-2 text-gray-600 font-medium">
                             <i data-lucide="file-text" class="w-4 h-4 text-blue-500"></i>
@@ -60,36 +73,38 @@
                             placeholder="Masukkan deskripsi produk...">{{ old('description', $product->description) }}</textarea>
                     </div>
 
-                    <div>
-                        <label class="flex items-center gap-2 mb-2 text-gray-600 font-medium">
-                            <i data-lucide="wallet" class="w-4 h-4 text-blue-500"></i>
-                            Harga Beli
-                        </label>
-                        <input type="number" id="harga_beli" name="purchase_price"
-                               value="{{ old('purchase_price', $product->purchase_price) }}"
-                            class="w-full border-gray-300 rounded-lg px-4 py-3 shadow-sm focus:ring-2 focus:ring-blue-400"
-                            placeholder="Harga beli..." required>
-                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="flex items-center gap-2 mb-2 text-gray-600 font-medium">
+                                <i data-lucide="wallet" class="w-4 h-4 text-blue-500"></i>
+                                Harga Beli
+                            </label>
+                            <input type="number" id="harga_beli" name="purchase_price"
+                                   value="{{ old('purchase_price', $product->purchase_price) }}"
+                                class="w-full border-gray-300 rounded-lg px-4 py-3 shadow-sm focus:ring-2 focus:ring-blue-400"
+                                placeholder="Harga beli..." required>
+                        </div>
 
-                    <div>
-                        <label class="flex items-center gap-2 mb-2 text-gray-600 font-medium">
-                            <i data-lucide="credit-card" class="w-4 h-4 text-blue-500"></i>
-                            Harga Jual
-                        </label>
-                        <input type="number" id="harga_jual" name="price"
-                               value="{{ old('price', $product->price) }}"
-                            class="w-full border-gray-300 rounded-lg px-4 py-3 shadow-sm focus:ring-2 focus:ring-blue-400"
-                            placeholder="Harga jual..." required>
+                        <div>
+                            <label class="flex items-center gap-2 mb-2 text-gray-600 font-medium">
+                                <i data-lucide="credit-card" class="w-4 h-4 text-blue-500"></i>
+                                Harga Jual
+                            </label>
+                            <input type="number" id="harga_jual" name="price"
+                                   value="{{ old('price', $product->price) }}"
+                                class="w-full border-gray-300 rounded-lg px-4 py-3 shadow-sm focus:ring-2 focus:ring-blue-400"
+                                placeholder="Harga jual..." required>
+                        </div>
                     </div>
 
                     <div>
                         <label class="flex items-center gap-2 mb-2 text-gray-600 font-medium">
                             <i data-lucide="badge-dollar-sign" class="w-4 h-4 text-blue-500"></i>
-                            Laba
+                            Laba Estimasi
                         </label>
 
                         <input type="number" id="laba_otomatis" disabled
-                            class="w-full bg-gray-100 border-gray-300 rounded-lg px-4 py-3 shadow-sm">
+                            class="w-full bg-gray-100 border-gray-300 rounded-lg px-4 py-3 shadow-sm font-bold text-blue-600">
 
                         <div id="warning_rugi" class="mt-2 flex items-center text-red-600 font-semibold gap-2 hidden animate-pulse">
                             <i data-lucide="alert-triangle" class="w-5 h-5"></i>
@@ -109,13 +124,13 @@
 
                     <div class="flex items-center gap-4 pt-6">
                         <button type="submit"
-                                class="flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-lg shadow-md hover:bg-blue-700">
+                                class="flex items-center gap-2 bg-blue-600 text-white px-8 py-3 rounded-lg shadow-md hover:bg-blue-700 transition-all active:scale-95">
                             <i data-lucide="save" class="w-5 h-5"></i>
                             Simpan Perubahan
                         </button>
 
                         <a href="{{ route('admin.products.index') }}"
-                           class="flex items-center gap-2 px-6 py-3 rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-100">
+                           class="flex items-center gap-2 px-8 py-3 rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-100 transition-all">
                             <i data-lucide="x-circle" class="w-5 h-5"></i>
                             Batal
                         </a>
@@ -145,8 +160,8 @@
         document.getElementById('harga_beli').addEventListener('input', hitungLaba);
         document.getElementById('harga_jual').addEventListener('input', hitungLaba);
 
-        // Hitung saat halaman dibuka
-        hitungLaba();
+        // Langsung hitung saat halaman diedit terbuka
+        window.addEventListener('load', hitungLaba);
     </script>
 
     <style>

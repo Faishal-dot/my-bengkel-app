@@ -19,14 +19,27 @@ class DashboardController extends Controller
         $jobs_done_today = 0;
 
         if ($mechanic) {
-            $baseQuery = Booking::where('mechanic_id', $mechanic->id)->where('payment_status', 'paid');
+            // PERBAIKAN: Hapus filter 'paid' jika ingin mekanik melihat kerjaan yang baru masuk/disetujui 
+            // Atau sesuaikan dengan logic bisnis Anda (misal: 'paid' ATAU 'pending')
+            $baseQuery = Booking::where('mechanic_id', $mechanic->id);
 
-            $total_jobs = (clone $baseQuery)->whereIn('status', ['disetujui', 'proses', 'selesai'])->count();
-            $jobs_processing = (clone $baseQuery)->where('status', 'proses')->count();
-            $jobs_done_today = (clone $baseQuery)->where('status', 'selesai')->whereDate('updated_at', Carbon::today())->count();
+            // Total pekerjaan: yang baru disetujui, sedang dikerjakan, atau sudah selesai
+            $total_jobs = (clone $baseQuery)
+                ->whereIn('status', ['disetujui', 'proses', 'selesai'])
+                ->count();
+
+            // Pekerjaan yang sedang aktif dikerjakan oleh mekanik
+            $jobs_processing = (clone $baseQuery)
+                ->where('status', 'proses')
+                ->count();
+
+            // Pekerjaan yang diselesaikan khusus hari ini
+            $jobs_done_today = (clone $baseQuery)
+                ->where('status', 'selesai')
+                ->whereDate('updated_at', Carbon::today())
+                ->count();
         }
 
-        // Kita TIDAK kirim $bookings (tabel) ke dashboard lagi
         return view('mechanic.dashboard', compact('total_jobs', 'jobs_processing', 'jobs_done_today'));
     }
 }

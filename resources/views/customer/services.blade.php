@@ -9,7 +9,7 @@
             <form method="GET" action="{{ route('customer.services') }}" class="relative group">
                 <input type="text" name="q" placeholder="Cari layanan..."
                        class="pl-10 pr-4 py-2 text-sm border border-gray-200 rounded-xl shadow-sm 
-                              focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-all duration-300 w-48 focus:w-64"
+                               focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-all duration-300 w-48 focus:w-64"
                        value="{{ request('q') }}">
                 <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-indigo-500 transition-colors"></i>
             </form>
@@ -32,7 +32,6 @@
             @endif
 
             @php
-                // Memisahkan layanan menjadi Bundle (punya produk) dan Non-Bundle
                 $bundleServices = $services->filter(fn($s) => $s->products && $s->products->count() > 0);
                 $nonBundleServices = $services->filter(fn($s) => !($s->products && $s->products->count() > 0));
             @endphp
@@ -46,7 +45,7 @@
                             <div class="p-2 bg-amber-100 rounded-lg text-amber-600">
                                 <i data-lucide="package-plus" class="w-5 h-5"></i>
                             </div>
-                            <h3 class="text-xl font-bold text-gray-800">Paket Bundle Hemat</h3>
+                            <h3 class="text-xl font-bold text-gray-800">Paket Bundle</h3>
                         </div>
                         <span class="text-sm font-medium text-gray-500 bg-white px-3 py-1 rounded-full border border-gray-200 shadow-sm">
                             {{ $bundleServices->count() }} Layanan
@@ -56,11 +55,37 @@
                     <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
                         @foreach($bundleServices as $service)
                             <div class="bg-white rounded-2xl border border-gray-100 shadow-md hover:shadow-xl transition-all duration-300 animate-cardFade group flex flex-col relative hover:scale-[1.02]">
-                                <div class="absolute -top-2 -right-2 z-10 flex items-center gap-2">
-                                    <span class="bg-amber-500 text-white text-[10px] font-bold px-2 py-1 rounded-lg shadow-md flex items-center gap-1">
-                                        <i data-lucide="package" class="w-3 h-3"></i>
-                                        Paket Bundle
-                                    </span>
+                                <div class="absolute -top-2 -right-2 z-20 flex items-center gap-2">
+                                    {{-- Fitur Tooltip Menggunakan Alpine.js --}}
+                                    <div x-data="{ open: false }" class="relative">
+                                        <span @mouseenter="open = true" @mouseleave="open = false" 
+                                            class="cursor-pointer bg-amber-500 text-white text-[10px] font-bold px-2 py-1 rounded-lg shadow-md flex items-center gap-1 transition-transform hover:scale-110">
+                                            <i data-lucide="package" class="w-3 h-3"></i>
+                                            Paket Bundle
+                                        </span>
+                                        
+                                        {{-- Popover Content --}}
+                                        <div x-show="open" 
+                                             x-transition:enter="transition ease-out duration-200"
+                                             x-transition:enter-start="opacity-0 translate-y-1"
+                                             x-transition:enter-end="opacity-100 translate-y-0"
+                                             class="absolute right-0 mt-2 w-64 bg-white border border-gray-100 shadow-2xl rounded-xl p-4 z-50 pointer-events-none">
+                                            <p class="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-2 border-b pb-1">Isi Paket Produk:</p>
+                                            <ul class="space-y-2">
+                                                @foreach($service->products as $product)
+                                                <li class="flex items-center gap-2 text-sm text-gray-700">
+                                                    <div class="w-1.5 h-1.5 rounded-full bg-amber-500"></div>
+                                                    <span class="font-medium text-xs">{{ $product->name }}</span>
+                                                </li>
+                                                @endforeach
+                                            </ul>
+                                            <div class="mt-3 pt-2 border-t border-gray-50 flex items-center text-[10px] text-indigo-500 italic">
+                                                <i data-lucide="sparkles" class="w-3 h-3 mr-1"></i>
+                                                Harga sudah termasuk item di atas
+                                            </div>
+                                        </div>
+                                    </div>
+
                                     @if($service->discount_price)
                                         <span class="inline-flex items-center bg-rose-500 text-white text-[10px] font-bold px-2 py-1 rounded-lg shadow-md">
                                             <i data-lucide="badge-percent" class="w-3 h-3 mr-1"></i>
@@ -167,12 +192,10 @@
                     </div>
                 @endif
 
-                {{-- Pagination --}}
                 <div class="mt-12 animate-fadeSlide">
                     {{ $services->withQueryString()->links() }}
                 </div>
             @else
-                {{-- State Kosong --}}
                 <div class="text-center py-20 bg-white rounded-3xl border border-dashed border-gray-300 flex flex-col items-center animate-fadeSlide shadow-sm">
                     <div class="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mb-4">
                         <i data-lucide="wrench" class="w-10 h-10 text-gray-300"></i>

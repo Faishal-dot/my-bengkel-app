@@ -78,7 +78,7 @@
 
                 if($role === 'admin') {
                     $menuGroups = [
-                        'Main' => [
+                        'Beranda' => [
                             ['route'=>'admin.dashboard','icon'=>'home','label'=>'Dashboard'],
                         ],
                         'Manajemen Data' => [
@@ -87,11 +87,11 @@
                             ['route'=>'admin.mechanics.index','icon'=>'users','label'=>'Mekanik'],
                         ],
                         'Operasional' => [
-                            ['route'=>'admin.bookings.index','icon'=>'calendar','label'=>'Booking'],
+                            ['route'=>'admin.bookings.index','icon'=>'calendar','label'=>'Booking', 'badge' => $pendingBookingsCount ?? 0],
                             ['route'=>'admin.queue.index','icon'=>'list-checks','label'=>'Antrian'],
                         ],
-                        'Laporan & Keuangan' => [
-                            ['route' => 'admin.payments.index', 'icon' => 'credit-card', 'label' => 'Pembayaran'],
+                        'Pembayaran & Laporan' => [
+                            ['route' => 'admin.payments.index', 'icon' => 'credit-card', 'label' => 'Pembayaran', 'badge' => $pendingPaymentsCount ?? 0],
                             ['route'=>'admin.penghasilan','icon'=>'wallet','label'=>'Penghasilan'],
                         ]
                     ];
@@ -101,9 +101,6 @@
                             ['route'=>'mechanic.dashboard','icon'=>'home','label'=>'Dashboard'],
                             ['route'=>'mechanic.jobs.index','icon'=>'wrench','label'=>'Pekerjaan Saya'],
                         ],
-                        'Updates' => [
-                            ['route'=>'mechanic.dashboard','icon'=>'shopping-cart','label'=>'Pesanan Masuk', 'ignoreActive' => true],
-                        ]
                     ];
                 } else {
                     $menuGroups = [
@@ -115,12 +112,14 @@
                         ],
                         'Tahap 2: Layanan' => [
                             ['route'=>'customer.services','icon'=>'wrench','label'=>'Pilih Layanan'],
-                            ['route'=>'customer.products','icon'=>'package','label'=>'Produk & Part'],
-                            ['route'=>'customer.booking.index','icon'=>'calendar','label'=>'Booking Service'],
+                            ['route'=>'customer.products','icon'=>'package','label'=>'Sparepart'],
+                            // Badge merah untuk booking yang disetujui admin
+                            ['route'=>'customer.booking.index','icon'=>'calendar','label'=>'Booking Service', 'badge' => $custApprovedCount ?? 0],
                         ],
                         'Tahap 3: Selesai' => [
                             ['route'=>'customer.queue.index','icon'=>'list-checks','label'=>'Status Antrian'],
-                            ['route'=>'customer.payment.index','icon'=>'wallet','label'=>'Pembayaran'],
+                            // Badge merah untuk pembayaran yang belum lunas (unpaid)
+                            ['route'=>'customer.payment.index','icon'=>'wallet','label'=>'Pembayaran', 'badge' => $custUnpaidCount ?? 0],
                             ['route'=>'customer.testimoni.create','icon'=>'message-circle','label'=>'Beri Ulasan'],
                         ]
                     ];
@@ -133,12 +132,18 @@
                         {{ $category }}
                     </span>
                 </div>
-               
+                
                 <ul class="space-y-1">
                     @foreach($menus as $menu)
                         @php
-                            $isActive = (request()->routeIs($menu['route']) || request()->routeIs(str_replace('.index','.*',$menu['route'])))
-                                        && !($menu['ignoreActive'] ?? false);
+                            $isActive = (request()->routeIs($menu['route']) || request()->routeIs(str_replace('.index','.*',$menu['route']) . '*'))
+                                         && !($menu['ignoreActive'] ?? false);
+
+                            if ($menu['route'] == 'customer.products') {
+                                if (request()->is('customer/products/*')) {
+                                    $isActive = true;
+                                }
+                            }
                         @endphp
 
                         <li
@@ -156,8 +161,15 @@
                                     <span class="absolute left-0 top-0 h-full w-1.5 bg-yellow-400 animate-pulse-slow"></span>
                                 @endif
 
-                                <i data-lucide="{{ $menu['icon'] }}" class="w-5 h-5 transition-transform duration-300 group-hover:scale-125 group-hover:rotate-6"></i>
-                                <span class="text-base transition-all duration-300 group-hover:tracking-wide">{{ $menu['label'] }}</span>
+                                <i data-lucide="{{ $menu['icon'] }}" class="w-5 h-5 transition-transform duration-300 group-hover:scale-125 group-hover:rotate-6 flex-shrink-0"></i>
+                                <span class="text-base flex-1 transition-all duration-300 group-hover:tracking-wide truncate">{{ $menu['label'] }}</span>
+
+                                {{-- BADGE NOTIFIKASI MERAH --}}
+                                @if(isset($menu['badge']) && $menu['badge'] > 0)
+                                    <span class="flex items-center justify-center bg-red-500 text-white text-[10px] font-extrabold min-w-[20px] h-[20px] px-1 rounded-full shadow-lg shadow-red-900/20 animate-bounce ring-2 ring-white/10">
+                                        {{ $menu['badge'] }}
+                                    </span>
+                                @endif
                             </a>
                         </li>
                     @endforeach
@@ -172,7 +184,7 @@
             <div class="w-12 h-12 rounded-full bg-gradient-to-br from-white to-blue-50 text-blue-700 font-bold flex items-center justify-center shadow-lg border border-white/20 text-xl transform group-hover:scale-105 transition duration-300 flex-shrink-0">
                 {{ strtoupper(substr(Auth::user()->name,0,1)) }}
             </div>
-           
+            
             <div class="min-w-0 flex-1">
                 <p class="font-bold text-base leading-tight truncate text-white drop-shadow-sm">
                     {{ Auth::user()->name }}
