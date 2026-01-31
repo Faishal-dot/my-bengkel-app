@@ -9,7 +9,7 @@
             <form method="GET" action="{{ route('customer.services') }}" class="relative group">
                 <input type="text" name="q" placeholder="Cari layanan..."
                        class="pl-10 pr-4 py-2 text-sm border border-gray-200 rounded-xl shadow-sm 
-                               focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-all duration-300 w-48 focus:w-64"
+                              focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-all duration-300 w-48 focus:w-64"
                        value="{{ request('q') }}">
                 <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-indigo-500 transition-colors"></i>
             </form>
@@ -32,6 +32,7 @@
             @endif
 
             @php
+                // Filter Bundle vs Satuan
                 $bundleServices = $services->filter(fn($s) => $s->products && $s->products->count() > 0);
                 $nonBundleServices = $services->filter(fn($s) => !($s->products && $s->products->count() > 0));
             @endphp
@@ -56,7 +57,7 @@
                         @foreach($bundleServices as $service)
                             <div class="bg-white rounded-2xl border border-gray-100 shadow-md hover:shadow-xl transition-all duration-300 animate-cardFade group flex flex-col relative hover:scale-[1.02]">
                                 <div class="absolute -top-2 -right-2 z-20 flex items-center gap-2">
-                                    {{-- Fitur Tooltip Menggunakan Alpine.js --}}
+                                    {{-- Popover Isi Paket --}}
                                     <div x-data="{ open: false }" class="relative">
                                         <span @mouseenter="open = true" @mouseleave="open = false" 
                                             class="cursor-pointer bg-amber-500 text-white text-[10px] font-bold px-2 py-1 rounded-lg shadow-md flex items-center gap-1 transition-transform hover:scale-110">
@@ -64,8 +65,8 @@
                                             Paket Bundle
                                         </span>
                                         
-                                        {{-- Popover Content --}}
                                         <div x-show="open" 
+                                             x-cloak
                                              x-transition:enter="transition ease-out duration-200"
                                              x-transition:enter-start="opacity-0 translate-y-1"
                                              x-transition:enter-end="opacity-100 translate-y-0"
@@ -86,11 +87,36 @@
                                         </div>
                                     </div>
 
-                                    @if($service->discount_price)
-                                        <span class="inline-flex items-center bg-rose-500 text-white text-[10px] font-bold px-2 py-1 rounded-lg shadow-md">
-                                            <i data-lucide="badge-percent" class="w-3 h-3 mr-1"></i>
-                                            DISKON -{{ round((($service->price - $service->discount_price) / $service->price) * 100) }}%
-                                        </span>
+                                    {{-- Popover Diskon Bundle --}}
+                                    @if($service->is_discount)
+                                        <div x-data="{ openDiscount: false }" class="relative">
+                                            <span @mouseenter="openDiscount = true" @mouseleave="openDiscount = false" 
+                                                class="cursor-pointer inline-flex items-center bg-rose-500 text-white text-[10px] font-bold px-2 py-1 rounded-lg shadow-md transition-transform hover:scale-110">
+                                                <i data-lucide="badge-percent" class="w-3 h-3 mr-1"></i>
+                                                DISKON -{{ $service->discount_percentage }}%
+                                            </span>
+
+                                            <div x-show="openDiscount" 
+                                                 x-cloak
+                                                 x-transition:enter="transition ease-out duration-200"
+                                                 x-transition:enter-start="opacity-0 translate-y-1"
+                                                 x-transition:enter-end="opacity-100 translate-y-0"
+                                                 class="absolute right-0 mt-2 w-56 bg-white border border-rose-100 shadow-2xl rounded-xl p-4 z-50 pointer-events-none">
+                                                <p class="text-[11px] font-bold text-rose-500 uppercase tracking-wider mb-2 border-b border-rose-50 pb-1 flex items-center gap-1">
+                                                    <i data-lucide="clock" class="w-3 h-3"></i> Masa Berlaku Promo
+                                                </p>
+                                                <div class="space-y-2">
+                                                    <div class="flex flex-col">
+                                                        <span class="text-[10px] text-gray-400 font-medium">Mulai:</span>
+                                                        <span class="text-xs text-gray-700 font-semibold">{{ $service->discount_start ? $service->discount_start->translatedFormat('d F Y') : 'Sekarang' }}</span>
+                                                    </div>
+                                                    <div class="flex flex-col">
+                                                        <span class="text-[10px] text-gray-400 font-medium">Berakhir:</span>
+                                                        <span class="text-xs text-rose-600 font-bold">{{ $service->discount_end ? $service->discount_end->translatedFormat('d F Y') : 'Selama persediaan ada' }}</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
                                     @endif
                                 </div>
 
@@ -100,7 +126,7 @@
                                             {{ $service->name }}
                                         </h3>
                                         <div class="flex flex-col items-end min-w-fit">
-                                            @if($service->discount_price)
+                                            @if($service->is_discount)
                                                 <span class="px-3 py-1 rounded-full text-xs font-bold bg-rose-100 text-rose-700 whitespace-nowrap">
                                                     Rp {{ number_format($service->discount_price, 0, ',', '.') }}
                                                 </span>
@@ -130,7 +156,7 @@
                     </div>
                 @endif
 
-                {{-- SECTION: LAYANAN STANDAR --}}
+                {{-- SECTION: LAYANAN SATUAN --}}
                 @if($nonBundleServices->count() > 0)
                     <div class="mb-6 flex items-center justify-between border-b border-gray-200 pb-2 animate-fadeSlide">
                         <div class="flex items-center gap-2">
@@ -148,11 +174,35 @@
                         @foreach($nonBundleServices as $service)
                             <div class="bg-white rounded-2xl border border-gray-100 shadow-md hover:shadow-xl transition-all duration-300 animate-cardFade group flex flex-col relative hover:scale-[1.02]">
                                 <div class="absolute -top-2 -right-2 z-10 flex items-center gap-2">
-                                    @if($service->discount_price)
-                                        <span class="inline-flex items-center bg-rose-500 text-white text-[10px] font-bold px-2 py-1 rounded-lg shadow-md">
-                                            <i data-lucide="badge-percent" class="w-3 h-3 mr-1"></i>
-                                            DISKON -{{ round((($service->price - $service->discount_price) / $service->price) * 100) }}%
-                                        </span>
+                                    @if($service->is_discount)
+                                        <div x-data="{ openDiscount: false }" class="relative">
+                                            <span @mouseenter="openDiscount = true" @mouseleave="openDiscount = false" 
+                                                class="cursor-pointer inline-flex items-center bg-rose-500 text-white text-[10px] font-bold px-2 py-1 rounded-lg shadow-md transition-transform hover:scale-110">
+                                                <i data-lucide="badge-percent" class="w-3 h-3 mr-1"></i>
+                                                DISKON -{{ $service->discount_percentage }}%
+                                            </span>
+
+                                            <div x-show="openDiscount" 
+                                                 x-cloak
+                                                 x-transition:enter="transition ease-out duration-200"
+                                                 x-transition:enter-start="opacity-0 translate-y-1"
+                                                 x-transition:enter-end="opacity-100 translate-y-0"
+                                                 class="absolute right-0 mt-2 w-56 bg-white border border-rose-100 shadow-2xl rounded-xl p-4 z-50 pointer-events-none">
+                                                <p class="text-[11px] font-bold text-rose-500 uppercase tracking-wider mb-2 border-b border-rose-50 pb-1 flex items-center gap-1">
+                                                    <i data-lucide="clock" class="w-3 h-3"></i> Masa Berlaku Promo
+                                                </p>
+                                                <div class="space-y-2">
+                                                    <div class="flex flex-col">
+                                                        <span class="text-[10px] text-gray-400 font-medium">Mulai:</span>
+                                                        <span class="text-xs text-gray-700 font-semibold">{{ $service->discount_start ? $service->discount_start->translatedFormat('d F Y') : 'Sekarang' }}</span>
+                                                    </div>
+                                                    <div class="flex flex-col">
+                                                        <span class="text-[10px] text-gray-400 font-medium">Berakhir:</span>
+                                                        <span class="text-xs text-rose-600 font-bold">{{ $service->discount_end ? $service->discount_end->translatedFormat('d F Y') : 'Selama persediaan ada' }}</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
                                     @endif
                                 </div>
 
@@ -162,7 +212,7 @@
                                             {{ $service->name }}
                                         </h3>
                                         <div class="flex flex-col items-end min-w-fit">
-                                            @if($service->discount_price)
+                                            @if($service->is_discount)
                                                 <span class="px-3 py-1 rounded-full text-xs font-bold bg-rose-100 text-rose-700 whitespace-nowrap">
                                                     Rp {{ number_format($service->discount_price, 0, ',', '.') }}
                                                 </span>
@@ -209,10 +259,14 @@
 
     <script src="https://unpkg.com/lucide@latest"></script>
     <script>
-        lucide.createIcons();
+        document.addEventListener('DOMContentLoaded', function() {
+            lucide.createIcons();
+        });
     </script>
 
     <style>
+        [x-cloak] { display: none !important; }
+
         @keyframes fadeSlide {
             from { opacity: 0; transform: translateY(10px); }
             to   { opacity: 1; transform: translateY(0); }

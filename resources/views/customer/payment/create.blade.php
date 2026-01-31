@@ -11,10 +11,19 @@
         }
         /* Style tambahan untuk preview */
         .preview-container img {
-            max-height: 200px;
+            max-height: 250px;
             margin: 0 auto;
             border-radius: 0.75rem;
-            display: none;
+            display: block;
+        }
+        /* Menghilangkan spinner pada input number */
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        input[type=number] {
+            -moz-appearance: textfield;
         }
     </style>
 
@@ -109,10 +118,10 @@
                         </div>
                     </div>
 
-                    {{-- Card 2: Info Rekening --}}
+                    {{-- Card 2: Info Rekening Tujuan --}}
                     <div class="bg-white shadow-xl rounded-2xl p-8 border border-gray-100">
                         <h3 class="text-lg font-bold text-gray-800 mb-6 flex items-center gap-2">
-                            <i data-lucide="landmark" class="w-5 h-5 text-yellow-600"></i> Transfer Pembayaran
+                            <i data-lucide="landmark" class="w-5 h-5 text-yellow-600"></i> Rekening Tujuan Transfer
                         </h3>
                         
                         <div class="relative w-full max-w-md mx-auto bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-6 text-white shadow-2xl overflow-hidden transform transition hover:scale-[1.02] duration-300">
@@ -155,7 +164,7 @@
                 <div class="lg:col-span-1 animate-enter" style="animation-delay: 0.2s;">
                     <div class="bg-white shadow-xl rounded-2xl p-8 h-fit border border-gray-100 sticky top-8">
                         <h3 class="text-lg font-bold text-gray-800 mb-6 flex items-center gap-2 pb-4 border-b border-gray-100">
-                            <i data-lucide="upload-cloud" class="w-5 h-5 text-blue-600"></i> Upload Bukti
+                            <i data-lucide="upload-cloud" class="w-5 h-5 text-blue-600"></i> Form Konfirmasi
                         </h3>
 
                         <form action="{{ route('customer.payment.store') }}" method="POST" enctype="multipart/form-data" class="space-y-6">
@@ -163,10 +172,10 @@
                             <input type="hidden" name="payment_id" value="{{ $payment->id }}">
 
                             <div>
-                                <label class="block text-sm font-semibold text-gray-700 mb-2">Nama Bank Pengirim</label>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">Bank Anda (Pengirim)</label>
                                 <div class="relative group">
                                     <i data-lucide="building-2" class="w-5 h-5 absolute left-3 top-3 text-gray-400 group-focus-within:text-blue-500 transition"></i>
-                                    <input type="text" name="bank_name" value="{{ old('bank_name') }}" placeholder="Contoh: BRI, Mandiri"
+                                    <input type="text" name="bank_name" value="{{ old('bank_name') }}" placeholder="Contoh: BRI, Mandiri, BCA"
                                         class="w-full border border-gray-300 pl-10 pr-4 py-2.5 rounded-xl focus:ring-2 focus:ring-blue-200 focus:border-blue-500 transition text-sm" required>
                                 </div>
                             </div>
@@ -175,47 +184,50 @@
                                 <label class="block text-sm font-semibold text-gray-700 mb-2">Nomor Rekening Anda</label>
                                 <div class="relative group">
                                     <i data-lucide="hash" class="w-5 h-5 absolute left-3 top-3 text-gray-400 group-focus-within:text-blue-500 transition"></i>
-                                    <input type="number" name="account_number" value="{{ old('account_number') }}" placeholder="Nomor rekening Anda"
+                                    {{-- Modifikasi di sini: Ditambahkan maxlength 16 dan oninput untuk membatasi input --}}
+                                    <input type="number" name="account_number" value="{{ old('account_number') }}" 
+                                        oninput="if (this.value.length > 16) this.value = this.value.slice(0, 16);" 
+                                        placeholder="Maksimal 16 digit"
                                         class="w-full border border-gray-300 pl-10 pr-4 py-2.5 rounded-xl focus:ring-2 focus:ring-blue-200 focus:border-blue-500 transition text-sm" required>
                                 </div>
+                                <p class="text-[10px] text-gray-400 mt-1">* Maksimal 16 digit angka</p>
                             </div>
 
                             <div>
                                 <label class="block text-sm font-semibold text-gray-700 mb-2">Nama Pemilik Rekening</label>
                                 <div class="relative group">
                                     <i data-lucide="user" class="w-5 h-5 absolute left-3 top-3 text-gray-400 group-focus-within:text-blue-500 transition"></i>
-                                    <input type="text" name="account_holder" value="{{ old('account_holder') }}" placeholder="Sesuai buku tabungan"
+                                    <input type="text" name="account_holder" value="{{ old('account_holder') }}" placeholder="Sesuai nama di ATM/Buku Tabungan"
                                         class="w-full border border-gray-300 pl-10 pr-4 py-2.5 rounded-xl focus:ring-2 focus:ring-blue-200 focus:border-blue-500 transition text-sm" required>
                                 </div>
                             </div>
 
-                            {{-- BAGIAN PERBAIKAN: UPLOAD DENGAN PREVIEW --}}
                             <div>
-                                <label class="block text-sm font-semibold text-gray-700 mb-2">Foto Bukti Transfer</label>
-                                <div id="drop-zone" class="border-2 border-dashed border-gray-300 rounded-xl p-4 text-center hover:bg-blue-50 hover:border-blue-300 transition cursor-pointer relative group">
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">Unggah Bukti Transfer</label>
+                                <div id="drop-zone" class="border-2 border-dashed border-gray-300 rounded-xl p-4 text-center hover:bg-blue-50 hover:border-blue-300 transition cursor-pointer relative group overflow-hidden">
                                     <input type="file" name="proof" id="proof-input" accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" required onchange="handlePreview(this)">
                                     
                                     <div id="upload-placeholder" class="flex flex-col items-center justify-center py-4">
                                         <div class="bg-blue-100 p-3 rounded-full mb-3 text-blue-600 group-hover:scale-110 transition">
                                             <i data-lucide="image-plus" class="w-6 h-6"></i>
                                         </div>
-                                        <p class="text-sm font-medium text-gray-700">Klik untuk upload foto</p>
-                                        <p class="text-xs text-gray-400 mt-1">Format: JPG, PNG (Max 2MB)</p>
+                                        <p class="text-sm font-medium text-gray-700">Pilih Foto Bukti</p>
+                                        <p class="text-[10px] text-gray-400 mt-1 uppercase tracking-tighter font-bold text-rose-500">Maksimal 2MB (JPG/PNG)</p>
                                     </div>
 
                                     <div id="preview-container" class="hidden">
-                                        <img id="image-preview" src="#" alt="Preview" class="w-full rounded-lg shadow-sm border border-gray-200 mb-2">
-                                        <div class="flex items-center justify-center gap-2 text-blue-600 text-xs font-bold">
-                                            <i data-lucide="refresh-cw" class="w-3 h-3"></i> Ganti Foto
+                                        <img id="image-preview" src="#" alt="Preview" class="w-full rounded-lg shadow-sm border border-gray-200 mb-2 object-contain bg-gray-50" style="max-height: 200px;">
+                                        <div class="flex items-center justify-center gap-2 text-blue-600 text-xs font-bold bg-white/80 py-1 rounded-md">
+                                            <i data-lucide="refresh-cw" class="w-3 h-3 animate-spin-slow"></i> Ganti Foto
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
                             <button type="submit"
-                                class="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-bold py-3.5 rounded-xl shadow-lg shadow-blue-500/30 transition-all transform hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2">
-                                <i data-lucide="send" class="w-5 h-5"></i>
-                                Konfirmasi Pembayaran
+                                class="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-bold py-4 rounded-xl shadow-lg shadow-blue-500/30 transition-all transform hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2">
+                                <i data-lucide="check-square" class="w-5 h-5"></i>
+                                Kirim Konfirmasi
                             </button>
                         </form>
                     </div>
@@ -230,7 +242,7 @@
     <script> 
         lucide.createIcons(); 
 
-        // Fungsi Preview Gambar
+        // Fungsi Preview Gambar & Validasi Ukuran
         function handlePreview(input) {
             const preview = document.getElementById('image-preview');
             const container = document.getElementById('preview-container');
@@ -238,17 +250,23 @@
             const dropZone = document.getElementById('drop-zone');
 
             if (input.files && input.files[0]) {
-                const reader = new FileReader();
+                const fileSize = input.files[0].size / 1024 / 1024; // MB
                 
+                if (fileSize > 2) {
+                    alert('Ukuran file terlalu besar! Maksimal 2MB.');
+                    input.value = "";
+                    return;
+                }
+
+                const reader = new FileReader();
                 reader.onload = function(e) {
                     preview.src = e.target.result;
                     container.classList.remove('hidden');
                     placeholder.classList.add('hidden');
                     dropZone.classList.remove('p-4');
-                    dropZone.classList.add('p-2'); // Padatkan padding saat ada gambar
-                    lucide.createIcons(); // Re-render icon refresh
+                    dropZone.classList.add('p-2');
+                    lucide.createIcons();
                 }
-                
                 reader.readAsDataURL(input.files[0]);
             }
         }

@@ -51,6 +51,13 @@
             outline: none;
             box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
         }
+        /* Style Gambar Captcha agar menyatu */
+        .captcha-container img {
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            cursor: pointer;
+            margin: 0 auto;
+        }
     </style>
 </head>
 <body class="font-sans antialiased text-white">
@@ -141,6 +148,19 @@
                         </div>
                     </div>
 
+                    {{-- SECTION CAPTCHA (FIXED UNTUK MEWS/CAPTCHA) --}}
+                    <div class="space-y-3 pt-2">
+                        <label class="block text-sm font-medium text-gray-300 mb-1.5 ml-1 text-center">Verifikasi Keamanan</label>
+                        <div class="captcha-container flex justify-center">
+                            {!! captcha_img('flat') !!}
+                        </div>
+                        <input type="text" name="captcha" required placeholder="Masukkan kode di atas"
+                            class="w-full px-4 py-3 rounded-xl glass-input text-center text-sm font-bold tracking-widest">
+                        @error('captcha')
+                            <p class="mt-1 text-sm text-red-400 text-center">{{ $message }}</p>
+                        @enderror
+                    </div>
+
                     <button type="submit" 
                         class="w-full bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white font-bold py-3.5 rounded-xl shadow-lg shadow-blue-500/30 transition-all transform hover:-translate-y-0.5 flex items-center justify-center gap-2 mt-2">
                         Daftar Sekarang <i data-lucide="user-plus" class="w-4 h-4"></i>
@@ -227,6 +247,14 @@
                 }
             }
             typeLoop();
+
+            // Refresh Captcha saat diklik
+            const captchaImg = document.querySelector('.captcha-container img');
+            if(captchaImg) {
+                captchaImg.addEventListener('click', function() {
+                    this.src = '/captcha/flat?' + Math.random();
+                });
+            }
         });
     </script>
 </body>

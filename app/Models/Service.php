@@ -4,37 +4,50 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Carbon\Carbon; // Tambahkan ini di atas
 
 class Service extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'price', 'discount_price', 'description'];
+    // Tambahkan discount_start dan discount_end ke fillable
+    protected $fillable = ['name', 'price', 'discount_price', 'discount_start', 'discount_end', 'description'];
 
-    /**
-     * Relasi ke model Product (Many-to-Many)
-     * Menghubungkan layanan dengan produk yang digunakan dalam paket bundle.
-     */
+    // Cast kolom menjadi objek Carbon agar mudah dimanipulasi tanggalnya
+    protected $casts = [
+        'discount_start' => 'datetime',
+        'discount_end' => 'datetime',
+    ];
+
     public function products()
     {
-        // Pastikan nama tabel pivot sesuai dengan migration Anda (umumnya 'service_product' atau 'product_service')
         return $this->belongsToMany(Product::class, 'service_product')
                     ->withPivot('quantity')
                     ->withTimestamps();
     }
 
     /**
-     * 1. Cek apakah sedang diskon
-     * Aksesor: $service->is_discount
+     * 1. Cek apakah sedang diskon (Sudah ditambah logika Kalender)
      */
     public function getIsDiscountAttribute()
     {
-        return !is_null($this->discount_price) && $this->discount_price > 0 && $this->discount_price < $this->price;
+        $now = now(); // Waktu saat ini
+
+        // Syarat Diskon Aktif:
+        // 1. Ada harga diskon & lebih kecil dari harga asli
+        // 2. Tanggal sekarang berada di antara Start dan End
+        $hasPrice = !is_null($this->discount_price) && $this->discount_price > 0 && $this->discount_price < $this->price;
+        
+        $isInPeriod = true;
+        if ($this->discount_start && $this->discount_end) {
+            $isInPeriod = $now->between($this->discount_start, $this->discount_end);
+        }
+
+        return $hasPrice && $isInPeriod;
     }
 
     /**
-     * 2. Ambil harga akhir (Harga yang dibayar customer)
-     * Aksesor: $service->final_price
+     * 2. Ambil harga akhir (Otomatis berubah sesuai kalender)
      */
     public function getFinalPriceAttribute()
     {
@@ -42,8 +55,7 @@ class Service extends Model
     }
 
     /**
-     * 3. Hitung persentase diskon untuk badge %
-     * Aksesor: $service->discount_percentage
+     * 3. Hitung persentase diskon
      */
     public function getDiscountPercentageAttribute()
     {

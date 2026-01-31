@@ -8,21 +8,23 @@ use Illuminate\Http\Request;
 
 class PaymentController extends Controller
 {
+    // 1. TAMPILAN LIST PEMBAYARAN
     public function index()
-{
-    // Simpan waktu sekarang ke session saat admin buka halaman ini
-    session(['last_checked_payments' => now()]);
+    {
+        // Simpan waktu pengecekan (opsional untuk notifikasi)
+        session(['last_checked_payments' => now()]);
 
-    $payments = Payment::where('status', '!=', 'unpaid')
-        ->whereNotNull('proof')
-        ->with(['booking.user', 'order.user'])
-        ->orderByRaw("CASE WHEN status = 'pending' THEN 1 ELSE 2 END") 
-        ->latest()
-        ->get();
+        $payments = Payment::where('status', '!=', 'unpaid')
+            ->whereNotNull('proof')
+            ->with(['booking.user', 'booking.service', 'order.user'])
+            ->orderByRaw("CASE WHEN status = 'pending' THEN 1 ELSE 2 END") 
+            ->latest()
+            ->get();
 
-    return view('admin.payment.index', compact('payments'));
-}
+        return view('admin.payment.index', compact('payments'));
+    }
 
+    // 2. DETAIL PEMBAYARAN (Agar tidak error saat klik tombol view)
     public function show(Payment $payment)
     {
         $payment->load([
@@ -30,98 +32,83 @@ class PaymentController extends Controller
                 $q->withTrashed();
             }, 
             'booking.user', 'booking.service', 'booking.vehicle',
-            'order.user', 'order.product' // Tambahan untuk produk
+            'order.user', 'order.product' 
         ]);
         
         return view('admin.payment.show', compact('payment'));
     }
 
+    // 3. KONFIRMASI PEMBAYARAN (Sikat Stok)
     public function confirm(Payment $payment)
     {
-        // 1. Update status di tabel payments menjadi 'paid'
-        $payment->update([
-            'status' => 'paid', 
-        ]);
+        $payment->update(['status' => 'paid']);
 
-        // === LOGIKA UNTUK BOOKING (SERVIS) ===
-        $booking = $payment->booking;
-        if ($booking) {
-            $updateData = ['payment_status' => 'paid'];
-
-            if ($booking->status === 'menunggu') {
-                $updateData['status'] = 'disetujui';
-            }
-
-            $booking->update($updateData);
-
-            // Pengurangan stok bundle servis
-            $service = $booking->service;
-            if ($service && $service->products()->exists()) {
+        // Jika Transaksi Servis (Booking)
+        if ($payment->booking) {
+            $payment->booking->update(['payment_status' => 'paid']);
+            
+            // Potong Stok Produk yang ada di dalam bundle servis (pivot table)
+            $service = $payment->booking->service;
+            if ($service && $service->products) {
                 foreach ($service->products as $product) {
-                    $quantityUsed = $product->pivot->quantity ?? 1;
-                    if ($product->stock >= $quantityUsed) {
-                        $product->decrement('stock', $quantityUsed);
+                    $qty = $product->pivot->quantity ?? 1;
+                    if ($product->stock >= $qty) {
+                        $product->decrement('stock', $qty);
                     }
                 }
             }
         }
 
-        // === LOGIKA UNTUK ORDER (PRODUK) ===
-        $order = $payment->order;
-        if ($order) {
-            // Update status pembayaran di tabel orders
-            $order->update([
-                'payment_status' => 'paid',
-                'status' => 'diproses' // Opsional: otomatis ubah status order
+        // Jika Transaksi Produk Satuan (Order)
+        if ($payment->order) {
+            $payment->order->update([
+                'payment_status' => 'paid', 
+                'status' => 'diproses'
             ]);
-
-            // Pengurangan stok produk satuan
-            $product = $order->product;
-            if ($product && $product->stock >= $order->quantity) {
-                $product->decrement('stock', $order->quantity);
+            
+            $product = $payment->order->product;
+            if ($product && $product->stock >= $payment->order->quantity) {
+                $product->decrement('stock', $payment->order->quantity);
             }
         }
 
-        return redirect()->route('admin.payments.index')
-            ->with('success', 'Pembayaran berhasil dikonfirmasi.');
+        return redirect()->route('admin.payments.index')->with('success', 'Pembayaran Dikonfirmasi & Stok Berkurang.');
     }
 
+    // 4. TOLAK PEMBAYARAN
     public function reject(Payment $payment)
     {
         $payment->update(['status' => 'failed']);
 
-        // Rejection untuk Booking
         if ($payment->booking) {
             $payment->booking->update(['payment_status' => 'unpaid']);
         }
 
-        // Rejection untuk Order Produk
         if ($payment->order) {
             $payment->order->update(['payment_status' => 'unpaid']);
         }
 
-        return redirect()->route('admin.payments.index')
-            ->with('success', 'Pembayaran telah ditolak.');
+        return redirect()->route('admin.payments.index')->with('warning', 'Pembayaran Ditolak.');
     }
 
+    // 5. FUNGSI PRINT (SOLUSI ERROR INTERNAL SERVER ERROR ANDA)
     public function print($id)
-{
-    // Cari data pembayaran dengan relasi lengkap
-    $payment = Payment::with([
-        'booking.service', 
-        'booking.vehicle', 
-        'order.product',
-        'booking.user', 
-        'order.user'
-    ])->findOrFail($id);
+    {
+        $payment = Payment::with([
+            'booking.service', 
+            'booking.vehicle', 
+            'order.product',
+            'booking.user', 
+            'order.user'
+        ])->findOrFail($id);
 
-    // Cek apakah status sudah lunas
-    $status = strtolower($payment->status);
-    if (!in_array($status, ['paid', 'approved', 'lunas', 'success'])) {
-        return back()->with('error', 'Nota hanya bisa dicetak untuk transaksi yang sudah lunas.');
+        $status = strtolower($payment->status);
+        
+        // Hanya transaksi lunas yang bisa dicetak
+        if (!in_array($status, ['paid', 'approved', 'success', 'lunas'])) {
+            return back()->with('error', 'Nota hanya bisa dicetak untuk transaksi yang sudah lunas.');
+        }
+
+        return view('admin.payment.print', compact('payment'));
     }
-
-    // Arahkan ke view nota yang sudah ada
-    return view('admin.payment.print', compact('payment'));
-}
 }

@@ -56,7 +56,7 @@
                         <thead>
                             <tr class="bg-blue-600 text-white uppercase text-xs">
                                 <th class="px-4 py-3 border-r border-blue-500 text-center w-12">No</th>
-                                <th class="px-4 py-3 border-r border-blue-500 text-center">Antrian</th> {{-- KOLOM BARU --}}
+                                <th class="px-4 py-3 border-r border-blue-500 text-center">Antrian</th>
                                 <th class="px-4 py-3 border-r border-blue-500 text-left">Customer</th>
                                 <th class="px-4 py-3 border-r border-blue-500 text-left">Kendaraan</th>
                                 <th class="px-4 py-3 border-r border-blue-500 text-left">Layanan</th>
@@ -103,6 +103,7 @@
                                         @if($job->vehicle)
                                             <div class="font-semibold text-gray-700">{{ $job->vehicle->plate_number }}</div>
                                             <div class="text-xs text-gray-500">{{ $job->vehicle->brand }} - {{ $job->vehicle->model }}</div>
+                                            <div class="text-[10px] mt-0.5 text-blue-600 font-medium uppercase italic">Warna: {{ $job->vehicle->color ?? '-' }}</div>
                                         @else
                                             <span class="text-gray-400 italic text-xs">-</span>
                                         @endif
@@ -157,7 +158,6 @@
                                     <td class="px-4 py-3 border-r border-gray-200 text-center">
                                         <div class="flex flex-col gap-2">
                                             
-                                            {{-- Tombol Chat (Dipindahkan ke sini) --}}
                                             @if($job->user)
                                                 <a href="{{ route('chat.show', $job->id) }}" 
                                                    class="w-full inline-flex items-center justify-center gap-1.5 px-3 py-1.5 bg-blue-50 text-blue-600 border border-blue-200 hover:bg-blue-100 rounded-lg text-xs font-semibold transition-colors duration-200">
@@ -166,7 +166,6 @@
                                                 </a>
                                             @endif
 
-                                            {{-- Form Update Status (Tanpa Emoji) --}}
                                             <form action="{{ route('mechanic.jobs.update', $job->id) }}" method="POST" class="w-full">
                                                 @csrf
                                                 @method('PATCH')
@@ -214,11 +213,9 @@
         </div>
     </div>
 
-    {{-- MODAL POPUP (Design Modern) --}}
+    {{-- MODAL POPUP --}}
     <div id="complaintModal" class="fixed inset-0 z-50 flex items-center justify-center hidden bg-black/50 backdrop-blur-sm p-4">
-        
         <div id="modalContent" class="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden transform scale-95 transition-all">
-            
             <div class="bg-blue-600 px-6 py-4 flex justify-between items-center">
                 <h3 class="text-white font-bold flex items-center gap-2 text-lg">
                     <i data-lucide="clipboard-list" class="w-5 h-5"></i>
@@ -228,18 +225,15 @@
                     <i data-lucide="x" class="w-5 h-5"></i>
                 </button>
             </div>
-
             <div class="p-6">
                 <div class="mb-1 text-xs font-bold text-gray-400 uppercase tracking-wider">Nama Pelanggan</div>
                 <div class="text-lg font-bold text-gray-800 mb-5 pb-3 border-b border-gray-100" id="modalCustomerName">-</div>
-                
                 <div class="mb-2 text-xs font-bold text-gray-400 uppercase tracking-wider flex items-center gap-1">
                     <i data-lucide="alert-circle" class="w-3 h-3 text-orange-500"></i> Isi Keluhan
                 </div>
                 <div class="bg-orange-50 border-l-4 border-orange-400 p-4 rounded-r-xl shadow-sm">
                     <p class="text-gray-700 italic text-sm leading-relaxed" id="modalText">-</p>
                 </div>
-
                 <div class="mt-6 flex justify-end">
                     <button onclick="closeModal()" class="px-5 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-sm font-bold transition">
                         Tutup
@@ -253,19 +247,16 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <script>
         lucide.createIcons();
-
         function openModal(name, text) {
             document.getElementById('modalCustomerName').innerText = name;
             document.getElementById('modalText').innerText = text;
             const modal = document.getElementById('complaintModal');
             modal.classList.remove('hidden');
         }
-
         function closeModal() {
             const modal = document.getElementById('complaintModal');
             modal.classList.add('hidden');
         }
-
         document.getElementById('complaintModal').addEventListener('click', function(e) {
             if (e.target === this) closeModal();
         });

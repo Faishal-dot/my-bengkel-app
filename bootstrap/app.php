@@ -3,6 +3,7 @@
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Http\Request;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -11,18 +12,38 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        // 1. Daftarkan Middleware secara Global agar mengecek setiap klik halaman
+
+        // 1. Middleware global (TIDAK DIUBAH)
         $middleware->web(append: [
             \App\Http\Middleware\SaveLastVisitedUrl::class,
         ]);
 
-        // 2. Alias middleware kustom (untuk digunakan di web.php)
+        // 2. Alias middleware (TIDAK DIUBAH)
         $middleware->alias([
             'role' => \App\Http\Middleware\RoleMiddleware::class,
             'mechanic' => \App\Http\Middleware\IsMechanic::class, 
             'admin' => \App\Http\Middleware\IsAdmin::class,      
         ]);
+
+        // ================================
+        // ✅ FIX RESET PASSWORD (INI DOANG)
+        // ================================
+        $middleware->redirectUsersTo(function (Request $request) {
+
+            // IZINKAN SEMUA ROUTE RESET PASSWORD
+            if ($request->routeIs(
+                'password.request',
+                'password.reset',
+                'password.store'
+            )) {
+                return null; // ❗ JANGAN REDIRECT
+            }
+
+            // DEFAULT JIKA BUKAN RESET
+            return route('home');
+        });
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
-    })->create();
+    })
+    ->create();

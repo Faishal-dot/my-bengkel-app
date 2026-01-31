@@ -97,6 +97,13 @@
                                     {{-- Aksi --}}
                                     <td class="px-4 py-3 text-center">
                                         <div class="flex items-center justify-center gap-2">
+                                            {{-- TOMBOL EDIT --}}
+                                            <a href="{{ route('customer.vehicles.edit', $vehicle->id) }}" 
+                                               class="inline-flex items-center gap-1 px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-lg text-xs font-bold transition border border-blue-200 shadow-sm">
+                                                <i data-lucide="edit-3" class="w-3.5 h-3.5"></i> Edit
+                                            </a>
+
+                                            {{-- TOMBOL HAPUS --}}
                                             <form action="{{ route('customer.vehicles.destroy', $vehicle->id) }}" method="POST" class="inline delete-form">
                                                 @csrf
                                                 @method('DELETE')
@@ -157,6 +164,7 @@
                     cancelButtonColor: '#6b7280',
                     confirmButtonText: 'Ya, Hapus!',
                     cancelButtonText: 'Batal',
+                    reverseButtons: true,
                     customClass: {
                         popup: 'rounded-2xl',
                         confirmButton: 'rounded-lg px-5 py-2.5',

@@ -78,39 +78,47 @@
 
                                     <td class="px-4 py-4 border-r border-gray-200 text-gray-700">
                                         @if($row->booking_id)
-                                            <span class="font-medium">{{ $row->booking->service->name ?? '-' }}</span>
+                                            <span class="font-medium text-blue-700">{{ $row->booking->service->name ?? '-' }}</span>
+                                        @elseif($row->order && $row->order->orderDetails->count() > 0)
+                                            <div class="space-y-1">
+                                                @foreach($row->order->orderDetails as $detail)
+                                                    <div class="flex items-start gap-1 border-b border-gray-100 last:border-0 pb-1">
+                                                        <span class="text-gray-800 font-medium">· {{ $detail->product->name ?? 'Produk Dihapus' }}</span>
+                                                        <span class="text-[10px] bg-gray-100 px-1 rounded text-gray-500">x{{ $detail->quantity }}</span>
+                                                    </div>
+                                                @endforeach
+                                            </div>
                                         @else
                                             <span class="font-medium">{{ $row->order->product->name ?? '-' }}</span>
                                             <p class="text-[10px] text-gray-500">Qty: {{ $row->order->quantity ?? 0 }}</p>
                                         @endif
                                     </td>
                                     
-                                    <td class="px-4 py-4 border-r border-gray-200 font-bold text-gray-800">
+                                    <td class="px-4 py-4 border-r border-gray-200">
                                         @php
-                                            $originalPrice = $row->booking->service->price ?? 0;
-                                            $paidAmount = $row->amount;
-                                            $hasDiscount = ($originalPrice > $paidAmount) && ($paidAmount > 0) && $row->booking_id;
+                                            $isBooking = !is_null($row->booking_id);
+                                            $service = $isBooking ? optional($row->booking->service) : null;
+                                            $showDiscount = $isBooking && $service && $service->discount_price;
                                         @endphp
-
-                                        @if($hasDiscount)
-                                            <div class="flex flex-col">
-                                                <span class="text-[10px] text-rose-500 line-through font-normal decoration-[1.5px]">
-                                                    Rp {{ number_format($originalPrice, 0, ',', '.') }}
+                                        <div class="flex flex-col">
+                                            @if($showDiscount)
+                                                <span class="text-[10px] text-gray-400 line-through">
+                                                    Rp {{ number_format($service->price, 0, ',', '.') }}
                                                 </span>
-                                                <span class="text-blue-700">
-                                                    Rp {{ number_format($paidAmount, 0, ',', '.') }}
-                                                </span>
-                                            </div>
-                                        @else
-                                            <span class="text-gray-800">
-                                                Rp {{ number_format($paidAmount, 0, ',', '.') }}
-                                            </span>
-                                        @endif
+                                                <p class="font-bold text-rose-600">
+                                                    Rp {{ number_format($row->amount, 0, ',', '.') }}
+                                                </p>
+                                            @else
+                                                <p class="font-bold text-gray-800">
+                                                    Rp {{ number_format($row->amount, 0, ',', '.') }}
+                                                </p>
+                                            @endif
+                                        </div>
                                     </td>
                                     
                                     <td class="px-4 py-4 border-r border-gray-200 text-center">
                                         <a href="{{ route('admin.payments.show', $row->id) }}" class="text-blue-600 hover:text-blue-800 hover:underline text-xs font-semibold flex items-center justify-center gap-1">
-                                            <i data-lucide="eye" class="w-3 h-3"></i> Detail
+                                            <i data-lucide="eye" class="w-3 h-3"></i> Lihat Bukti
                                         </a>
                                     </td>
 
@@ -118,7 +126,7 @@
                                         @php $status = strtolower($row->status); @endphp
                                         @if($status === 'pending')
                                             <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-700 border border-amber-200">
-                                                <i data-lucide="clock" class="w-3 h-3"></i> Pending
+                                                <i data-lucide="clock" class="w-3 h-3"></i> Menunggu
                                             </span>
                                         @elseif(in_array($status, ['paid', 'approved', 'lunas', 'success', 'selesai']))
                                             <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700 border border-emerald-200">
@@ -136,13 +144,13 @@
                                     <td class="px-4 py-4 text-center">
                                         @if(strtolower($row->status) === 'pending')
                                             <div class="flex justify-center items-center gap-2">
-                                                <form action="{{ route('admin.payments.confirm', $row->id) }}" method="POST">
+                                                <form action="{{ route('admin.payments.confirm', $row->id) }}" method="POST" onsubmit="return confirm('Terima pembayaran ini?')">
                                                     @csrf
                                                     <button type="submit" class="group bg-emerald-500 hover:bg-emerald-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold shadow-md hover:shadow-lg transition-all transform hover:-translate-y-0.5 flex items-center gap-1">
                                                         <i data-lucide="check" class="w-4 h-4"></i> Terima
                                                     </button>
                                                 </form>
-                                                <form action="{{ route('admin.payments.reject', $row->id) }}" method="POST">
+                                                <form action="{{ route('admin.payments.reject', $row->id) }}" method="POST" onsubmit="return confirm('Tolak pembayaran ini?')">
                                                     @csrf
                                                     <button type="submit" class="group bg-rose-500 hover:bg-rose-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold shadow-md hover:shadow-lg transition-all transform hover:-translate-y-0.5 flex items-center gap-1">
                                                         <i data-lucide="x" class="w-4 h-4"></i> Tolak
@@ -150,7 +158,6 @@
                                                 </form>
                                             </div>
                                         @elseif(in_array(strtolower($row->status), ['paid', 'approved', 'lunas', 'success']))
-                                            {{-- BAGIAN BARU: Muncul setelah diverif --}}
                                             <div class="flex flex-col items-center gap-2">
                                                 <span class="text-emerald-600 text-[10px] font-bold flex items-center justify-center gap-1 uppercase tracking-tighter">
                                                     <i data-lucide="check-check" class="w-3 h-3"></i> Terverifikasi
@@ -160,10 +167,8 @@
                                                     <i data-lucide="printer" class="w-3.5 h-3.5"></i> Cetak Nota
                                                 </a>
                                             </div>
-                                        @elseif(in_array(strtolower($row->status), ['failed', 'rejected', 'ditolak']))
-                                             <span class="text-rose-600 text-xs font-bold flex items-center justify-center gap-1 opacity-70"><i data-lucide="alert-circle" class="w-4 h-4"></i> Gagal</span>
                                         @else
-                                            <span class="text-gray-400 text-xs italic">Selesai</span>
+                                            <span class="text-gray-400 text-xs italic opacity-50">Tidak ada aksi</span>
                                         @endif
                                     </td>
                                 </tr>

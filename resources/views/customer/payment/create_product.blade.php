@@ -69,21 +69,41 @@
                                 </div>
                             </div>
 
-                            {{-- Item Produk (DIPERBAIKI: Tanpa foreach details) --}}
+                            {{-- Item Produk (FIXED: Membaca dari OrderDetails Database) --}}
                             <div class="space-y-4">
                                 <p class="text-xs uppercase tracking-wide text-gray-400 font-bold mb-2">Item yang dibeli:</p>
-                                <div class="flex justify-between items-center p-3 rounded-xl border border-gray-50 bg-gray-50/50">
-                                    <div class="flex items-center gap-3">
-                                        <div class="p-2 bg-white rounded-lg shadow-sm">
-                                            <i data-lucide="box" class="w-5 h-5 text-gray-400"></i>
+                                
+                                @if($order->orderDetails && $order->orderDetails->count() > 0)
+                                    {{-- LOOPING SEMUA PRODUK DARI DATABASE --}}
+                                    @foreach($order->orderDetails as $detail)
+                                    <div class="flex justify-between items-center p-3 rounded-xl border border-gray-50 bg-gray-50/50 mb-2">
+                                        <div class="flex items-center gap-3">
+                                            <div class="p-2 bg-white rounded-lg shadow-sm">
+                                                <i data-lucide="box" class="w-5 h-5 text-blue-400"></i>
+                                            </div>
+                                            <div>
+                                                <p class="font-semibold text-gray-800">{{ $detail->product->name }}</p>
+                                                <p class="text-xs text-gray-500">{{ $detail->quantity }} Item x Rp {{ number_format($detail->price, 0, ',', '.') }}</p>
+                                            </div>
                                         </div>
-                                        <div>
-                                            <p class="font-semibold text-gray-800">{{ $order->product->name ?? 'Produk' }}</p>
-                                            <p class="text-xs text-gray-500">{{ $order->quantity }} Item x Rp {{ number_format(($order->total_price / ($order->quantity ?: 1)), 0, ',', '.') }}</p>
-                                        </div>
+                                        <p class="font-bold text-gray-700">Rp {{ number_format($detail->price * $detail->quantity, 0, ',', '.') }}</p>
                                     </div>
-                                    <p class="font-bold text-gray-700">Rp {{ number_format($order->total_price, 0, ',', '.') }}</p>
-                                </div>
+                                    @endforeach
+                                @else
+                                    {{-- Fallback jika order_details kosong (untuk data lama) --}}
+                                    <div class="flex justify-between items-center p-3 rounded-xl border border-gray-50 bg-gray-50/50">
+                                        <div class="flex items-center gap-3">
+                                            <div class="p-2 bg-white rounded-lg shadow-sm">
+                                                <i data-lucide="box" class="w-5 h-5 text-gray-400"></i>
+                                            </div>
+                                            <div>
+                                                <p class="font-semibold text-gray-800">{{ $order->product->name ?? 'Produk' }}</p>
+                                                <p class="text-xs text-gray-500">{{ $order->quantity }} Item x Rp {{ number_format(($order->total_price / ($order->quantity ?: 1)), 0, ',', '.') }}</p>
+                                            </div>
+                                        </div>
+                                        <p class="font-bold text-gray-700">Rp {{ number_format($order->total_price, 0, ',', '.') }}</p>
+                                    </div>
+                                @endif
                             </div>
                         </div>
                     </div>

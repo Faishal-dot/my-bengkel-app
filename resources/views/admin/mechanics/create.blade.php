@@ -29,14 +29,15 @@
                     {{-- INPUT COMPONENT --}}
                     @php
                         $inputs = [
-                            ['label' => 'Nama Mekanik', 'icon' => 'user', 'name' => 'name', 'type' => 'text', 'required' => true],
-                            ['label' => 'Nomor KTP', 'icon' => 'id-card', 'name' => 'ktp', 'type' => 'text', 'required' => true],
-                            ['label' => 'Email Login', 'icon' => 'mail', 'name' => 'email', 'type' => 'email', 'required' => true],
-                            ['label' => 'Password Login', 'icon' => 'lock', 'name' => 'password', 'type' => 'password', 'required' => true],
-                            ['label' => 'Konfirmasi Password', 'icon' => 'shield-check', 'name' => 'password_confirmation', 'type' => 'password', 'required' => true],
-                            ['label' => 'Telepon', 'icon' => 'phone', 'name' => 'phone', 'type' => 'text', 'required' => false],
-                            ['label' => 'Alamat Rumah', 'icon' => 'map-pin', 'name' => 'address', 'type' => 'text', 'required' => false],
-                            ['label' => 'Spesialisasi', 'icon' => 'settings', 'name' => 'specialization', 'type' => 'text', 'required' => false],
+                            ['label' => 'Nama Mekanik', 'icon' => 'user', 'name' => 'name', 'type' => 'text', 'required' => true, 'max' => null],
+                            // KTP dibatasi 16 digit
+                            ['label' => 'Nomor KTP', 'icon' => 'id-card', 'name' => 'ktp', 'type' => 'number', 'required' => true, 'max' => 16],
+                            ['label' => 'Email Login', 'icon' => 'mail', 'name' => 'email', 'type' => 'email', 'required' => true, 'max' => null],
+                            ['label' => 'Password Login', 'icon' => 'lock', 'name' => 'password', 'type' => 'password', 'required' => true, 'max' => null],
+                            ['label' => 'Konfirmasi Password', 'icon' => 'shield-check', 'name' => 'password_confirmation', 'type' => 'password', 'required' => true, 'max' => null],
+                            // Telepon dibatasi 15 digit
+                            ['label' => 'Telepon', 'icon' => 'phone', 'name' => 'phone', 'type' => 'number', 'required' => false, 'max' => 15],
+                            ['label' => 'Alamat Rumah', 'icon' => 'map-pin', 'name' => 'address', 'type' => 'text', 'required' => false, 'max' => null],
                         ];
                     @endphp
 
@@ -52,6 +53,10 @@
                                 name="{{ $input['name'] }}"
                                 value="{{ old($input['name']) }}"
                                 @if($input['required']) required @endif
+                                @if($input['max']) 
+                                    oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);"
+                                    maxlength="{{ $input['max'] }}" 
+                                @endif
                                 class="w-full border-gray-300 rounded-xl px-4 py-3 shadow-sm
                                        focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500
                                        transition-all duration-300 bg-white hover:bg-indigo-50/20"
@@ -59,11 +64,35 @@
                         </div>
                     @endforeach
 
+                    {{-- CUSTOM DROPDOWN FOR SPECIALIZATION --}}
+                    <div class="transition-all duration-300 transform hover:scale-[1.015] animate-fadeInUp">
+                        <label class="block mb-1 text-gray-600 font-medium flex items-center gap-1">
+                            <i data-lucide="settings" class="w-4 h-4 text-indigo-500"></i>
+                            Spesialisasi
+                        </label>
+                        
+                        <select 
+                            name="specialization" 
+                            required 
+                            class="w-full border-gray-300 rounded-xl px-4 py-3 shadow-sm
+                                   focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500
+                                   transition-all duration-300 bg-white hover:bg-indigo-50/20 text-gray-700"
+                        >
+                            <option value="" disabled selected>-- Pilih Spesialisasi --</option>
+                            <option value="Mesin" {{ old('specialization') == 'Mesin' ? 'selected' : '' }}>Mekanik Mesin</option>
+                            <option value="Kelistrikan" {{ old('specialization') == 'Kelistrikan' ? 'selected' : '' }}>Mekanik Kelistrikan</option>
+                            <option value="Kaki-kaki" {{ old('specialization') == 'Kaki-kaki' ? 'selected' : '' }}>Mekanik Kaki-kaki</option>
+                            <option value="AC Mobil" {{ old('specialization') == 'AC Mobil' ? 'selected' : '' }}>Spesialis AC</option>
+                            <option value="Body Repair" {{ old('specialization') == 'Body Repair' ? 'selected' : '' }}>Body Repair</option>
+                            <option value="Tune Up" {{ old('specialization') == 'Tune Up' ? 'selected' : '' }}>Service Berkala (Tune Up)</option>
+                        </select>
+                    </div>
+
                     {{-- BUTTON AREA --}}
                     <div class="flex items-center gap-4 pt-6">
                         <button type="submit"
                             class="bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-6 py-3 rounded-xl shadow-md font-semibold
-                                   hover:from-indigo-600 hover:to-purple-700 hover:shadow-lg transform hover:scale-[1.03] active:scale-95 transition-all duration-200 flex items-center gap-2">
+                                    hover:from-indigo-600 hover:to-purple-700 hover:shadow-lg transform hover:scale-[1.03] active:scale-95 transition-all duration-200 flex items-center gap-2">
                             <i data-lucide="save" class="w-5 h-5"></i> Simpan
                         </button>
 
@@ -101,6 +130,16 @@
         .animate-fadeInUp { animation: fadeInUp 0.6s ease-out; }
         .animate-slideDown { animation: slideDown 0.6s ease-out; }
         .animate-pop { animation: pop 0.3s ease-out; }
+        
+        /* Menghilangkan panah pada input type number */
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
     </style>
 
     <script src="https://unpkg.com/lucide@latest"></script>

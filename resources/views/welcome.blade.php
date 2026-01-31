@@ -311,7 +311,7 @@ section {
                     Metode pembayaran?
                     <i data-lucide="chevron-down" class="w-5 h-5 text-gray-400"></i>
                 </button>
-                <div class="faq-content px-6 text-gray-300">Kami menerima Tunai, Transfer Bank, dan QRIS.</div>
+                <div class="faq-content px-6 text-gray-300">Kami hanya menerima Transfer Bank</div>
             </div>
             <div class="bg-white/5 rounded-xl border border-white/5 overflow-hidden">
                 <button class="w-full flex justify-between items-center px-6 py-4 text-left font-semibold faq-toggle hover:bg-white/5 transition">

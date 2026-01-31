@@ -177,25 +177,43 @@
                                 @endif
                             </div>
 
-                            {{-- INFO LAYANAN / PRODUK --}}
-                            <div class="bg-blue-50/50 rounded-2xl px-6 py-5 border border-blue-100/50 flex flex-col md:flex-row md:items-center justify-between gap-4">
-                                <div class="flex items-center gap-3">
+                            {{-- INFO LAYANAN / PRODUK (BAGIAN YANG DIUBAH) --}}
+                            <div class="bg-blue-50/50 rounded-2xl px-6 py-5 border border-blue-100/50">
+                                <div class="flex items-center gap-3 mb-4">
                                     <div class="p-2 bg-white rounded-lg shadow-sm">
                                         <i data-lucide="{{ $payment->booking_id ? 'wrench' : 'package' }}" class="w-5 h-5 text-blue-600"></i>
                                     </div>
-                                    <div>
-                                        <span class="text-gray-500 text-[10px] font-bold uppercase block">Item yang dibayar:</span>
-                                        <span class="text-blue-900 font-bold text-lg">
-                                            @if($payment->booking_id)
-                                                {{ $payment->booking->service->name ?? 'Layanan Tidak Ditemukan' }}
-                                            @else
-                                                {{ $payment->order->product->name ?? 'Produk Tidak Ditemukan' }} 
-                                                <span class="text-sm font-normal text-blue-600">(x{{ $payment->order->quantity }})</span>
-                                            @endif
-                                        </span>
-                                    </div>
+                                    <span class="text-gray-500 text-[10px] font-bold uppercase tracking-widest">Detail Item Pembayaran</span>
                                 </div>
-                                <div class="flex items-center gap-2 bg-white px-4 py-2 rounded-xl shadow-sm border border-blue-50">
+
+                                <div class="space-y-4">
+                                    @if($payment->booking_id)
+                                        {{-- JIKA BOOKING SERVICE --}}
+                                        <div class="flex justify-between items-center">
+                                            <span class="text-blue-900 font-bold text-lg">{{ $payment->booking->service->name ?? 'Layanan Tidak Ditemukan' }}</span>
+                                            <span class="text-blue-600 font-bold">1x</span>
+                                        </div>
+                                    @elseif($payment->order && $payment->order->orderDetails && $payment->order->orderDetails->count() > 0)
+                                        {{-- JIKA ORDER BANYAK PRODUK --}}
+                                        @foreach($payment->order->orderDetails as $detail)
+                                            <div class="flex justify-between items-center border-b border-blue-100 pb-2 last:border-0 last:pb-0">
+                                                <div class="flex flex-col">
+                                                    <span class="text-blue-900 font-bold text-base">{{ $detail->product->name ?? 'Produk' }}</span>
+                                                    <span class="text-xs text-blue-400 font-medium italic">Rp {{ number_format($detail->price, 0, ',', '.') }} / item</span>
+                                                </div>
+                                                <span class="text-blue-600 font-bold bg-white px-3 py-1 rounded-lg shadow-sm border border-blue-50">x{{ $detail->quantity }}</span>
+                                            </div>
+                                        @endforeach
+                                    @else
+                                        {{-- FALLBACK SINGLE PRODUCT --}}
+                                        <div class="flex justify-between items-center">
+                                            <span class="text-blue-900 font-bold text-lg">{{ $payment->order->product->name ?? 'Produk Tidak Ditemukan' }}</span>
+                                            <span class="text-blue-600 font-bold bg-white px-3 py-1 rounded-lg shadow-sm border border-blue-50">x{{ $payment->order->quantity ?? 1 }}</span>
+                                        </div>
+                                    @endif
+                                </div>
+
+                                <div class="mt-6 flex items-center gap-2 bg-white px-4 py-2 rounded-xl shadow-sm border border-blue-50 w-fit">
                                     <i data-lucide="info" class="w-4 h-4 text-blue-400"></i>
                                     <span class="text-xs text-blue-600 font-bold">Data Terverifikasi Sistem</span>
                                 </div>

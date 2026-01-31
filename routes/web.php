@@ -156,7 +156,9 @@ Route::middleware(['auth', 'verified'])
         Route::get('/booking/create', [CustomerBooking::class, 'create'])->name('booking.create');
         Route::post('/booking', [CustomerBooking::class, 'store'])->name('booking.store');
 
-        Route::resource('/vehicles', VehicleController::class)->names('vehicles');
+        // ROUTE KENDARAAN (Mencakup edit, update, dan destroy secara otomatis)
+        Route::resource('vehicles', VehicleController::class)->names('vehicles');
+
         Route::get('/services', [\App\Http\Controllers\ServiceController::class, 'index'])->name('services');
 
         // CUSTOMER PAYMENT
@@ -167,8 +169,14 @@ Route::middleware(['auth', 'verified'])
         Route::get('/payment/booking/{booking_id}', [CustomerPaymentController::class, 'create'])->name('payment.create');
         Route::get('/payment/product/{order_id}', [CustomerPaymentController::class, 'createProduct'])->name('payment.product');
         
-        // --- ROUTE CETAK NOTA (TAMBAHKAN INI) ---
+        // --- ROUTE CETAK NOTA ---
         Route::get('/payment/print/{payment}', [CustomerPaymentController::class, 'print'])->name('payment.print');
+
+        // ROUTE KERANJANG (CART)
+        Route::get('/cart', [\App\Http\Controllers\Customer\CartController::class, 'index'])->name('cart.index');
+        Route::post('/cart/add/{product}', [\App\Http\Controllers\Customer\CartController::class, 'add'])->name('cart.add');
+        Route::patch('/cart/update/{id}', [\App\Http\Controllers\Customer\CartController::class, 'update'])->name('cart.update');
+        Route::delete('/cart/remove/{id}', [\App\Http\Controllers\Customer\CartController::class, 'remove'])->name('cart.remove');
         
     });
 

@@ -69,6 +69,32 @@
                         </div>
                     </div>
 
+                    {{-- Section Masa Berlaku Diskon dengan Filter Hari Ini --}}
+                    @php $today = date('Y-m-d'); @endphp
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 p-4 bg-rose-50/50 rounded-xl border border-rose-100">
+                        <div class="relative transition-all duration-300 hover:scale-[1.01]">
+                            <label class="flex items-center gap-2 mb-2 text-gray-600 font-medium text-sm">
+                                <i data-lucide="calendar-days" class="w-4 h-4 text-rose-400"></i>
+                                Diskon Dimulai (Opsional)
+                            </label>
+                            <input type="date" name="discount_start" id="discount_start"
+                                min="{{ $today }}"
+                                value="{{ old('discount_start', $service->discount_start ? \Carbon\Carbon::parse($service->discount_start)->format('Y-m-d') : '') }}"
+                                class="w-full border-gray-300 rounded-lg px-4 py-2 text-sm shadow-sm focus:ring-2 focus:ring-rose-300 focus:border-rose-300">
+                        </div>
+
+                        <div class="relative transition-all duration-300 hover:scale-[1.01]">
+                            <label class="flex items-center gap-2 mb-2 text-gray-600 font-medium text-sm">
+                                <i data-lucide="calendar-off" class="w-4 h-4 text-rose-400"></i>
+                                Diskon Berakhir (Opsional)
+                            </label>
+                            <input type="date" name="discount_end" id="discount_end"
+                                min="{{ old('discount_start', $service->discount_start ? \Carbon\Carbon::parse($service->discount_start)->format('Y-m-d') : $today) }}"
+                                value="{{ old('discount_end', $service->discount_end ? \Carbon\Carbon::parse($service->discount_end)->format('Y-m-d') : '') }}"
+                                class="w-full border-gray-300 rounded-lg px-4 py-2 text-sm shadow-sm focus:ring-2 focus:ring-rose-300 focus:border-rose-300">
+                        </div>
+                    </div>
+
                     <hr class="border-gray-100 my-8">
 
                     <div class="space-y-4">
@@ -142,6 +168,24 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <script>
         lucide.createIcons();
+
+        // LOGIKA FILTER TANGGAL
+        const discountStart = document.getElementById('discount_start');
+        const discountEnd = document.getElementById('discount_end');
+
+        discountStart.addEventListener('change', function() {
+            if (this.value) {
+                // Set minimal tanggal berakhir mengikuti tanggal mulai
+                discountEnd.min = this.value;
+                
+                // Jika tanggal berakhir sudah dipilih dan ternyata lebih kecil dari tanggal mulai baru
+                if (discountEnd.value && discountEnd.value < this.value) {
+                    discountEnd.value = this.value;
+                }
+            }
+        });
+
+        // LOGIKA DYNAMIC PRODUCT ROW
         const container = document.getElementById('product-container');
         const addButton = document.getElementById('add-product-row');
 
@@ -163,7 +207,6 @@
                 if (container.querySelectorAll('.product-row').length > 1) {
                     e.target.closest('.product-row').remove();
                 } else {
-                    // Jika baris terakhir, cukup kosongkan nilainya saja
                     const row = container.querySelector('.product-row');
                     row.querySelector('select').value = "";
                     row.querySelector('input').value = "1";

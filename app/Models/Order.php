@@ -5,7 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Database\Eloquent\Relations\HasOne; // Tambahkan ini
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\HasMany; // Tambahkan ini untuk relasi detail
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Order extends Model
@@ -14,20 +15,19 @@ class Order extends Model
 
     protected $fillable = [
         'user_id',
-        'product_id',
+        'product_id', // Tetap ada sebagai referensi utama/produk pertama
         'service_id',
         'quantity',
         'total_price',
         'status',
+        'payment_status', // Pastikan ini ada karena digunakan di Controller
     ];
 
     /**
-     * ✅ Relasi ke Payment
-     * Inilah yang menyebabkan error "Call to undefined relationship [payment]"
+     * Relasi ke Payment
      */
     public function payment(): HasOne
     {
-        // Parameter kedua adalah foreign key di tabel payments
         return $this->hasOne(Payment::class, 'order_id');
     }
 
@@ -47,10 +47,11 @@ class Order extends Model
     }
 
     /**
-     * Jika Anda menggunakan sistem detail order (opsional)
+     * Relasi ke Order Details (PENTING untuk menampilkan banyak produk)
+     * Kita gunakan nama 'orderDetails' agar sesuai dengan pengecekan di View
      */
-    public function details()
+    public function orderDetails(): HasMany
     {
-        return $this->hasMany(OrderDetail::class);
+        return $this->hasMany(OrderDetail::class, 'order_id');
     }
 }

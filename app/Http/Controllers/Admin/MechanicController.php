@@ -37,7 +37,7 @@ class MechanicController extends Controller
             'ktp'            => 'required|string|max:20',
             'phone'          => 'nullable|string|max:20',
             'address'        => 'nullable|string',
-            'specialization' => 'nullable|string|max:100',
+            'specialization' => 'required|string|max:100',
         ]);
 
         DB::transaction(function () use ($request) {
@@ -71,27 +71,44 @@ class MechanicController extends Controller
     }
 
     public function update(Request $request, Mechanic $mechanic)
-    {
-        $data = $request->validate([
-            'name'           => 'required|max:255',
-            'ktp'            => 'required|max:20',
-            'phone'          => 'nullable|max:30',
-            'address'        => 'nullable',
-            'specialization' => 'nullable|max:255',
+{
+    // Validasi input
+    $request->validate([
+        'name'           => 'required|string|max:255',
+        'email'          => 'required|email|unique:users,email,' . $mechanic->user_id,
+        'password'       => 'nullable|min:6|confirmed', // Nullable agar tidak wajib isi password saat edit
+        'ktp'            => 'required|string|max:20',
+        'phone'          => 'nullable|string|max:20',
+        'address'        => 'nullable|string',
+        'specialization' => 'required|string',
+    ]);
+
+    DB::transaction(function () use ($request, $mechanic) {
+        // 1. Update Tabel Mechanic
+        $mechanic->update([
+            'name'           => $request->name,
+            'ktp'            => $request->ktp,
+            'phone'          => $request->phone,
+            'address'        => $request->address,
+            'specialization' => $request->specialization,
         ]);
 
-        DB::transaction(function () use ($data, $mechanic) {
-            $mechanic->update($data);
-            
-            if ($mechanic->user) {
-                $mechanic->user->update(['name' => $data['name']]);
-            }
-        });
+        $userData = [
+            'name'  => $request->name,
+            'email' => $request->email,
+        ];
 
-        return redirect()
-            ->route('admin.mechanics.index')
-            ->with('success', 'Data mekanik berhasil diperbarui.');
-    }
+        if ($request->filled('password')) {
+            $userData['password'] = Hash::make($request->password);
+        }
+
+        $mechanic->user->update($userData);
+    });
+
+    return redirect()
+        ->route('admin.mechanics.index')
+        ->with('success', 'Data mekanik berhasil diperbarui!');
+}
 
     public function destroy(Mechanic $mechanic)
     {

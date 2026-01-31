@@ -6,22 +6,41 @@
                 Daftar Sparepart
             </h2>
 
-            <form method="GET" action="{{ route('customer.products') }}" class="relative group">
-                {{-- Tetap simpan category saat mencari teks --}}
-                @if(request('category'))
-                    <input type="hidden" name="category" value="{{ request('category') }}">
-                @endif
-                <input type="text" name="q" placeholder="Cari produk..."
-                       class="pl-10 pr-4 py-2 text-sm border border-gray-200 rounded-xl shadow-sm 
-                              focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-all duration-300 w-48 focus:w-64"
-                       value="{{ request('q') }}">
-                <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-indigo-500 transition-colors"></i>
-            </form>
+            <div class="flex items-center gap-4">
+                {{-- Icon Keranjang di Header --}}
+                <a href="{{ route('customer.cart.index') }}" class="relative p-2 bg-white rounded-xl shadow-sm border border-gray-100 hover:text-indigo-600 transition-all group">
+                    <i data-lucide="shopping-cart" class="w-6 h-6 text-gray-700 group-hover:text-indigo-600"></i>
+                    @if(session('cart') && count(session('cart')) > 0)
+                        <span class="absolute -top-1 -right-1 bg-rose-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full ring-2 ring-white">
+                            {{ count(session('cart')) }}
+                        </span>
+                    @endif
+                </a>
+
+                <form method="GET" action="{{ route('customer.products') }}" class="relative group">
+                    @if(request('category'))
+                        <input type="hidden" name="category" value="{{ request('category') }}">
+                    @endif
+                    <input type="text" name="q" placeholder="Cari produk..."
+                           class="pl-10 pr-4 py-2 text-sm border border-gray-200 rounded-xl shadow-sm 
+                                 focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-all duration-300 w-48 focus:w-64"
+                           value="{{ request('q') }}">
+                    <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-indigo-500 transition-colors"></i>
+                </form>
+            </div>
         </div>
     </x-slot>
 
     <div class="py-10 bg-gray-100 min-h-screen">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+
+            {{-- ALERT BERHASIL --}}
+            @if(session('success'))
+                <div class="mb-6 p-4 bg-green-100 border border-green-200 text-green-700 rounded-2xl flex items-center gap-2 animate-fadeSlide">
+                    <i data-lucide="check-circle" class="w-5 h-5"></i>
+                    {{ session('success') }}
+                </div>
+            @endif
 
             {{-- FILTER KATEGORI --}}
             <div class="mb-8 flex flex-wrap items-center gap-3 animate-fadeSlide">
@@ -50,43 +69,20 @@
                 @endforeach
             </div>
 
-            {{-- Notifikasi Hasil Pencarian/Filter --}}
-            @if(request('q') || request('category'))
-                <div class="mb-6 p-4 bg-indigo-50 text-indigo-700 border border-indigo-100 rounded-xl flex items-center gap-2 shadow-sm animate-fadeSlide">
-                    <i data-lucide="filter" class="w-5 h-5"></i>
-                    <span>
-                        Menampilkan
-                        @if(request('category')) kategori <span class="font-bold">"{{ request('category') }}"</span> @endif
-                        @if(request('q')) hasil pencarian <span class="font-bold">"{{ request('q') }}"</span> @endif
-                    </span>
-                    <a href="{{ route('customer.products') }}" 
-                       class="ml-auto text-sm bg-white px-3 py-1 rounded-lg border border-indigo-200 hover:bg-indigo-100 transition shadow-sm">
-                        Reset Filter
-                    </a>
-                </div>
-            @endif
-
             @if($products->count())
                 <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                     @foreach($products as $product)
                         <div class="bg-white rounded-2xl border border-gray-100 shadow-md hover:shadow-xl transition-all duration-300 animate-cardFade group flex flex-col relative hover:scale-[1.02]">
                             
-                            {{-- Badges Container --}}
                             <div class="absolute -top-2 -right-2 z-10 flex items-center gap-2">
-
                                 @if($product->stock <= 5 && $product->stock > 0)
                                     <span class="bg-amber-500 text-white text-[10px] font-bold px-2 py-1 rounded-lg shadow-md flex items-center gap-1">
-                                        <i data-lucide="alert-triangle" class="w-3 h-3"></i>
-                                        Stok Terbatas
+                                        <i data-lucide="alert-triangle" class="w-3 h-3"></i> Stok Terbatas
                                     </span>
                                 @elseif($product->stock <= 0)
-                                    <span class="bg-rose-500 text-white text-[10px] font-bold px-2 py-1 rounded-lg shadow-md">
-                                        Habis
-                                    </span>
+                                    <span class="bg-rose-500 text-white text-[10px] font-bold px-2 py-1 rounded-lg shadow-md">Habis</span>
                                 @else
-                                    <span class="bg-green-500 text-white text-[10px] font-bold px-2 py-1 rounded-lg shadow-md">
-                                        Tersedia
-                                    </span>
+                                    <span class="bg-green-500 text-white text-[10px] font-bold px-2 py-1 rounded-lg shadow-md">Tersedia</span>
                                 @endif
                             </div>
 
@@ -100,8 +96,8 @@
                                         <span class="px-3 py-1 rounded-full text-xs font-bold bg-indigo-100 text-indigo-700 whitespace-nowrap">
                                             Rp {{ number_format($product->price, 0, ',', '.') }}
                                         </span>
-                                        <span class="text-[10px] text-gray-400 mt-1 uppercase tracking-wider font-semibold whitespace-nowrap">
-                                            Stok: {{ $product->stock }}
+                                        <span class="text-[10px] text-gray-400 mt-1 uppercase tracking-wider font-semibold whitespace-nowrap text-right">
+                                            STOK: {{ $product->stock }}
                                         </span>
                                     </div>
                                 </div>
@@ -112,11 +108,23 @@
 
                                 <div class="pt-5 border-t border-gray-50 mt-auto">
                                     @if($product->stock > 0)
-                                        <a href="{{ route('customer.orders.create', $product) }}" 
-                                            class="w-full inline-flex items-center gap-2 px-4 py-3 bg-green-600 hover:bg-green-700 text-white rounded-xl text-sm font-bold transition-all transform active:scale-95 justify-center shadow-lg shadow-indigo-100">
-                                            <i data-lucide="shopping-cart" class="w-4 h-4"></i>
-                                            Beli Produk Sekarang
-                                        </a>
+                                        <div class="flex items-center gap-2">
+                                            {{-- TOMBOL BELI LANGSUNG --}}
+                                            <a href="{{ route('customer.orders.create', $product) }}" 
+                                                class="flex-grow inline-flex items-center gap-2 px-4 py-3 bg-green-600 hover:bg-green-700 text-white rounded-xl text-sm font-bold transition-all transform active:scale-95 justify-center shadow-lg shadow-green-100">
+                                                <i data-lucide="zap" class="w-4 h-4"></i>
+                                                Beli Sekarang
+                                            </a>
+
+                                            {{-- TOMBOL TAMBAH KE KERANJANG --}}
+                                            <form action="{{ route('customer.cart.add', $product) }}" method="POST">
+                                                @csrf
+                                                <button type="submit" 
+                                                    class="inline-flex items-center px-4 py-3 bg-white border border-green-600 text-green-600 hover:bg-green-50 rounded-xl text-sm font-bold transition-all transform active:scale-95 justify-center">
+                                                    <i data-lucide="shopping-cart" class="w-5 h-5"></i>
+                                                </button>
+                                            </form>
+                                        </div>
                                     @else
                                         <button disabled 
                                             class="w-full inline-flex items-center gap-2 px-4 py-3 bg-gray-200 text-gray-500 rounded-xl text-sm font-bold justify-center cursor-not-allowed">
@@ -139,7 +147,6 @@
                         <i data-lucide="package" class="w-10 h-10 text-gray-300"></i>
                     </div>
                     <h3 class="text-lg font-semibold text-gray-800">Produk tidak ditemukan</h3>
-                    <p class="text-gray-500 max-w-xs mx-auto">Kami tidak dapat menemukan produk dalam kategori ini atau dengan kata kunci tersebut.</p>
                 </div>
             @endif
         </div>

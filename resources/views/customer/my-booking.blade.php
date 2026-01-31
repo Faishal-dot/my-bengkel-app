@@ -89,14 +89,13 @@
                                         </div>
                                     </td>
 
-                                    {{-- Detail Kendaraan (Ditambahkan Warna) --}}
+                                    {{-- Detail Kendaraan --}}
                                     <td class="px-4 py-3 border-r border-gray-200">
                                         @if($booking->vehicle)
                                             <span class="font-semibold text-gray-800">{{ $booking->vehicle->plate_number }}</span>
                                             <div class="text-xs text-gray-600">
                                                 {{ $booking->vehicle->brand }} {{ $booking->vehicle->model }}
                                             </div>
-                                            {{-- Warna Muncul Di Sini --}}
                                             <div class="text-[10px] mt-1 inline-flex items-center px-1.5 py-0.5 bg-gray-100 text-gray-500 rounded border border-gray-200 capitalize font-medium">
                                                 Warna: {{ $booking->vehicle->color ?? '-' }}
                                             </div>
@@ -105,11 +104,20 @@
                                         @endif
                                     </td>
 
+                                    {{-- Bagian Mekanik + Spesialisasi --}}
                                     <td class="px-4 py-3 border-r border-gray-200">
                                         @if($booking->mechanic)
-                                            <div class="flex items-center gap-1.5">
-                                                <i data-lucide="wrench" class="w-3 h-3 text-gray-400"></i>
-                                                <span class="font-medium text-gray-700">{{ $booking->mechanic->name }}</span>
+                                            <div class="flex flex-col gap-1">
+                                                <div class="flex items-center gap-1.5">
+                                                    <i data-lucide="wrench" class="w-3 h-3 text-blue-500"></i>
+                                                    <span class="font-medium text-gray-700">{{ $booking->mechanic->name }}</span>
+                                                </div>
+                                                {{-- Spesialis Muncul Di Sini --}}
+                                                @if($booking->mechanic->specialization)
+                                                    <div class="text-[10px] inline-flex items-center w-fit px-1.5 py-0.5 bg-indigo-50 text-indigo-600 rounded border border-indigo-100 font-semibold uppercase">
+                                                        {{ $booking->mechanic->specialization }}
+                                                    </div>
+                                                @endif
                                             </div>
                                         @else
                                             <span class="text-gray-400 italic text-xs">Belum ditugaskan</span>

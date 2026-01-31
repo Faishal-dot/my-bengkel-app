@@ -6,7 +6,6 @@
         </h2>
     </x-slot>
 
-    <!-- ANIMASI GLOBAL -->
     <style>
         /* Fade + slide */
         .fade-slide {
@@ -46,7 +45,6 @@
     <div class="py-10 bg-gradient-to-b from-gray-100 to-gray-200 min-h-screen fade">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-8">
 
-            <!-- Card Welcome -->
             <div class="bg-white shadow-lg rounded-2xl p-8 fade-slide" style="animation-delay: .1s">
                 <h3 class="text-2xl font-bold text-blue-600 mb-2">
                     Selamat Datang
@@ -58,10 +56,8 @@
                 </p>
             </div>
 
-            <!-- Statistik -->
             <div class="grid grid-cols-1 md:grid-cols-4 gap-6 items-stretch">
 
-                <!-- Produk -->
                 <a href="{{ route('admin.products.index') }}" 
                     class="bg-gradient-to-r from-blue-500 to-blue-600 text-white p-6 rounded-2xl shadow-md flex items-center gap-4 
                     transition-all transform hover:scale-[1.05] hover:shadow-xl hover:brightness-110 duration-300 fade-slide"
@@ -73,7 +69,6 @@
                     </div>
                 </a>
 
-                <!-- Layanan -->
                 <a href="{{ route('admin.services.index') }}" 
                     class="bg-gradient-to-r from-purple-500 to-purple-600 text-white p-6 rounded-2xl shadow-md flex items-center gap-4 
                     transition-all transform hover:scale-[1.05] hover:shadow-xl hover:brightness-110 duration-300 fade-slide"
@@ -85,7 +80,6 @@
                     </div>
                 </a>
 
-                <!-- Pesanan -->
                 <a href="{{ route('admin.orders.index') }}" 
                     class="bg-gradient-to-r from-green-500 to-green-600 text-white p-6 rounded-2xl shadow-md flex items-center gap-4 
                     transition-all transform hover:scale-[1.05] hover:shadow-xl hover:brightness-110 duration-300 fade-slide"
@@ -97,7 +91,6 @@
                     </div>
                 </a>
 
-                <!-- Customer -->
                 <div class="bg-gradient-to-r from-yellow-500 to-yellow-600 text-white p-6 rounded-2xl shadow-md flex items-center gap-4 
                     transition-all transform hover:scale-[1.05] hover:shadow-xl hover:brightness-110 duration-300 fade-slide"
                     style="animation-delay: .5s">
@@ -109,30 +102,33 @@
                 </div>
             </div>
 
-            <!-- Aktivitas Terbaru -->
             <div class="bg-white p-6 rounded-2xl shadow fade-slide" style="animation-delay: .6s">
-                <h4 class="text-lg font-semibold mb-4 flex items-center gap-2">
-                    <i data-lucide="activity" class="w-5 h-5 text-blue-600"></i> Aktivitas Terbaru
+                <h4 class="text-lg font-semibold mb-4 flex items-start justify-start gap-2 text-start">
+                    <i data-lucide="activity" class="w-5 h-5 text-blue-600"></i> 
+                    Aktivitas Terbaru
                 </h4>
+
                 <table class="w-full text-sm border rounded-lg overflow-hidden">
                     <thead class="bg-gray-100">
                         <tr>
-                            <th class="p-2 border">Tanggal</th>
-                            <th class="p-2 border">Aktivitas</th>
-                            <th class="p-2 border">User</th>
+                            <th class="p-2 border text-center">Tanggal</th>
+                            <th class="p-2 border text-center">Aktivitas</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @forelse($recentActivities as $index => $activity)
+                        @forelse($recentActivities ?? [] as $index => $activity)
                             <tr class="hover:bg-gray-50 fade-row"
                                 style="animation-delay: {{ $index * 0.15 }}s">
-                                <td class="p-2 border">{{ $activity->created_at->format('d/m/Y H:i') }}</td>
-                                <td class="p-2 border">Pesanan #{{ $activity->id }} dibuat</td>
-                                <td class="p-2 border">{{ $activity->user->name ?? 'Unknown' }}</td>
+                                <td class="p-2 border text-center">
+                                    {{ \Carbon\Carbon::parse($activity['created_at'])->format('d/m/Y H:i') }}
+                                </td>
+                                <td class="p-2 border text-center">
+                                    {{ $activity['description'] ?? 'Aktivitas tidak diketahui' }}
+                                </td>
                             </tr>
                         @empty
                             <tr class="fade-row">
-                                <td colspan="3" class="p-4 border text-center text-gray-500">
+                                <td colspan="2" class="p-4 border text-center text-gray-500">
                                     Belum ada aktivitas terbaru
                                 </td>
                             </tr>
@@ -143,7 +139,6 @@
         </div>
     </div>
 
-    <!-- Lucide Script -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <script>
         lucide.createIcons();

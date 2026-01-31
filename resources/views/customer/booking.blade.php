@@ -30,6 +30,13 @@
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
         .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #cbd5e1; }
+
+        /* Menghilangkan arrow up/down pada input type number */
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
     </style>
 
     <div class="py-12 bg-gradient-to-b from-blue-50 via-white to-gray-100 min-h-screen">
@@ -85,7 +92,9 @@
                             </label>
                             <input type="number" name="customer_phone" required placeholder="Contoh: 08123456789"
                                 value="{{ old('customer_phone') }}"
+                                oninput="if (this.value.length > 13) this.value = this.value.slice(0, 13);"
                                 class="w-full border-gray-200 bg-gray-50/50 rounded-xl px-4 py-3.5 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 focus:bg-white transition-all text-gray-700 font-medium shadow-sm">
+                            <p class="mt-1 text-[10px] text-gray-400 italic font-medium">*Maksimal 13 angka</p>
                         </div>
 
                         <div class="group animate-fadeInUp delay-250">
@@ -134,7 +143,6 @@
                                             -- Pilih Layanan --
                                         @endif
                                     </span>
-                                    {{-- PANAH HANYA MUNCUL JIKA TIDAK ADA REQUEST SERVICE_ID (MANUAL) --}}
                                     @if(!request('service_id'))
                                         <i data-lucide="chevron-down" class="w-5 h-5 text-blue-500 transition-transform duration-300 flex-shrink-0" id="service-icon"></i>
                                     @endif

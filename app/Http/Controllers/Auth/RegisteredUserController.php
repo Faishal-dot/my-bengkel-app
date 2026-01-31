@@ -33,6 +33,13 @@ class RegisteredUserController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            
+            // ATURAN VALIDASI CAPTCHA (WAJIB ADA)
+            'captcha' => ['required', 'captcha'],
+        ], [
+            // Pesan error custom dalam Bahasa Indonesia
+            'captcha.required' => 'Kode keamanan wajib diisi.',
+            'captcha.captcha' => 'Kode keamanan yang Anda masukkan salah, silakan coba lagi.',
         ]);
 
         $user = User::create([
@@ -41,6 +48,7 @@ class RegisteredUserController extends Controller
             'password' => Hash::make($request->password),
             'role' => 'customer', // default register = customer
         ]);
+
         event(new Registered($user));
 
         Auth::login($user);

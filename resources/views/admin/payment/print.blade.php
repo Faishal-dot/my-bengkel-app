@@ -7,32 +7,12 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
-        
         body { font-family: 'Inter', sans-serif; }
-
         @media print {
-            .no-print { 
-                display: none !important; 
-            }
-            
-            body { 
-                background-color: white !important; 
-                padding: 0 !important; 
-                margin: 0 !important; 
-            }
-
-            .print-area { 
-                border: none !important; 
-                box-shadow: none !important; 
-                width: 100% !important;
-                max-width: 100% !important;
-                margin: 0 !important;
-                padding: 10mm !important;
-            }
-
-            @page {
-                margin: 5mm;
-            }
+            .no-print { display: none !important; }
+            body { background-color: white !important; padding: 0 !important; margin: 0 !important; }
+            .print-area { border: none !important; box-shadow: none !important; width: 100% !important; max-width: 100% !important; margin: 0 !important; padding: 10mm !important; }
+            @page { margin: 5mm; }
         }
     </style>
 </head>
@@ -42,20 +22,17 @@
         
         {{-- Toolbar Atas --}}
         <div class="no-print bg-slate-800 px-6 py-4 flex justify-between items-center">
-            {{-- Logika Tombol Kembali Otomatis --}}
             @php
                 $backUrl = auth()->user()->role === 'admin' 
                             ? route('admin.payments.index') 
                             : route('customer.payment.index');
             @endphp
-            
             <a href="{{ $backUrl }}" class="text-slate-300 hover:text-white flex items-center gap-2 text-sm font-semibold transition">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                 </svg>
                 Kembali ke Daftar
             </a>
-            
             <button onclick="window.print()" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-xs font-bold shadow-lg hover:bg-blue-500 transition uppercase tracking-wider">
                 Cetak Nota
             </button>
@@ -79,13 +56,11 @@
                 <div>
                     <p class="text-slate-400 uppercase text-[10px] font-black tracking-widest mb-1">Pelanggan</p>
                     <p class="font-bold text-slate-800 text-lg capitalize">
-                        @if($payment->booking)
-                            {{ $payment->booking->user->name ?? 'Pelanggan' }}
-                        @elseif($payment->order)
-                            {{ $payment->order->user->name ?? 'Pelanggan' }}
-                        @else
-                            {{ $payment->user->name ?? 'Pelanggan' }}
-                        @endif
+                        @php
+                            $user = $payment->booking->user ?? $payment->order->user ?? null;
+                            $name = $user->name ?? 'Pelanggan';
+                        @endphp
+                        {{ $name }}
                     </p>
                 </div>
                 <div class="text-right border-l border-slate-200 pl-4">
@@ -94,6 +69,17 @@
                     <p class="text-[10px] text-slate-400 font-mono mt-1 font-bold">#{{ str_pad($payment->id, 5, '0', STR_PAD_LEFT) }}</p>
                 </div>
             </div>
+
+            {{-- Perhitungan Total Akhir --}}
+            @php
+                $finalTotal = $payment->amount;
+                if($payment->booking_id) {
+                    $service = $payment->booking->service;
+                    if($service && $service->discount_price > 0) {
+                        $finalTotal = $service->discount_price;
+                    }
+                }
+            @endphp
 
             {{-- Detail Item --}}
             <table class="w-full text-sm mb-10">
@@ -104,50 +90,68 @@
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-50">
-                    <tr>
-                        <td class="py-6 pr-4">
-                            @if($payment->booking_id && $payment->booking)
-                                <p class="font-bold text-slate-800 text-base leading-tight">{{ $payment->booking->service->name }}</p>
+                    {{-- CEK JIKA INI BOOKING SERVIS --}}
+                    @if($payment->booking_id)
+                        <tr>
+                            <td class="py-6 pr-4">
+                                <p class="font-bold text-slate-800 text-base leading-tight">{{ $payment->booking->service->name ?? '-' }}</p>
                                 <p class="text-xs text-slate-400 mt-2 flex items-center gap-1 font-medium">
                                     <span class="bg-slate-100 px-2 py-0.5 rounded text-slate-600 font-bold uppercase">{{ $payment->booking->vehicle->plate_number ?? '-' }}</span>
                                     {{ $payment->booking->vehicle->brand ?? '-' }}
                                 </p>
-                            @elseif($payment->order_id && $payment->order)
-                                <p class="font-bold text-slate-800 text-base leading-tight">{{ $payment->order->product->name }}</p>
-                                <p class="text-xs text-slate-500 mt-2 font-medium">Kuantitas: <span class="font-bold text-slate-700">{{ $payment->order->quantity }} item</span></p>
-                            @else
-                                <p class="font-bold text-red-400 italic text-xs tracking-tight">Data transaksi tidak ditemukan</p>
-                            @endif
-                        </td>
-                        <td class="py-6 text-right align-top">
-                            @php
-                                $originalPrice = 0;
-                                // Cek apakah ini booking atau order untuk mengambil harga asli
-                                if($payment->booking_id && $payment->booking) {
-                                    $originalPrice = $payment->booking->service->price;
-                                } elseif($payment->order_id && $payment->order) {
-                                    $originalPrice = $payment->order->product->price * $payment->order->quantity;
-                                }
-                            @endphp
+                            </td>
+                            <td class="py-6 text-right align-top">
+                                @php
+                                    $service = $payment->booking->service;
+                                    $original = (float)($service->price ?? $payment->amount);
+                                    $discount = ($service && $service->discount_price > 0) ? (float)$service->discount_price : null;
+                                    $showCoret = $discount && ($discount < $original);
+                                @endphp
+                                <div class="flex flex-col items-end">
+                                    @if($showCoret)
+                                        <span class="text-[10px] text-gray-400 line-through">Rp {{ number_format($original, 0, ',', '.') }}</span>
+                                        <p class="font-bold text-red-600 text-base">Rp {{ number_format($discount, 0, ',', '.') }}</p>
+                                    @else
+                                        <p class="font-bold text-slate-800 text-base">Rp {{ number_format($payment->amount, 0, ',', '.') }}</p>
+                                    @endif
+                                </div>
+                            </td>
+                        </tr>
 
-                            {{-- Tampilkan harga coret jika harga asli lebih besar dari jumlah yang dibayar --}}
-                            @if($originalPrice > $payment->amount)
-                                <p class="text-xs text-slate-400 line-through decoration-red-400 decoration-2">
-                                    Rp {{ number_format($originalPrice, 0, ',', '.') }}
+                    {{-- CEK JIKA INI ORDER PRODUK (BANYAK ITEM) --}}
+                    @elseif($payment->order && $payment->order->orderDetails && $payment->order->orderDetails->count() > 0)
+                        @foreach($payment->order->orderDetails as $detail)
+                        <tr>
+                            <td class="py-4 pr-4 border-b border-slate-50">
+                                <p class="font-bold text-slate-800 text-base leading-tight">{{ $detail->product->name ?? 'Produk' }}</p>
+                                <p class="text-xs text-slate-500 mt-1 font-medium">Kuantitas: <span class="font-bold text-slate-700">{{ $detail->quantity }} item</span></p>
+                            </td>
+                            <td class="py-4 text-right align-top border-b border-slate-50">
+                                <p class="font-bold text-slate-800 text-base">
+                                    Rp {{ number_format($detail->price * $detail->quantity, 0, ',', '.') }}
                                 </p>
-                            @endif
-                            
-                            <p class="font-bold text-slate-800 text-base">
-                                Rp {{ number_format($payment->amount, 0, ',', '.') }}
-                            </p>
-                        </td>
-                    </tr>
+                            </td>
+                        </tr>
+                        @endforeach
+                    
+                    {{-- FALLBACK JIKA HANYA SATU PRODUK (TANPA ORDER DETAILS) --}}
+                    @else
+                        <tr>
+                            <td class="py-6 pr-4">
+                                <p class="font-bold text-slate-800 text-base leading-tight">{{ $payment->order->product->name ?? '-' }}</p>
+                                <p class="text-xs text-slate-500 mt-2 font-medium">Kuantitas: <span class="font-bold text-slate-700">{{ $payment->order->quantity ?? 1 }} item</span></p>
+                            </td>
+                            <td class="py-6 text-right align-top">
+                                <p class="font-bold text-slate-800 text-base">Rp {{ number_format($payment->amount, 0, ',', '.') }}</p>
+                            </td>
+                        </tr>
+                    @endif
                 </tbody>
                 <tfoot>
                     <tr class="border-t-2 border-slate-800">
-                        <td class="pt-6 pb-2 text-slate-400 font-bold uppercase text-[10px] tracking-widest">Grand Total Bayar</td>
+                        <td class="pt-6 pb-2 text-slate-400 font-bold uppercase text-[10px] tracking-widest">Total Bayar</td>
                         <td class="pt-6 pb-2 text-right text-2xl font-extrabold text-blue-600 italic">
-                            Rp {{ number_format($payment->amount, 0, ',', '.') }}
+                            Rp {{ number_format($finalTotal, 0, ',', '.') }}
                         </td>
                     </tr>
                 </tfoot>

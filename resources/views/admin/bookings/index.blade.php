@@ -107,19 +107,27 @@
                                         @endif
                                     </td>
 
-                                    {{-- 5. MEKANIK --}}
+                                    {{-- 5. MEKANIK (DITAMBAHKAN SPESIALISASI) --}}
                                     <td class="px-4 py-3 border-r border-gray-200">
                                         @if($booking->mechanic)
-                                            <div class="flex items-center gap-1.5">
-                                                <i data-lucide="wrench" class="w-3 h-3 text-gray-400"></i>
-                                                <span class="font-medium text-gray-700 text-xs">{{ $booking->mechanic->name }}</span>
+                                            <div class="flex flex-col gap-1">
+                                                <div class="flex items-center gap-1.5">
+                                                    <i data-lucide="wrench" class="w-3 h-3 text-blue-500"></i>
+                                                    <span class="font-medium text-gray-700 text-xs">{{ $booking->mechanic->name }}</span>
+                                                </div>
+                                                {{-- Badge Spesialisasi --}}
+                                                @if($booking->mechanic->specialization)
+                                                    <span class="text-[9px] w-fit px-1.5 py-0.5 bg-indigo-50 text-indigo-600 rounded border border-indigo-100 font-bold uppercase tracking-tighter">
+                                                        {{ $booking->mechanic->specialization }}
+                                                    </span>
+                                                @endif
                                             </div>
                                         @else
                                             <span class="text-gray-400 italic text-xs">Belum ditugaskan</span>
                                         @endif
                                     </td>
 
-                                    {{-- 6. TANGGAL & JAM (DESAIN SERAGAM) --}}
+                                    {{-- 6. TANGGAL & JAM --}}
                                     <td class="px-4 py-3 border-r border-gray-200 text-center whitespace-nowrap">
                                         <div class="flex flex-col items-center gap-1">
                                             <span class="px-2 py-0.5 bg-gray-100 text-gray-700 rounded text-xs font-semibold border border-gray-200">
